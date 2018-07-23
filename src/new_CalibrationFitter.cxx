@@ -853,7 +853,7 @@ int main ( int argc, char **argv ) {
 	
 	// Channel is valid
 	if ( chanFound[kpix][channel] ) {
-	  
+
 	  // Start channel marker
 	  xml << "      <Channel id=\"" << channel << "\">" << endl;
 	  
@@ -937,6 +937,7 @@ int main ( int argc, char **argv ) {
 		  
 		  // Create graph
 		  if ( grCount > 0 ) {
+	    
 		    grCalib = new TGraphErrors(grCount,grX,grY,grXErr,grYErr);
 		    grCalib->Draw("Ap");
 		    grCalib->GetXaxis()->SetTitle("Charge [C]");
@@ -949,8 +950,8 @@ int main ( int argc, char **argv ) {
 		    tmp << "calib_" << serial << "_c" << dec << setw(4) << setfill('0') << channel;
 		    tmp << "_b" << dec << bucket;
 		    tmp << "_r" << dec << range;
-		    grCalib->SetTitle(tmp.str().c_str());
-		    //grCalib->Write(tmp.str().c_str());
+		    //grCalib->SetTitle(tmp.str().c_str());
+		    grCalib->Write(tmp.str().c_str());
 		    
 		    // Create and store residual plot
 		    for (x=0; x < grCount; x++) grRes[x] = (grY[x] - grCalib->GetFunction("pol1")->Eval(grX[x]));
@@ -964,8 +965,8 @@ int main ( int argc, char **argv ) {
 		    tmp << "resid_" << serial << "_c" << dec << setw(4) << setfill('0') << channel;
 		    tmp << "_b" << dec << bucket;
 		    tmp << "_r" << dec << range;
-		    grResid->SetTitle(tmp.str().c_str());
-		    //grResid->Write(tmp.str().c_str());
+		    //grResid->SetTitle(tmp.str().c_str());
+		    grResid->Write(tmp.str().c_str());
 		    
 		    // Add to xml
 		    if ( grCalib->GetFunction("pol1") ) {

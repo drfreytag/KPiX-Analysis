@@ -1057,7 +1057,7 @@ int main ( int argc, char **argv )
 	cout << "_______________________________________________________________" << endl;
 	
 	ofstream emptybinfile;
-	emptybinfile.open ("/home/lycoris-dev/Desktop/emptybinfile.txt");
+	emptybinfile.open ("emptybinfile.txt");
 	
   
 	
