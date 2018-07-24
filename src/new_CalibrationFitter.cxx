@@ -303,11 +303,11 @@ int main ( int argc, char **argv ) {
   uint 					noise_cut = 1.0;
 
  // bool                    printalot=false;
-
-	unordered_map<uint, uint> kpix2strip_left;
-	unordered_map<uint, uint> kpix2strip_right;
-	kpix2strip_left = kpix_left();
-	kpix2strip_right = kpix_right();
+  
+  unordered_map<uint, uint> kpix2strip_left;
+  unordered_map<uint, uint> kpix2strip_right;
+  kpix2strip_left = kpix_left();
+  kpix2strip_right = kpix_right();
   
   // Init structure
   for (kpix=0; kpix < 32; kpix++) {
@@ -643,7 +643,11 @@ int main ( int argc, char **argv ) {
   General_folder->cd(); // move into subdirectory
   
   TH1F *pedestals = new TH1F("pedestals", "Pedestals distribution; Charge [ADC]; #entries", 9000, 0, 9000);
-  TH1F *slope_hist = new TH1F("slope", "Slope distribution; Slope [ADC/fC]; #entries", 200, -100, 100);
+  TH1F *slope_hist = new TH1F("slope", "Slope distribution; Slope [ADC/fC]; #entries", 200, -20, 20);
+
+  TH1F *slope_hist_k26 = new TH1F("slope_k26", "Slope distribution; Slope [ADC/fC]; #entries", 200, -20, 20);
+  TH1F *slope_hist_k28 = new TH1F("slope_k28", "Slope distribution; Slope [ADC/fC]; #entries", 200, -20, 20);
+ 
   TH1F *slope_residual = new TH1F("slope_residual", "Slope_residual; Slope_residual[ADC/fC]; #entries", 2000, -100, 100);
   TH1F *pedestals_fc = new TH1F("pedestals_fc", "Pedestals distribution; Charge [fC]; #entries", 1000, -100, 100);
   
@@ -998,6 +1002,8 @@ int main ( int argc, char **argv ) {
 		      }
 		      
 		      slope_hist->Fill( slope / pow(10,15) );
+		      if (kpix==26) slope_hist_k26->Fill(slope/pow(10,15));
+		      if (kpix==28) slope_hist_k28->Fill(slope/pow(10,15));
 		      
 		      slope_vs_channel->SetBinContent( channel+1, slope / pow(10,15));
 		      if (abs(ped_charge_err * pow(10,15)) < 20) {
