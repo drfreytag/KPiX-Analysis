@@ -29,19 +29,27 @@ def loopdir(keys):  # loop through all subdirectories of the root file and look 
 			elif 'Channel_entries_k_' in key_object.GetName() and '_total' in key_object.GetName() and 'timed' not in key_object.GetName() and 'no' not in key_object.GetName():
 				acquire_hist = key_object
 
+######### Main code #########
 parser = MyParser()
 #parser = argparse.ArgumentParser()
-parser.add_argument('file_in', nargs='+', help='name of the input files')
-args = parser.parse_args()
-
-root_file_list = []
+#parser.add_argument('file_in', nargs='+', help='name of the input files')
+parser.add_argument('--calib', dest='calib', nargs='?', help='input calibration file')
+parser.add_argument('--acquire', dest='acquire', nargs='?', help='input pedestal file')
+parser.add_argument('-k', dest='kpix', nargs='+', help='which kpix to check, eg: 1 or 1 2')
 
 if len(sys.argv) < 2:
 	print parser.print_help()
 	sys.exit(1)
 
-for root_file in args.file_in:
-	root_file_list.append(ROOT.TFile(root_file))
+args = parser.parse_args()
+root_file_list = []
+
+#for root_file in args.file_in:
+#    root_file_list.append(ROOT.TFile(root_file))
+if args.calib:
+    root_file_list.append(ROOT.TFile(args.calib))
+if args.acquire:
+    root_file_list.append(ROOT.TFile(args.acquire))
 
 for x in root_file_list:
 	key_root = x.GetListOfKeys()
@@ -50,8 +58,7 @@ for x in root_file_list:
 
 mapping_file_name = './include/kpix_left_and_right.h'
 mapping_file = open(mapping_file_name, "r")
-
-		
+	
 		
 noisy_channels = []
 noisy_channels_acquire = []
@@ -59,9 +66,12 @@ dead_channels_slope = []
 dead_channels_RMS = []
 dc_channels = []
 
-slope_obj = slope_hist.ReadObj()
-RMS_obj = RMS_hist.ReadObj()
-acquire_obj = acquire_hist.ReadObj()
+if args.calib:
+    slope_obj = slope_hist.ReadObj()
+    RMS_obj = RMS_hist.ReadObj()
+if args.acquire:
+    acquire_obj = acquire_hist.ReadObj()
+
 for chan in xrange(1024):
 	if (slope_obj.GetBinContent(chan+1) <= 1.0): #GetBinContent(0) is the underflow bin, here the bin counting starts at 1 therefore chan+1
 		dead_channels_slope.append(chan)
@@ -69,7 +79,8 @@ for chan in xrange(1024):
 		dead_channels_RMS.append(chan)
 	if (RMS_obj.GetBinContent(chan+1) >= 4):
 		noisy_channels.append(chan)
-	if (acquire_obj.GetBinContent(chan+1) >= 0.02):
+        if args.acquire:
+            if (acquire_obj.GetBinContent(chan+1) >= 0.02):
 		noisy_channels_acquire.append(chan)
 for line in mapping_file:
 	if 'm1.insert' in line:
