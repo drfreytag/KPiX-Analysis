@@ -41,9 +41,13 @@ class ChannelDisabler:
             print "Warning: no kpix chosen, BE SURE your input root file is 1 kpix running!"
         else:
             self.slope_name += '_'+str(kpix)
-            self.RMS_name +=  '_'+str(kpix)
+            self.RMS_name += '_'+str(kpix)
             self.acquire_name += str(kpix)
-                
+
+        print self.slope_name
+        print self.RMS_name 
+        print self.acquire_name 
+            
         self.root_file_list=[]
         for root_file in file_in:
             self.root_file_list.append(ROOT.TFile(root_file)) # open the file and add address to an array

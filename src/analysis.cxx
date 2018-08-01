@@ -234,6 +234,9 @@ int main ( int argc, char **argv )
 	TH1F					*trig_count[32][5];
 	TH1F                    *hist_buck_sum[32][1024];
 	
+	TH2F					*kpix_entries_left[32][5];
+	TH2F					*kpix_entries_right[32][5];
+	
 	
 	// Stringstream initialization for histogram naming
 	stringstream           tmp;
@@ -463,28 +466,23 @@ int main ( int argc, char **argv )
 		
 		}
 		
-		for (int kpix = 0; kpix<32; kpix++)
-		{
-			if (kpixFound[kpix])
-			{
-				int monster_check = 0;
-				for (int i = 0; i < 8192; ++i)
-				{
-					if (cycle_time_local[kpix][i] > monster_finder_limit) 
-					{
-					
-						monster_check = 1; // if among the 8192 possible time points there exists one that has more than monster_finder_limit triggers the event is classified as a monster
-						break; // no reason to keep looking, we found a monster.
-					}
-				}
-				if (monster_check)
-				{
-					cout << " There is a monster in house #" << kpix <<" (kpix slot number) with more than " << monster_finder_limit << " (finder limit) eyes  under bed #" << acqCount << " (cycle number)" << endl;
-					monster_cycles[kpix].push_back(acqCount);
-					monster_counter[kpix]++;
-				}
-			}
+		for (int kpix = 0; kpix<32; kpix++){
+		  if (kpixFound[kpix]) {
+		    int monster_check = 0;
+		    for (int i = 0; i < 8192; ++i){
+		      if (cycle_time_local[kpix][i] > monster_finder_limit) {
 			
+			monster_check = 1; // if among the 8192 possible time points there exists one that has more than monster_finder_limit triggers the event is classified as a monster
+			break; // no reason to keep looking, we found a monster.
+		      }
+		    }
+		    /*if (monster_check){
+		      cout << " There is a monster in house #" << kpix <<" (kpix slot number) with more than " << monster_finder_limit << " (finder limit) eyes  under bed #" << acqCount << " (cycle number)" << endl;
+		      monster_cycles[kpix].push_back(acqCount);
+		      monster_counter[kpix]++;
+		      }*/
+		  }
+		  
 		}
 		
 	}
@@ -605,7 +603,15 @@ int main ( int argc, char **argv )
 			tmp << "acq_num_ext_k_" << kpix;
 			acq_num_ext[kpix] = new TH1F(tmp.str().c_str(), "acq_num_ext; #triggers/acq._cycle; #entries/#acq.cycles",5, -0.5, 4.5);
 			
-	
+			tmp.str("");
+			tmp << "kpix_entries_left_k_" << kpix << "_total";
+			kpix_entries_left[kpix][4] = new TH2F ("kpix_entries_left", "kpix_entries_left; column;  row", 32,-0.5,31.5, 32,-0.5,31.5);
+			
+			tmp.str("");
+			tmp << "kpix_entries_right_k_" << kpix << "_total";
+			kpix_entries_right[kpix][4] = new TH2F ("kpix_entries_right", "kpix_entries_right; column;  row", 32,-0.5,31.5, 32,-0.5,31.5);
+			
+			
 			for (bucket = 0; bucket< 4; bucket++)
 			{
 				FolderName.str("");
@@ -644,6 +650,16 @@ int main ( int argc, char **argv )
 				tmp.str("");
 				tmp << "timestamp_kpix_k_" << kpix << "_b" << bucket << "_no_monster";
 				times_kpix_no_monster[kpix][bucket] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
+				
+				tmp.str("");
+				tmp << "kpix_entries_left_k_" << kpix << "_bucket_" << bucket;
+				kpix_entries_left[kpix][bucket] = new TH2F ("kpix_entries_left", "kpix_entries_left; column;  row", 32,-0.5,31.5, 32,-0.5,31.5);
+				
+				tmp.str("");
+				tmp << "kpix_entries_right_k_" << kpix << "_bucket_" << bucket;
+				kpix_entries_right[kpix][bucket] = new TH2F ("kpix_entries_right", "kpix_entries_right; column;  row", 32,-0.5,31.5, 32,-0.5,31.5);
+				
+				
 			}
 			FolderName.str("");
 			FolderName << "cycles";
@@ -816,6 +832,12 @@ int main ( int argc, char **argv )
 				{
 					channel_entries[kpix][bucket]->Fill(channel, weight);
 					channel_entries[kpix][4]->Fill(channel, weight);
+					
+					kpix_entries_left[kpix][4]->Fill(31-(channel/32), channel%32, weight);
+					kpix_entries_left[kpix][bucket]->Fill(32-(channel/32), channel%32, weight);
+					
+					kpix_entries_right[kpix][4]->Fill(channel/32, 31-channel%32, weight);
+					kpix_entries_right[kpix][bucket]->Fill(channel/32, 31-channel%32, weight);
 					
 					left_strip_entries[kpix][bucket]->Fill(kpix2strip_left.at(channel), weight);
 					left_strip_entries[kpix][4]->Fill(kpix2strip_left.at(channel), weight);

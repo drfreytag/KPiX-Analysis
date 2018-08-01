@@ -657,11 +657,11 @@ int main ( int argc, char **argv ) {
   
   TH1F *slope_vs_channel_26 = new TH1F("slope_vs_channel_26", "Slope [ADC/fC]; Channel ID; Slope [ADC/fC]", 1024, -0.5, 1023.5);
   TH1F *slope_vs_channel_28 = new TH1F("slope_vs_channel_28", "Slope [ADC/fC]; Channel ID; Slope [ADC/fC]", 1024, -0.5, 1023.5);
-
-
-
   
   TH1F *RMSfc_v_channel = new TH1F("RMSfc_vs_channel", "; Channel_ID; RMS [fC]", 1024, -0.5, 1023.5);
+  TH1F *RMSfc_v_channel_26 = new TH1F("RMSfc_vs_channel_26", "; Channel_ID; RMS [fC]", 1024, -0.5, 1023.5);
+  TH1F *RMSfc_v_channel_28 = new TH1F("RMSfc_vs_channel_28", "; Channel_ID; RMS [fC]", 1024, -0.5, 1023.5);
+      
   TH1F *RMSfc_v_channel_connected = new TH1F("RMSfc_vs_channel_connected", "; Channel_ID; RMS [fC]", 1024, -0.5, 1023.5);
   
   TH1F *RMSfc_v_strip_left = new TH1F("RMSfc_vs_strip_left", "; Strip_number; RMS [fC]", 920, -0.5, 919.5);
@@ -1037,6 +1037,9 @@ int main ( int argc, char **argv ) {
 		      
 		      if (abs(ped_charge_err * pow(10,15)) < 20) {
 			RMSfc_v_channel->SetBinContent(channel, ped_charge_err * pow(10,15));
+			if (kpix==26) RMSfc_v_channel_26->SetBinContent(channel, ped_charge_err * pow(10,15));
+			if (kpix==28) RMSfc_v_channel_28->SetBinContent(channel, ped_charge_err * pow(10,15));
+			
 			if (kpix2strip_left.at(channel) != 9999) RMSfc_v_channel_connected->SetBinContent(channel, ped_charge_err * pow(10,15));
 			RMSfc_v_strip_left->SetBinContent(kpix2strip_left.at(channel), ped_charge_err * pow(10,15));
 			RMSfc_v_strip_right->SetBinContent(kpix2strip_right.at(channel)-920, ped_charge_err * pow(10,15)); //as we set bin content need to move everything to the left by as channel 920 is bin 0
