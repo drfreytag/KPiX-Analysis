@@ -682,12 +682,6 @@ int main ( int argc, char **argv ) {
   TH1F *PedestalsRMS_fc0_conn_120 = new TH1F("pedestalsRMS_fc0_conn_120", "Pedestals RMS, conn. Chn in 0-128; [fC]; a.u.", 1000, 0, 4);
   TH1F *PedestalsRMS_fc0_conn_800 = new TH1F("pedestalsRMS_fc0_conn_800", "Pedestals RMS, conn. Chn after 128; [fC]; a.u.", 1000, 0, 4);
   
-  TH2F *slope_map_left = new TH2F("slope_map_left", "Slope vs position of KPiX connection left", 32, -0.5, 31.5, 32, -0.5, 31.5);
-  TH2F *slope_map_right = new TH2F("slope_map_right", "Slope vs position of KPiX connection right", 32, -0.5, 31.5, 32, -0.5, 31.5);
-  
-  TH2F *pedestalRMS_map_left = new TH2F("pedestalRMS_map_left", "Pedestal RMS vs position of KPiX connection left", 32, -0.5, 31.5, 32, -0.5, 31.5);
-  TH2F *pedestalRMS_map_right = new TH2F("pedestalRMS_map_right", "Pedestal RMS vs position of KPiX connection right", 32, -0.5, 31.5, 32, -0.5, 31.5);
-  
   //TH1F *PedestalsRMS_fc2 = new TH1F("PedestalsRMS_fc2", "Pedestals RMS [fC]", 1000, 0, 10);
   //TH1F *PedestalsRMS_fc3 = new TH1F("PedestalsRMS_fc3", "Pedestals RMS [fC]", 1000, 0, 10);
   
@@ -1035,28 +1029,16 @@ int main ( int argc, char **argv ) {
 		      if (kpix==26) {
 				  slope_hist_k26->Fill(slope/pow(10,15));
 				  slope_vs_channel_26->SetBinContent( channel+1, slope / pow(10,15));
-				  slope_map_left->SetBinContent(31-(channel/32), channel%32, slope / pow(10,15));
-				  slope_map_left->SetOption("COLZ2");
 			  }
 		      if (kpix==28) {
 				  slope_hist_k28->Fill(slope/pow(10,15));
 				  slope_vs_channel_28->SetBinContent( channel+1, slope / pow(10,15));
-				  slope_map_right->SetBinContent(31-(channel/32), channel%32, slope / pow(10,15));
-				  slope_map_right->SetOption("COLZ2");
 		      } 
 		      
 		      if (abs(ped_charge_err * pow(10,15)) < 20) {
-			RMSfc_v_channel->SetBinContent(channel+1, ped_charge_err * pow(10,15));
-			if (kpix==26){
-				RMSfc_v_channel_26->SetBinContent(channel+1, ped_charge_err * pow(10,15));
-				pedestalRMS_map_left->SetBinContent(31-(channel/32), channel%32, ped_charge_err * pow(10,15));
-				pedestalRMS_map_left->SetOption("COLZ2");
-			}
-			if (kpix==28){
-				RMSfc_v_channel_28->SetBinContent(channel+1, ped_charge_err * pow(10,15));
-				pedestalRMS_map_right->SetBinContent(31-(channel/32), channel%32, ped_charge_err * pow(10,15));
-				pedestalRMS_map_right->SetOption("COLZ2");
-			}
+			RMSfc_v_channel->SetBinContent(channel, ped_charge_err * pow(10,15));
+			if (kpix==26) RMSfc_v_channel_26->SetBinContent(channel, ped_charge_err * pow(10,15));
+			if (kpix==28) RMSfc_v_channel_28->SetBinContent(channel, ped_charge_err * pow(10,15));
 			
 			if (kpix2strip_left.at(channel) != 9999) RMSfc_v_channel_connected->SetBinContent(channel, ped_charge_err * pow(10,15));
 			RMSfc_v_strip_left->SetBinContent(kpix2strip_left.at(channel), ped_charge_err * pow(10,15));
