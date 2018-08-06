@@ -27,9 +27,9 @@ def loopdir(keys):  # loop through all subdirectories of the root file and look 
 			loopdir(key_object.ReadObj().GetListOfKeys())
 		else:
 			#print key_object.GetName()
-			if 'Left_Strip_entries_k_26' in key_object.GetName() and '_total' in key_object.GetName():
+			if 'Left_Strip_entries_k_' in key_object.GetName() and '_total' in key_object.GetName():
 				left_strip = key_object
-			if 'Right_Strip_entries_k_28' in key_object.GetName() and '_total' in key_object.GetName():
+			if 'Right_Strip_entries_k_' in key_object.GetName() and '_total' in key_object.GetName():
 				right_strip = key_object
 
 
