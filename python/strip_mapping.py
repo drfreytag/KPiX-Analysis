@@ -46,8 +46,10 @@ rootfile = ROOT.TFile(args.file_in)
 key_root = rootfile.GetListOfKeys()
 file_base_name = args.file_in[args.file_in.find('/20')+1:args.file_in.rfind('.bin')]
 loopdir(key_root)
-left_strip_hist = left_strip.ReadObj()
-right_strip_hist = right_strip.ReadObj()
+if left_strip:
+    left_strip_hist = left_strip.ReadObj()
+if right_strip:
+    right_strip_hist = right_strip.ReadObj()
 
 
 Input_left = []
@@ -55,32 +57,35 @@ Input_right = []
 C = []
 
 for chan in xrange(920):
-	Input_left.append(left_strip_hist.GetBinContent(chan+1))
-	Input_right.append(right_strip_hist.GetBinContent(chan+1))
+	if left_strip:
+            Input_left.append(left_strip_hist.GetBinContent(chan+1))
+	if right_strip:
+            Input_right.append(right_strip_hist.GetBinContent(chan+1))
 	
-C = [Input_left]
-fig = plt.figure()
-ax = fig.add_subplot(111)
-axes = plt.axes() 
-axes.get_yaxis().set_visible(False)
-axes.set_xlim(0,920)
-pcm = ax.pcolormesh(C, cmap='viridis')
-plt.colorbar(pcm)
-filename = '/home/lycoris-dev/Documents/'+file_base_name+'_strip_map_left.png'
-print "File is saved in " +  filename
-plt.savefig(filename, dpi = 300)
+if Input_left:
+    C = [Input_left]
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    axes = plt.axes() 
+    axes.get_yaxis().set_visible(False)
+    axes.set_xlim(0,920)
+    pcm = ax.pcolormesh(C, cmap='viridis')
+    plt.colorbar(pcm)
+    filename = '/home/lycoris-dev/Documents/'+file_base_name+'_strip_map_left.png'
+    print "File is saved in " +  filename
+    plt.savefig(filename, dpi = 300)
 
-
-C = [Input_right]
-fig = plt.figure()
-ax = fig.add_subplot(111)
-axes = plt.axes() 
-axes.get_yaxis().set_visible(False)
-axes.set_xlim(0,920)
-pcm = ax.pcolormesh(C, cmap='viridis')
-plt.colorbar(pcm)
-filename = '/home/lycoris-dev/Documents/'+file_base_name+'_strip_map_right.png'
-print "File is saved in " +  filename
-plt.savefig(filename, dpi = 300)
+if Input_right:
+    C = [Input_right]
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    axes = plt.axes() 
+    axes.get_yaxis().set_visible(False)
+    axes.set_xlim(0,920)
+    pcm = ax.pcolormesh(C, cmap='viridis')
+    plt.colorbar(pcm)
+    filename = '/home/lycoris-dev/Documents/'+file_base_name+'_strip_map_right.png'
+    print "File is saved in " +  filename
+    plt.savefig(filename, dpi = 300)
 
 plt.close()
