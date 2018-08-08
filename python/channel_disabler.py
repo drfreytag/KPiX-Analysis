@@ -58,15 +58,23 @@ class ChannelDisabler:
         
         mapping_file_name = './include/kpix_left_and_right.h'
         self.mapping_file = open(mapping_file_name, "r")
-        
-        self.filename_map = './data/disable.txt' # output file
+
+        if not kpix:
+            self.filename_map = './data/disable.txt' # output file
+        else:
+            self.filename_map = './data/disabler_k'+str(kpix)+'.txt' 
 
     def ChangeKpix(self, newkpix):
+        if not newkpix:
+            return
+
+        self.slope_name.replace( str(self.kpix), str(newkpix) )
+        self.RMS_name.replace( str(self.kpix), str(newkpix) ) 
+        self.acquire_name.replace( str(self.kpix), str(newkpix) )
+        self.filename_map = './data/disabler_k'+str(newkpix)+'.txt' 
+
         self.kpix = newkpix
-        self.slope_name += '_'+str(kpix)
-        self.RMS_name +=  '_'+str(kpix)
-        self.acquire_name += str(kpix)
-    
+         
     def __del__(self):
         self.mapping_file.close()
         
@@ -166,7 +174,11 @@ class ChannelDisabler:
 		elif (i > 7 and (i-7)%8 == 0 and i is not 0 and i%32 is not 0):
 		    sys.stdout.write(' ')
                     
-	
+        disChanCount=0
+        for chan in kpix:
+            if chan == 'D':
+                disChanCount+=1
+
         kpix = np.reshape(kpix, (32, 32))	#reshape it for fitting in xml file
 
         print '\n\n'
@@ -182,6 +194,7 @@ class ChannelDisabler:
 	    ROOT.gROOT.GetListOfFiles().Remove(x)
 	    x.Close()
 
+        print '\n How many channels disabled? ', disChanCount, '\n'
         return
 
 ######### Parser #########
