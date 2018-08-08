@@ -225,7 +225,7 @@ int main ( int argc, char **argv ) {
   string                 serial;
   KpixSample::SampleType type;
   TH1F                   *hist;
-  TH1F                   *resid[256];
+  //TH1F                   *resid[256];
   stringstream           tmp;
  // bool                   defresid=true;
   ofstream               xml;
@@ -302,6 +302,8 @@ int main ( int argc, char **argv ) {
   
   uint 					noise_cut = 1.0;
 
+  uint nchann_calib=0;
+  
  // bool                    printalot=false;
   
   unordered_map<uint, uint> kpix2strip_left;
@@ -387,26 +389,26 @@ int main ( int argc, char **argv ) {
   // Create output names
   tmp.str("");
   if (skip_cycles_front==0){
-    tmp << argv[2] << ".newCalib.root";
+    tmp << argv[2] << ".duoCalib.root";
     outRoot = tmp.str();
     
     tmp.str("");
-    tmp << argv[2] << ".newCalib.xml";
+    tmp << argv[2] << ".duoCalib.xml";
     outXml = tmp.str();
     
     tmp.str("");
-    tmp << argv[2] << ".newCalib.csv";
+    tmp << argv[2] << ".duoCalib.csv";
     outCsv = tmp.str();
   }
   else{
-    tmp << argv[2] << ".skip" << skip_cycles_front <<".newCalib.root";
+    tmp << argv[2] << ".skip" << skip_cycles_front <<".duoCalib.root";
     outRoot = tmp.str();
 
     tmp.str("");
-    tmp << argv[2] << ".skip" << skip_cycles_front << ".newCalib.xml";
+    tmp << argv[2] << ".skip" << skip_cycles_front << ".duoCalib.xml";
     outXml = tmp.str();
     tmp.str("");
-    tmp << argv[2] << ".skip" << skip_cycles_front << ".newCalib.csv";
+    tmp << argv[2] << ".skip" << skip_cycles_front << ".duoCalib.csv";
     outCsv = tmp.str();
   }
   
@@ -652,11 +654,15 @@ int main ( int argc, char **argv ) {
   TH1F *pedestals_fc = new TH1F("pedestals_fc", "Pedestals distribution; Charge [fC]; #entries", 1000, -100, 100);
   
   TH1F *pedestalsRMS = new TH1F("pedestalsRMS", "Pedestal RMS; Charge [ADC]; #entries", 200, 0, 20);
-  TH1F *slopeRMS = new TH1F("slopeRMS", "Slope RMS; Slope [ADC/fC]; #entries", 1000, 0, 20);
-  TH1F *slope_residualRMS = new TH1F("slope_residualRMS", "Slope_residualRMS; Slope_residual[ADC/fC]; #entries", 1000, 0, 100);
+  //  TH1F *slopeRMS = new TH1F("slopeRMS", "Slope RMS; Slope [ADC/fC]; #entries", 1000, 0, 20);
+  //  TH1F *slope_residualRMS = new TH1F("slope_residualRMS", "Slope_residualRMS; Slope_residual[ADC/fC]; #entries", 1000, 0, 100);
   
-  TH1F *slope_vs_channel_26 = new TH1F("slope_vs_channel_26", "Slope [ADC/fC]; Channel ID; Slope [ADC/fC]", 1024, -0.5, 1023.5);
-  TH1F *slope_vs_channel_28 = new TH1F("slope_vs_channel_28", "Slope [ADC/fC]; Channel ID; Slope [ADC/fC]", 1024, -0.5, 1023.5);
+  TH1F *slope_vs_channel_26 = new TH1F("slope_vs_channel_26", "; Channel ID; Slope [ADC/fC]", 1024, -0.5, 1023.5);
+  TH1F *slope_vs_channel_28 = new TH1F("slope_vs_channel_28", "; Channel ID; Slope [ADC/fC]", 1024, -0.5, 1023.5);
+
+  TH1F *slope_vs_strip = new TH1F("slope_vs_strip", "; Strip_number; Slope [ADC/fC]", 1840, -0.5, 1839.5);
+  TH1F *slope_vs_strip_26 = new TH1F("slope_vs_strip_26", "; Strip_number; Slope [ADC/fC]", 920, -0.5, 919.5);
+  TH1F *slope_vs_strip_28 = new TH1F("slope_vs_strip_28", "; Strip_number; Slope [ADC/fC]", 920, 919.5, 1839.5);
   
   TH1F *RMSfc_v_channel = new TH1F("RMSfc_vs_channel", "; Channel_ID; RMS [fC]", 1024, -0.5, 1023.5);
   TH1F *RMSfc_v_channel_26 = new TH1F("RMSfc_vs_channel_26", "; Channel_ID; RMS [fC]", 1024, -0.5, 1023.5);
@@ -969,6 +975,7 @@ int main ( int argc, char **argv ) {
 		    tmp << "_r" << dec << range;
 		    //grCalib->SetTitle(tmp.str().c_str());
 		    grCalib->Write(tmp.str().c_str());
+		    nchann_calib++;
 		    
 		    // Create and store residual plot
 		    for (x=0; x < grCount; x++) grRes[x] = (grY[x] - grCalib->GetFunction("pol1")->Eval(grX[x]));
@@ -1029,10 +1036,18 @@ int main ( int argc, char **argv ) {
 		      if (kpix==26) {
 				  slope_hist_k26->Fill(slope/pow(10,15));
 				  slope_vs_channel_26->SetBinContent( channel+1, slope / pow(10,15));
+				  if ( kpix2strip_left.at(channel)!=9999 ) {
+				    slope_vs_strip_26->SetBinContent( kpix2strip_left.at(channel) + 1, slope / pow(10,15));
+				    slope_vs_strip->SetBinContent( kpix2strip_left.at(channel) + 1, slope / pow(10,15) );
+				  }
 			  }
 		      if (kpix==28) {
 				  slope_hist_k28->Fill(slope/pow(10,15));
 				  slope_vs_channel_28->SetBinContent( channel+1, slope / pow(10,15));
+				  if ( kpix2strip_right.at(channel)!=9999 ){
+				    slope_vs_strip_28->SetBinContent(  kpix2strip_right.at(channel)-919, slope / pow(10,15) );
+				    slope_vs_strip->SetBinContent( kpix2strip_right.at(channel) + 1, slope / pow(10,15) ); 
+				  }
 		      } 
 		      
 		      if (abs(ped_charge_err * pow(10,15)) < 20) {
@@ -1041,8 +1056,8 @@ int main ( int argc, char **argv ) {
 			if (kpix==28) RMSfc_v_channel_28->SetBinContent(channel, ped_charge_err * pow(10,15));
 			
 			if (kpix2strip_left.at(channel) != 9999) RMSfc_v_channel_connected->SetBinContent(channel, ped_charge_err * pow(10,15));
-			RMSfc_v_strip_left->SetBinContent(kpix2strip_left.at(channel), ped_charge_err * pow(10,15));
-			RMSfc_v_strip_right->SetBinContent(kpix2strip_right.at(channel)-920, ped_charge_err * pow(10,15)); //as we set bin content need to move everything to the left by as channel 920 is bin 0
+			RMSfc_v_strip_left->SetBinContent( kpix2strip_left.at(channel)+1, ped_charge_err * pow(10,15) );
+			RMSfc_v_strip_right->SetBinContent( kpix2strip_right.at(channel)-919, ped_charge_err * pow(10,15) ); //as we set bin content need to move everything to the left by as channel 920 is bin 1, bin0 is underflow
 			
 			//cout << kpix2strip_right.at(channel) << endl;
 		      }
@@ -1143,7 +1158,9 @@ int main ( int argc, char **argv ) {
   cout << "Found " << dec << setw(10) << setfill(' ') << badGainChisqCnt << " bad gain fit chisq" << endl;
   cout << "Found " << dec << setw(10) << setfill(' ') << failedGainFit   << " failed gain fits" << endl;
   cout << "Found " << dec << setw(10) << setfill(' ') << badChannelCnt   << " bad channels" << endl;
-  
+
+  cout << "DEBUG : " << nchann_calib << endl ;
+    
   xml << "</calibrationData>" << endl;
   xml.close();
   rFile->Write();
