@@ -133,6 +133,7 @@ def hist_plotter():
 			if 9999 not in args.yaxisrange:
 				y_low = args.yaxisrange[0]
 				y_high = args.yaxisrange[1]
+				print 'test'
 				y_axis.SetRangeUser(y_low, y_high) 
 			#print x_low, x_high
 			#x_axis.SetRangeUser(x_low, x_high)
@@ -180,6 +181,7 @@ def hist_plotter():
 		yaxis = hist_comp.GetYaxis()
 		if 9999 not in args.yaxisrange:
 			yaxis.SetRangeUser(y_low, y_high) 
+			print 'test'
 		yaxis.SetTitle(y_title)
 		#if (args.ylog is True):
 		legend.Draw()
@@ -215,6 +217,10 @@ def hist_plotter():
 				x_low = args.xaxisrange[0]
 				x_high = args.xaxisrange[1]
 				x_axis.SetRangeUser(x_low, x_high)
+			if 9999 not in args.yaxisrange:
+				y_low = args.yaxisrange[0]
+				y_high = args.yaxisrange[1]
+				y_axis.SetRangeUser(y_low, y_high)
 			obj.SetLineColor(4) #Blue
 			##------------------
 			##rebin the histogram
@@ -311,6 +317,7 @@ def graph_plotter():
 		yaxis = multi_graph.GetYaxis()
 		if 9999 not in args.yaxisrange:
 			yaxis.SetRangeUser(args.yaxisrange[0], args.yaxisrange[1]) 
+			print 'test'
 		yaxis.SetTitle(y_title)
 		#if (args.ylog is True):
 		legend.Draw()
@@ -434,7 +441,7 @@ mystyle.SetHistLineWidth(2)
 #mystyle.SetPadTickY(1)
 #
 ##turn off stats
-#mystyle.SetOptStat(0)
+mystyle.SetOptStat(0)
 #mystyle.SetOptFit(0)
 #
 ##marker settings
@@ -499,11 +506,10 @@ for x in root_file_list:
 	key_root = x.GetListOfKeys()
 	loopdir(key_root)
 
-save_loc = 'plots_report_Sebas/'
+save_loc = ''
 ##-----------------	
 ##general output
-print args.color
-
+#print args.color
 
 
 print 'Looking for histograms/graphs'

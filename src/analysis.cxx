@@ -973,50 +973,60 @@ int main ( int argc, char **argv )
 				double trig_diff = 8200.0;
 				int assigned_number;
 				if (time_ext.size() > 0) //only calculate the time difference between triggers if there are some external triggers
+				{
+					for (unsigned int j = 0; j < time_ext.size(); ++j)
 					{
-						for (unsigned int j = 0; j < time_ext.size(); ++j)
+						trig_diff_list.push_back(tstamp-time_ext.at(j));
+						if (fabs(trig_diff) > fabs(tstamp-time_ext.at(j)))
 						{
-							trig_diff_list.push_back(tstamp-time_ext.at(j));
-							if (fabs(trig_diff) > fabs(tstamp-time_ext.at(j)))
-							{
-								trig_diff = tstamp-time_ext.at(j);
-								
-								assigned_number = j;
-							}
-							else
-							{
+							trig_diff = tstamp-time_ext.at(j);
+					
+							assigned_number = j;
+						}
+						else
+						{
+							if (x<10)
+							{ 
 								cout << "Difference not lower than before" << endl;
 								cout << "Channel time stamp = " << tstamp << endl;
 								cout << "External match = " << time_ext.at(j) << endl;
 								cout << "Old difference = " << trig_diff << endl;
 								cout << "New difference = " << tstamp-time_ext.at(j) << endl;
 							}
-						
+					
 						}
-						//cout << "Trig diff old method = " <<  trig_diff << endl;
-						//if (trig_diff_list.size() > 0) cout << "Trig diff new method = " <<  *std::min_element(trig_diff_list.begin(), trig_diff_list.end()) << endl; //seg fault when vector is empty
-						//if (trig_diff_list.size() > 0) cout << "Trig diff new method position in vector = " <<  distance(trig_diff_list.begin(), min_element(trig_diff_list.begin(), trig_diff_list.end())) << endl; //seg fault when vector is empty
-						assigned_number =  distance(trig_diff_list.begin(), min_element(trig_diff_list.begin(), trig_diff_list.end())); //position of smallest element in trigger difference vector
-						time_diff_kpix_ext[kpix].push_back(trig_diff);
-						//cout << assigned_number << endl;
+				      
+				    }
+				    //cout << "Trig diff old method = " <<  trig_diff << endl;
+				    //if (trig_diff_list.size() > 0) cout << "Trig diff new method = " <<  *std::min_element(trig_diff_list.begin(), trig_diff_list.end()) << endl; //seg fault when vector is empty
+				    //if (trig_diff_list.size() > 0) cout << "Trig diff new method position in vector = " <<  distance(trig_diff_list.begin(), min_element(trig_diff_list.begin(), trig_diff_list.end())) << endl; //seg fault when vector is empty
+				   
+				    assigned_number =  distance(trig_diff_list.begin(), min_element(trig_diff_list.begin(), trig_diff_list.end())); //position of smallest element in trigger difference vector
+				    time_diff_kpix_ext[kpix].push_back(trig_diff);
+				    if (cycle_num < cycle_checking)
+				    {
 						AssignedChannelHist[kpix][cycle_num]->Fill(assigned_number);
 						trigger_difference_per_acq[kpix][cycle_num]->Fill(trig_diff);
-						
-						
-						AssignedTrigger[kpix].push_back(assigned_number);
-						//Assignment_number.push_back(assigned_number);
-						if((trig_diff >= 0.0 )  && (trig_diff  <= 3.0) )
-						{
-							hist_timed[kpix][channel][bucket][0]->Fill(value, weight);
-							total_timed->Fill(value, weight);
-							channel_entries_total_timed->Fill(channel, weight);
-							channel_entries_timed[kpix][bucket]->Fill(channel, weight);
-							channel_entries_timed[kpix][4]->Fill(channel, weight);
-						}
-					
-						beam_ext_time_diff->Fill(trig_diff, weight);
-						trigger_difference[kpix]->Fill(trig_diff, weight);
 					}
+				    AssignedTrigger[kpix].push_back(assigned_number);
+				    if((trig_diff >= 0.0 )  && (trig_diff  <= 3.0) )
+				    {
+						
+						//if (currPct > 75) cout << "DEBUG: KPiX|Channel|Bucket = " << kpix << '|' << channel << '|' << bucket << endl;
+						hist_timed[kpix][channel][bucket][0]->Fill(value, weight);
+						//if (currPct > 75) cout << "test" << endl;
+						 total_timed->Fill(value, weight);
+						//if (currPct > 75) cout << "test2" << endl;
+						channel_entries_total_timed->Fill(channel, weight);
+						//if (currPct > 75) cout << "test3" << endl;
+						channel_entries_timed[kpix][bucket]->Fill(channel, weight);
+						//if (currPct > 75) cout << "test4" << endl;
+						channel_entries_timed[kpix][4]->Fill(channel, weight);
+						//if (currPct > 75) cout << "test5" << endl;
+				    }
+				    beam_ext_time_diff->Fill(trig_diff, weight);
+				    trigger_difference[kpix]->Fill(trig_diff, weight);
+				}
 				//if (kpix != 26 && kpix != 28 && kpix != 30) cout << "Weird..." << kpix << endl;
 				//}
 				
