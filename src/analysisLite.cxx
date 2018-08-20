@@ -14,6 +14,7 @@
 // 05/30/2012: created
 // 06/28/2017: large scale rewrite of original calibrationFitter.cpp
 // 22/03/2018: clean up ecal plots and add strip plots by <mengqing.wu@desy.de>
+// 18/08/2018: make it lite for running over big sample! by <mengqing.wu@desy.de> 
 //-----------------------------------------------------------------------------
 
 #include <iostream>
@@ -48,47 +49,6 @@
 #include "kpixmap.h"
 #include "kpix_left_and_right.h"
 using namespace std;
-	
-
-//////////////////////////////////////////
-// Functions
-//////////////////////////////////////////
-
-// Coincidence function void coincidence(int* time_list1, int* time_list2, int* time_list3, int* channel_list1, int* channel_list2, int* channel_list3)
-
-
-
-
-
-bool gtx_ltz ( int x, int y, int z) // simple function asking if x<y<z
-{
-	return ((x <= y) && (y <= z));
-}
-
-void addDoubleToXml ( ofstream *xml, uint indent, string variable, Double_t value ) { //xml output function
-	uint x;
-	
-	if ( !(value != value) ) {
-		for (x=0; x < indent; x++) *xml << " ";
-		*xml << "<" << variable << ">";
-		*xml << value;
-		*xml << "</" << variable << ">";
-		*xml << endl;
-	}
-}
-
-void addStringToXml ( ofstream *xml, uint indent, string variable, string value ) { //xml output function
-	uint x;
-	
-	for (x=0; x < indent; x++) *xml << " ";
-	*xml << "<" << variable << ">";
-	*xml << value;
-	*xml << "</" << variable << ">";
-	*xml << endl;
-}
-
-
-
 
 //////////////////////////////////////////
 // Begin of main analysis
@@ -113,7 +73,6 @@ int main ( int argc, char **argv )
 	FILE*                  f_skipped_cycles;
 	string                 outtxt;
 	
-	string                 calState;
 	uint                   lastPct;
 	uint                   currPct;
 	bool                   bucketFound[32][1024][4];  // variable that gives true if bucket has an entry (32 possible number of KPiX, 1024 channels per KPiX, 4 buckets per channel)
@@ -125,24 +84,24 @@ int main ( int argc, char **argv )
 	uint                   kpix;
 	uint                   channel;
 	uint                   bucket;
-	double                  tstamp;
+	double                 tstamp;
 	string                 serial;
 	KpixSample::SampleType type;
 	TH1F                   	*hist[32][1024][4][2];  // #entries/ADC histograms per channel, bucket, kpix and histogram
-	TH1F			*hist_timed[32][1024][4][2]; //  #entries/time_of_event per channel, bucket, kpix and histogram
+	//TH1F			*hist_timed[32][1024][4][2]; //  #entries/time_of_event per channel, bucket, kpix and histogram
 	//TH1F			*hist_charge[32][1024][4][2]; //  #entries/charge in coulomb if calibration file was given per channel, bucket, kpix and histogram
 	TH1F			*channel_time[32][1024][4][2];
 	TH1F			*channel_entries[32][5]; // ADC distribution Total number of events differed per bucket and kpix
 	TH1F			*left_strip_entries[32][5];
 	TH1F			*right_strip_entries[32][5];
-	TH1F			*channel_entries_timed[32][5]; // Time distribution Total number of events differed per bucket and kpix
+	//TH1F			*channel_entries_timed[32][5]; // Time distribution Total number of events differed per bucket and kpix
 	TH1F			*channel_entries_no_strip[32][5];
 	
 	TH1F			*trigger_difference[32];
-	TH1F			*channel_entries_no_monster[32][5];
+	//TH1F			*channel_entries_no_monster[32][5];
 	TH1F			*times_kpix[32][5];
-	TH1F			*times_kpix_monster[32][5];
-	TH1F			*times_kpix_no_monster[32][5];
+	//TH1F			*times_kpix_monster[32][5];
+	//TH1F			*times_kpix_no_monster[32][5];
 	TH1F			*trig_count[32][5];
 	TH1F                    *hist_buck_sum[32][1024];
 	
@@ -162,7 +121,7 @@ int main ( int argc, char **argv )
 	
 	// Stringstream initialization for folder naming
 	
-	stringstream			FolderName;
+	stringstream		FolderName;
 	
 	ofstream               xml;
 	ofstream               csv;
@@ -191,16 +150,16 @@ int main ( int argc, char **argv )
 	
 	
 	int 					num_of_channels[32] = {0};
-	TH1F*					acq_num_ext[32];
+	//TH1F*					acq_num_ext[32];
 	
 	TH1F* 					AssignedChannelHist_Total[32];
-	std::vector<int>        monster_channels;
+	//std::vector<int>        monster_channels;
 	
 	
-	const int               monster_finder_limit = 100;
-	std::vector<int>        monster_cycles[32];
+	//const int               monster_finder_limit = 100;
+	//std::vector<int>        monster_cycles[32];
 	
-	int monster_counter[32] = {0}; // kpix monster counter
+	//int monster_counter[32] = {0}; // kpix monster counter
 	//for (int i = 0; i < 1000; i++)
 	//{
 	//	cout << "Strip mapping result, kpix #" << i << " is equal to strip #" << kpix2strip.at(i) << endl;
@@ -295,7 +254,7 @@ int main ( int argc, char **argv )
 	//////////////////////////////////////////
 	
 	TH1F *channel_entries_total= new TH1F("Channel_entries_total", "Channel_Entries_total; KPiX_channel_address; #entries/#acq.cycles", 1024, -0.5, 1023.5);
-	TH1F *channel_entries_total_timed= new TH1F("Channel_entries_total_timed", "Channel_entries_total_timed; KPiX_channel_address; #entries/#acq.cycles", 1024, -0.5, 1023.5);
+	//TH1F *channel_entries_total_timed= new TH1F("Channel_entries_total_timed", "Channel_entries_total_timed; KPiX_channel_address; #entries/#acq.cycles", 1024, -0.5, 1023.5);
 	
 	
 	TH1F *time_kpix= new TH1F("time_kpix", "time_kpix; Time/bunchClkCount; #entries/#acq.cycles", 300, -0.5, 8191.5);
@@ -377,7 +336,7 @@ int main ( int argc, char **argv )
 			fprintf(f_skipped_cycles, " index = %d , byte = %6d, train = %6d \n ", acqCount, byte, train);
 		
 		}
-		
+		/*
 		for (int kpix = 0; kpix<32; kpix++){
 		  if (kpixFound[kpix]) {
 		    int monster_check = 0;
@@ -388,14 +347,15 @@ int main ( int argc, char **argv )
 			break; // no reason to keep looking, we found a monster.
 		      }
 		    }
-		    /*if (monster_check){
+		    if (monster_check){
 		      cout << " There is a monster in house #" << kpix <<" (kpix slot number) with more than " << monster_finder_limit << " (finder limit) eyes  under bed #" << acqCount << " (cycle number)" << endl;
 		      monster_cycles[kpix].push_back(acqCount);
 		      monster_counter[kpix]++;
-		      }*/
+		      }
 		  }
 		  
 		}
+		*/
 		
 	}
 	
@@ -459,12 +419,15 @@ int main ( int argc, char **argv )
 			tmp.str("");
 			tmp << "Channel_entries_k_" << kpix << "_total";
 			channel_entries[kpix][4] = new TH1F(tmp.str().c_str(), "Channel_Entries; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
+			/*
 			tmp.str("");
 			tmp << "Channel_entries_k_" << kpix << "_total_no_monster";
 			channel_entries_no_monster[kpix][4] = new TH1F(tmp.str().c_str(), "Channel_Entries; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
+			
 			tmp.str("");
 			tmp << "Channel_entries_k_" << kpix << "_total_timed";
 			channel_entries_timed[kpix][4] = new TH1F(tmp.str().c_str(), "Channel_Entries_timed; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
+			*/
 			tmp.str("");
 			tmp << "Channel_entries_k_" << kpix << "_total_no_strip";
 			channel_entries_no_strip[kpix][4] = new TH1F(tmp.str().c_str(), "Channel_Entries_no_strip; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
@@ -479,12 +442,14 @@ int main ( int argc, char **argv )
 			tmp.str("");
 			tmp << "timestamp_kpix_k_" << kpix  << "_total";
 			times_kpix[kpix][4] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
+			/*
 			tmp.str("");
 			tmp << "timestamp_kpix_k_" << kpix  << "_monster_total";
 			times_kpix_monster[kpix][4] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
 			tmp.str("");
 			tmp << "timestamp_kpix_k_" << kpix  << "_no_monster_total";
 			times_kpix_no_monster[kpix][4] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
+			*/
 			tmp.str("");
 			tmp << "trig_count_k" << kpix << "_total";
 			trig_count[kpix][4]  = new TH1F (tmp.str().c_str(), "trig_count;  #triggered channels; #entries/#acq.cycles",1024, -0.5, 1023.5);
@@ -494,11 +459,11 @@ int main ( int argc, char **argv )
 			tmp.str("");
 			tmp << "assigned_channels_k" << kpix << "_total";
 			AssignedChannelHist_Total[kpix] = new TH1F (tmp.str().c_str(), "assigned_channels_per_ext_trig;   #assigned_channels; #entries/#acq.cycles",40, -0.5, 39.5);
-	
+			/*
 			tmp.str("");
 			tmp << "acq_num_ext_k_" << kpix;
 			acq_num_ext[kpix] = new TH1F(tmp.str().c_str(), "acq_num_ext; #triggers/acq._cycle; #entries/#acq.cycles",5, -0.5, 4.5);
-			
+			*/
 			tmp.str("");
 			tmp << "kpix_entries_left_k_" << kpix << "_total";
 			kpix_entries_left[kpix][4] = new TH2F ("kpix_entries_left", "kpix_entries_left; column;  row", 32,-0.5,31.5, 32,-0.5,31.5);
@@ -527,26 +492,31 @@ int main ( int argc, char **argv )
 				tmp.str("");
 				tmp << "Right_Strip_entries_k_" << kpix << "_b" << bucket;
 				right_strip_entries[kpix][bucket] = new TH1F(tmp.str().c_str(), "Strip_Entries; Strip_address; #entries/#acq.cycles", 920, 919.5, 1839.5);
-	
+				/*
 				tmp.str("");
 				tmp << "Channel_entries_k_" << kpix <<  "_b" << bucket << "_timed";
 				channel_entries_timed[kpix][bucket] = new TH1F(tmp.str().c_str(), "Channel_Entries_timed; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
+				
 				tmp.str("");
 				tmp << "Channel_entries_k_" << kpix << "_b" << bucket << "_no_monster";
 				channel_entries_no_monster[kpix][bucket] = new TH1F(tmp.str().c_str(), "Channel Entries; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
+				*/
 				tmp.str("");
 				tmp << "timestamp_kpix_k_" << kpix << "_b" << bucket;
 				times_kpix[kpix][bucket] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
+				/*
 				tmp.str("");
 				tmp << "timestamp_kpix_monster_k_" << kpix << "_b" << bucket;
 				times_kpix_monster[kpix][bucket] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
+				*/
 				tmp.str("");
 				tmp << "trig_count_k" << kpix << "_b" << bucket ;
 				trig_count[kpix][bucket]  = new TH1F(tmp.str().c_str(), "trig_count;  #triggered channels; #entries/#acq.cycles",1024, -0.5,1023.5);
+				/*
 				tmp.str("");
 				tmp << "timestamp_kpix_k_" << kpix << "_b" << bucket << "_no_monster";
 				times_kpix_no_monster[kpix][bucket] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
-				
+				*/
 				tmp.str("");
 				tmp << "kpix_entries_left_k_" << kpix << "_bucket_" << bucket;
 				kpix_entries_left[kpix][bucket] = new TH2F ("kpix_entries_left", "kpix_entries_left; column;  row", 32,-0.5,31.5, 32,-0.5,31.5);
@@ -636,6 +606,7 @@ int main ( int argc, char **argv )
 						
 							hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,8191.5);
 	
+							/*
 							tmp.str("");
 							tmp << "hist_timed" << "_c" << dec << setw(4) << setfill('0') << channel;
 							tmp << "_b" << dec << bucket;
@@ -649,6 +620,7 @@ int main ( int argc, char **argv )
 							tmp_units << "; Charge (ADC); #entries/#acq.cycles";
 						
 							hist_timed[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,8191.5);
+							*/
 	
 							tmp.str("");
 							tmp << "time" << "_c" << dec << setw(4) << setfill('0') << channel;
@@ -749,18 +721,21 @@ int main ( int argc, char **argv )
 						channel_entries_no_strip[kpix][bucket]->Fill(channel,weight);
 						channel_entries_no_strip[kpix][4]->Fill(channel,weight);
 					}
+					/*
 					if (find(monster_cycles[kpix].begin(), monster_cycles[kpix].end(), event.eventNumber()) != monster_cycles[kpix].end())
 					{
 						times_kpix_monster[kpix][bucket]->Fill(tstamp, weight);
 						times_kpix_monster[kpix][4]->Fill(tstamp, weight);
 					}
+					
 					else
 					{
-						channel_entries_no_monster[kpix][bucket]->Fill(channel, weight);
-						channel_entries_no_monster[kpix][4]->Fill(channel, weight);
+					  //channel_entries_no_monster[kpix][bucket]->Fill(channel, weight);
+					  //channel_entries_no_monster[kpix][4]->Fill(channel, weight);
 						times_kpix_no_monster[kpix][bucket]->Fill(tstamp, weight);
 						times_kpix_no_monster[kpix][4]->Fill(tstamp, weight);
 					}
+					*/
 					if (cycle_num < cycle_checking)		
 					{
 						cycle_time[kpix][cycle_num]->Fill(tstamp);
@@ -770,9 +745,11 @@ int main ( int argc, char **argv )
 	
 		
 			//if (trigger_counter[26] > 4) cout << trigger_counter[26] << endl;
-			if (kpixFound[26]) acq_num_ext[26]->Fill(trigger_counter[26]); // trigger counting for monster check
-			if (kpixFound[28]) acq_num_ext[28]->Fill(trigger_counter[28]);
-			if (kpixFound[30]) acq_num_ext[30]->Fill(trigger_counter[30]);
+			/*
+			  if (kpixFound[26]) acq_num_ext[26]->Fill(trigger_counter[26]); // trigger counting for monster check
+			  if (kpixFound[28]) acq_num_ext[28]->Fill(trigger_counter[28]);
+			  if (kpixFound[30]) acq_num_ext[30]->Fill(trigger_counter[30]);
+			*/
 		}
 	}
 	
@@ -907,18 +884,17 @@ int main ( int argc, char **argv )
 				    AssignedTrigger[kpix].push_back(assigned_number);
 				    if((trig_diff >= 0.0 )  && (trig_diff  <= 3.0) )
 				    {
-						
-						//if (currPct > 75) cout << "DEBUG: KPiX|Channel|Bucket = " << kpix << '|' << channel << '|' << bucket << endl;
-						hist_timed[kpix][channel][bucket][0]->Fill(value, weight);
-						//if (currPct > 75) cout << "test" << endl;
-						 total_timed->Fill(value, weight);
-						//if (currPct > 75) cout << "test2" << endl;
-						channel_entries_total_timed->Fill(channel, weight);
-						//if (currPct > 75) cout << "test3" << endl;
-						channel_entries_timed[kpix][bucket]->Fill(channel, weight);
+				      //if (currPct > 75) cout << "DEBUG: KPiX|Channel|Bucket = " << kpix << '|' << channel << '|' << bucket << endl;
+				      //hist_timed[kpix][channel][bucket][0]->Fill(value, weight);
+				      //if (currPct > 75) cout << "test" << endl;
+				      total_timed->Fill(value, weight);
+				      //if (currPct > 75) cout << "test2" << endl;
+				      //channel_entries_total_timed->Fill(channel, weight);
+				      //if (currPct > 75) cout << "test3" << endl;
+				      //channel_entries_timed[kpix][bucket]->Fill(channel, weight);
 						//if (currPct > 75) cout << "test4" << endl;
-						channel_entries_timed[kpix][4]->Fill(channel, weight);
-						//if (currPct > 75) cout << "test5" << endl;
+				      //channel_entries_timed[kpix][4]->Fill(channel, weight);
+				      //if (currPct > 75) cout << "test5" << endl;
 				    }
 				    beam_ext_time_diff->Fill(trig_diff, weight);
 				    trigger_difference[kpix]->Fill(trig_diff, weight);
@@ -981,7 +957,7 @@ int main ( int argc, char **argv )
 	cout << "Three coincidence of sensors: " << three_coincidence << endl;
 	cout << "Two coincidence of sensors: " << two_coincidence << endl;
 	
-	cout << endl <<  "An event is currently classified as a monster if the amount of triggers one acquisition clock within a cycle is above " << monster_finder_limit << endl;
+	//cout << endl <<  "An event is currently classified as a monster if the amount of triggers one acquisition clock within a cycle is above " << monster_finder_limit << endl;
 	cout << "_______________________________________________________________" << endl;
 	
 	ofstream emptybinfile;
@@ -993,9 +969,11 @@ int main ( int argc, char **argv )
 	{
 		if (kpixFound[kpix])
 		{
-			cout << "Number of monster events in " << kpix << " = " << monster_counter[kpix] << endl;
-			cout << "Number of normed monster events in " << kpix << " = " << monster_counter[kpix]*weight << endl;
-			cout << "Number of entries in KPiX" << kpix << " = " << channel_entries[kpix][4]->GetEntries() << endl << endl;
+		  /*
+		    cout << "Number of monster events in " << kpix << " = " << monster_counter[kpix] << endl;
+		    cout << "Number of normed monster events in " << kpix << " = " << monster_counter[kpix]*weight << endl;
+		    cout << "Number of entries in KPiX" << kpix << " = " << channel_entries[kpix][4]->GetEntries() << endl << endl;
+		  */
 			
 			for (int bin = 1; bin < 1025; bin++)  // bin 0 is the underflow, therefore need to start counting at 1. Bin == channel_address+1
 			{
