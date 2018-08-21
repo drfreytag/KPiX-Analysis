@@ -57,9 +57,6 @@ using namespace std;
 // Coincidence function void coincidence(int* time_list1, int* time_list2, int* time_list3, int* channel_list1, int* channel_list2, int* channel_list3)
 
 
-
-
-
 bool gtx_ltz ( int x, int y, int z) // simple function asking if x<y<z
 {
 	return ((x <= y) && (y <= z));

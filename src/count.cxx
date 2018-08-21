@@ -41,7 +41,6 @@ int main ( int argc, char **argv ) {
   KpixEvent              event;
   KpixSample             *sample;
   
-  string                 calState;
   bool                   bucketFound[32][1024][4];
   bool                   chanFound[32][1024];
   bool                   kpixFound[32];
@@ -76,7 +75,7 @@ int main ( int argc, char **argv ) {
   cout << "\rReading File: 0 %" << flush;
   // Open root file
   tmp.str("");
-  tmp<<"count.root";
+  tmp<<"output/count.root";
   string outRoot = tmp.str();
   rFile = new TFile(outRoot.c_str(),"recreate"); // produce root file
   rFile->cd(); // move into root folder base

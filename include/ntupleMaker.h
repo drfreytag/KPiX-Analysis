@@ -12,11 +12,16 @@
 // 16/08/2018: refactorize kpix analysis code (orig. Ryan Herbst, then modified by Uwe Kraemer)
 //-----------------------------------------------------------------------------
 
-#include <DataRead.h>
-#include <KpixEvent.h>
-#include <KpixSample.h>
-#include <Data.h>
+// C++ std header
+#include <stdexcept>
 
+// kpix header
+#include "DataRead.h"
+#include "KpixEvent.h"
+#include "KpixSample.h"
+#include "Data.h"
+
+// root header
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -30,23 +35,82 @@ namespace lycoris
   class ntupleMaker {
     
   protected:
-    DataRead               dataRead;  //kpix event classes used for analysis of binary date
-    KpixEvent              event;    //
-    KpixSample             *sample;   //
-    KpixSample::SampleType type;
-		
+    DataRead               _dataRead;  //kpix event classes used for analysis of binary date
+    KpixEvent              _event;    //
+    KpixSample             *m_sample;   //
+    KpixSample::SampleType  type;
+
+    uint                   _kpix;
+    uint                   _channel;
+    uint                   _bucket;
+
+  
   public:
-    ntupleMaker();
+    ntupleMaker(const char* binFile);
     ~ntupleMaker(){};
-    void makeTree();
-    
+    void CreateTree();
+    void makeTreeEx();
+    void loopKpix();
   };
 
-  ntupleMaker::ntupleMaker(){
+  ntupleMaker::ntupleMaker(const char* binFile){
+    // Load the binary file and check throw exception if not exist
+    try {
+      bool atest = _dataRead.open(binFile);
+      if (!atest){
+	throw std::invalid_argument( std::string("Error opening binary data file") );
+      }
+      else
+	std::cout << "Opened data file: " << binFile << std::endl;
+    }
+    catch ( const std::invalid_argument& e){
+      std::cerr << "\nexception: " << e.what() << std::endl; 
+    }
+    
+  }
+
+  
+  void ntupleMaker::loopKpix(){
+    
+    int eventcount=0;
+    while ( _dataRead.next(&_event) ){
+      eventcount++;
+      
+
+    }// Loop over kpix event
+    
+    _dataRead.close();
+    cout<< "In total, we have #" << eventcount << " events :)\n" << endl;
     
   }
   
-  void ntupleMaker::makeTree(){
+  void ntupleMaker::CreateTree(){
+
+    TFile tfile("kpixTree.root","RECREATE","[dev] kpix ROOT file with histograms & trees");
+    // Create a ROOT tree
+    TTree *t1 = new TTree("General","General Tree with basic kpix info");
+
+    // Define some templates for the tree branch
+    std::vector<uint> *Kpix = new std::vector<uint>;
+    std::vector<uint> *Channel = new std::vector<uint>;
+    std::vector<uint> *Bucket = new std::vector<uint>;
+    std::vector<int>  *EventNr = new std::vector<int>;
+    //std::vector<int>  *CycleNr = new std::vector<int>;
+    //std::vector<int> * = new std::vector<>;
+	
+    // Create TBranches
+    t1->Branch("Kpix", &Kpix);
+    t1->Branch("Channel", &Channel);
+    t1->Branch("Bucket", &Bucket);
+    t1->Branch("EventNr", &EventNr);
+
+
+    
+    
+  }
+
+  
+  void ntupleMaker::makeTreeEx(){
     // do sth
     // Create a new ROOT binary machine independent file.
     // Note that this file may contain any kind of ROOT objects, histograms,trees
@@ -54,6 +118,7 @@ namespace lycoris
     // This file is now becoming the current directory.
     TFile hfile("htree.root","RECREATE","Demo ROOT file with histograms & trees");
     // Create some histograms and a profile histogram
+
     TH1F *hpx   = new TH1F("hpx","This is the px distribution",100,-4,4);
     TH2F *hpxpy = new TH2F("hpxpy","py ps px",40,-4,4,40,-4,4);
     TProfile *hprof = new TProfile("hprof","Profile of pz versus px",100,-4,4,0,20);
@@ -106,7 +171,10 @@ namespace lycoris
     // Close the file. Note that this is automatically done when you leave
     // the application.
     hfile.Close();
-    
+
   }
 
+
+
+  
 }// namespace lycoris end
