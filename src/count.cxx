@@ -35,6 +35,7 @@ using namespace std;
 int main ( int argc, char **argv ) {
   bool                   printalot=false;
   bool                   print10evts=false;
+  bool                   print10hits=false;
   DataRead               dataRead;
   //off_t                  fileSize;
   //off_t                  filePos;
@@ -84,7 +85,7 @@ int main ( int argc, char **argv ) {
   // Read Data - init
   /////////////////////////////////////////
   // check over how many kpixes w/ how many channels connected  
-  printalot = false, print10evts=true;
+  printalot = false, print10evts=true, print10hits=false;
   
   while ( dataRead.next(&event) ) {
     kpixeventcount++;
@@ -96,7 +97,8 @@ int main ( int argc, char **argv ) {
       cout << "\tCount = " << event.count() <<endl;
       }
     
-    
+    int DataTypeEvtCount=0;
+    int tenhits=0;
     for (uint x1=0; x1 < event.count(); x1++) {
       //// Get sample
       sample  = event.sample(x1);
@@ -111,15 +113,24 @@ int main ( int argc, char **argv ) {
       type    = sample->getSampleType();
       
       if ( type == KpixSample::Data ){
+	DataTypeEvtCount++;
+	
 	kpixFound[kpix]          = true;
 	chanFound[kpix][channel] = true;
 	bucketFound[kpix][channel][bucket] = true;
 	
-	if (printalot) cout<<"[dev] kpix = "<<kpix<<", channel = " <<channel <<", bucket = " <<bucket <<"\n";
+	if ( print10hits &&  tenhits < 10 ){
+	  //cout << kpixeventcount << endl;
+	  cout<<"[dev] kpix = "<<kpix<<", channel = " <<channel <<", bucket = " <<bucket <<"\n";
+	  tenhits++;
+	}
       }
       
       kpixFound[0] = false; // in any case, kpix=0 is a virtual index
     }
+    if (kpixeventcount < 10 && print10evts)
+      cout << "\tDataTypeCount = " << DataTypeEvtCount <<endl;
+    
   }
   dataRead.close();
   

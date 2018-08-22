@@ -14,12 +14,15 @@
 
 // C++ std header
 #include <stdexcept>
-
+#include <vector>
 // kpix header
 #include "DataRead.h"
 #include "KpixEvent.h"
 #include "KpixSample.h"
 #include "Data.h"
+
+// extern header
+#include "KpixRead.h"
 
 // root header
 #include "TFile.h"
@@ -36,9 +39,9 @@ namespace lycoris
     
   protected:
     DataRead               _dataRead;  //kpix event classes used for analysis of binary date
-    KpixEvent              _event;    //
-    KpixSample             *m_sample;   //
-    KpixSample::SampleType  type;
+    KpixEvent              _cycleevent;    //
+    KpixSample             *_cyclesample;   //
+    KpixSample::SampleType  _type;
 
     uint                   _kpix;
     uint                   _channel;
@@ -71,17 +74,20 @@ namespace lycoris
 
   
   void ntupleMaker::loopKpix(){
+    /* 
+     * Test function for reading kpix data out
+     */
     
     int eventcount=0;
-    while ( _dataRead.next(&_event) ){
+    while ( _dataRead.next(&_cycleevent) ){
       eventcount++;
-      
 
     }// Loop over kpix event
     
-    _dataRead.close();
-    cout<< "In total, we have #" << eventcount << " events :)\n" << endl;
+    _dataRead.close(); // TODO: other func after this func will have trouble!
     
+    cout<< "In total, we have #" << eventcount << " events :)\n" << endl;
+    return;
   }
   
   void ntupleMaker::CreateTree(){
@@ -94,17 +100,70 @@ namespace lycoris
     std::vector<uint> *Kpix = new std::vector<uint>;
     std::vector<uint> *Channel = new std::vector<uint>;
     std::vector<uint> *Bucket = new std::vector<uint>;
-    std::vector<int>  *EventNr = new std::vector<int>;
+    int  CycleNr = 0;
+    int  CycleSampleCount = 0;
+    int  CycleTimeStamp = 0;
     //std::vector<int>  *CycleNr = new std::vector<int>;
     //std::vector<int> * = new std::vector<>;
-	
+
     // Create TBranches
     t1->Branch("Kpix", &Kpix);
     t1->Branch("Channel", &Channel);
     t1->Branch("Bucket", &Bucket);
-    t1->Branch("EventNr", &EventNr);
+    t1->Branch("CycleNr", &CycleNr, "CycleNr/I");
+    t1->Branch("CycleSampleCount", &CycleSampleCount, "CycleSampleCount/I");
+    t1->Branch("CycleTimeStamp", &CycleTimeStamp, "CycleTimeStamp/I");
+
+    // Here we loop over kpix event to fill the tree:
+    int eventcount=0;
+    while ( _dataRead.next(&_cycleevent) ){
+      
+      eventcount++;
+      CycleNr = _cycleevent.eventNumber();
+      CycleSampleCount = _cycleevent.count();
+      CycleTimeStamp = _cycleevent.timestamp();
+	
+      for (uint x1=0; x1 < _cycleevent.count(); x1++ ){
+	// Get KpixSample == tracker event
+	_cyclesample = _cycleevent.sample(x1);
+	
+	if ( _cyclesample->getEmpty() ){
+	  cout<<" [info] empty sample, jump over!"<<endl;
+	  continue;
+	}
+	_kpix    = _cyclesample -> getKpixAddress();
+	_channel = _cyclesample -> getKpixChannel();
+	_bucket  = _cyclesample -> getKpixBucket();
+	_type    = _cyclesample -> getSampleType();
+	
+	//if (!_kpix) cout << "debug: kpix address = " << _kpix <<endl;
+	
+	if ( _type == KpixSample::Data ){
+	  if ( std::find(Kpix->begin(), Kpix->end(), _kpix) != Kpix->end() ) {}
+	  else    Kpix->push_back(_kpix);
+	}
+	
+      }
+
+      if (eventcount<10) {
+	cout<< "kpix found: ";
+	for (auto& x : *Kpix ) cout<< x <<" ";
+      }
+      cout<<endl;
+	
+      t1->Fill();
+     
+    }// Loop over kpix event
 
 
+    t1->Print();
+    tfile.Write();
+    tfile.Close();
+      
+    
+    _dataRead.close(); // TODO: other func after this func will have trouble!
+    
+    cout<< "In total, we have #" << eventcount << " events :)\n" << endl;
     
     
   }
