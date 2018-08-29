@@ -36,24 +36,27 @@
 namespace lycoris
 {
   class ntupleMaker {
-    
+     
   protected:
     DataRead               _dataRead;  //kpix event classes used for analysis of binary date
     KpixEvent              _cycleevent;    //
     KpixSample             *_cyclesample;   //
     KpixSample::SampleType  _type;
 
+    uint                   _tstamp;
     uint                   _kpix;
     uint                   _channel;
     uint                   _bucket;
+    uint                   _value;
+    uint                   _range;
 
-  
   public:
     ntupleMaker(const char* binFile);
     ~ntupleMaker(){};
     void CreateTree();
     void makeTreeEx();
     void loopKpix();
+    void addBranch(TTree &tree){};
   };
 
   ntupleMaker::ntupleMaker(const char* binFile){
@@ -90,84 +93,135 @@ namespace lycoris
     return;
   }
   
+  /* void ntupleMaker::addBranch(TTree &tree) { */
+
+  /* } */
+    
   void ntupleMaker::CreateTree(){
 
     TFile tfile("kpixTree.root","RECREATE","[dev] kpix ROOT file with histograms & trees");
     // Create a ROOT tree
-    TTree *t1 = new TTree("General","General Tree with basic kpix info");
+    TTree *t1 = new TTree("Cycles","General Tree with basic kpix info");
+    TTree *t2 = new TTree("HitEvent","Event level along bunchClkCount");
+    TH1F *htest   = new TH1F("htest","CycleNr",7000,83000,90000);
 
     // Define some templates for the tree branch
-    std::vector<uint> *Kpix = new std::vector<uint>;
-    std::vector<uint> *Channel = new std::vector<uint>;
-    std::vector<uint> *Bucket = new std::vector<uint>;
-    int  CycleNr = 0;
-    int  CycleSampleCount = 0;
-    int  CycleTimeStamp = 0;
-    //std::vector<int>  *CycleNr = new std::vector<int>;
-    //std::vector<int> * = new std::vector<>;
+    std::vector<uint> *kpixOnRun = new std::vector<uint>;
+    
+    typedef struct {Float_t x,y;} POINT;
+    typedef struct {
+      uint CycleNr;
+      uint CycleSampleCount;
+      uint CycleTimeStamp;
+    }CYCLEN;
+    typedef struct {
+      uint tstamp; // bunchClkCount based
+      uint kpix;
+      uint channel;
+      uint bucket;
+      uint range;
+      uint ADC;
+    }kDATA;
 
+    typedef struct {
+      uint tstamp; // bunchClkCount based
+      uint value; // unit of 1/8 of the bunchClkCount == based on AcqClk.
+    }kEXTTS;
+
+    static kDATA Hits;
+    static kEXTTS ExtTrig;
+    static CYCLEN cyclen;
+    //static POINT hit;
+    int cyclecount=0;
+    int nHits=0; // nData per cycle (Data is /bucket/channel/kpix)
+    int nTrig=0; // nTrig per cycle
+    int ev=0;
+    uint CycleNr=0;
     // Create TBranches
-    t1->Branch("Kpix", &Kpix);
-    t1->Branch("Channel", &Channel);
-    t1->Branch("Bucket", &Bucket);
-    t1->Branch("CycleNr", &CycleNr, "CycleNr/I");
-    t1->Branch("CycleSampleCount", &CycleSampleCount, "CycleSampleCount/I");
-    t1->Branch("CycleTimeStamp", &CycleTimeStamp, "CycleTimeStamp/I");
+    t1->Branch("cyclen", &cyclen, "CycleNr/i:CycleTimeStamp/i:CycleSampleCount/i");
+    t1->Branch("kpixOnRun", &kpixOnRun);
+    t1->Branch("cyclecount", &cyclecount, "cyclecount/I");
+    //t1->Branch("Channel", &Channel);
+    //t1->Branch("Bucket", &Bucket);
+    t1->Branch("nHits", &nHits, "nHits/I");
+    t1->Branch("nTrig", &nTrig, "nTrig/i");
+    
+    t2->Branch("ev", &ev, "ev/I");
+    t2->Branch("CycleNr", &CycleNr, "CycleNr/i");
+    t2->Branch("Hits", &Hits, "tstamp/i:kpix/i:channel/i:bucket/i:range/i:ADC/i");
+    //t2->Branch("ExtTrig", &ExtTrig, "tstamp/i:value/i");
 
-    // Here we loop over kpix event to fill the tree:
-    int eventcount=0;
+    /* // Here we loop over kpix event to fill the tree: */
     while ( _dataRead.next(&_cycleevent) ){
+      (*kpixOnRun).clear();
+
+      nHits=0;
+      nTrig=0;
+      cyclecount++;
+      htest->Fill( _cycleevent.eventNumber() );
       
-      eventcount++;
-      CycleNr = _cycleevent.eventNumber();
-      CycleSampleCount = _cycleevent.count();
-      CycleTimeStamp = _cycleevent.timestamp();
+      cyclen.CycleNr = _cycleevent.eventNumber();
+      cyclen.CycleSampleCount = _cycleevent.count();
+      cyclen.CycleTimeStamp = _cycleevent.timestamp();
+
+      CycleNr = _cycleevent.eventNumber(); // t2
 	
       for (uint x1=0; x1 < _cycleevent.count(); x1++ ){
-	// Get KpixSample == tracker event
-	_cyclesample = _cycleevent.sample(x1);
+    	// Get kpixSample == tracker event
+    	_cyclesample = _cycleevent.sample(x1);
 	
-	if ( _cyclesample->getEmpty() ){
-	  cout<<" [info] empty sample, jump over!"<<endl;
-	  continue;
-	}
-	_kpix    = _cyclesample -> getKpixAddress();
-	_channel = _cyclesample -> getKpixChannel();
-	_bucket  = _cyclesample -> getKpixBucket();
+    	if ( _cyclesample->getEmpty() ){
+    	  cout<<" [info] empty sample, jump over!"<<endl;
+    	  continue;
+    	}
+
 	_type    = _cyclesample -> getSampleType();
-	
-	//if (!_kpix) cout << "debug: kpix address = " << _kpix <<endl;
-	
-	if ( _type == KpixSample::Data ){
-	  if ( std::find(Kpix->begin(), Kpix->end(), _kpix) != Kpix->end() ) {}
-	  else    Kpix->push_back(_kpix);
+	_tstamp  = _cyclesample -> getSampleTime();
+	_value   = _cyclesample -> getSampleValue();// can be ADC(Data), TS(TimeStamp), etc
+	_range   = _cyclesample -> getSampleRange();// for low/normal/high Gain dynamic change registered in KPiX
+	_kpix    = _cyclesample -> getKpixAddress();
+    	_channel = _cyclesample -> getKpixChannel();
+    	_bucket  = _cyclesample -> getKpixBucket();
+					
+    	//if (!_kpix) cout << "debug: kpix address = " << _kpix <<endl;
+
+	if (_type == KpixSample::Timestamp) {
+	  nTrig++;
 	}
 	
+    	if ( _type == KpixSample::Data ){
+    	  if ( std::find(kpixOnRun->begin(), kpixOnRun->end(), _kpix) == kpixOnRun->end() ) 
+	    (*kpixOnRun).push_back(_kpix);
+	  nHits++;
+	  ev++;
+
+	  Hits.tstamp  = _tstamp;
+	  Hits.kpix    = _kpix;
+	  Hits.channel = _channel;
+	  Hits.bucket  = _bucket;
+	  Hits.ADC     = _value;
+	  Hits.range   = _range;
+	  t2->Fill();
+    	}
       }
 
-      if (eventcount<10) {
-	cout<< "kpix found: ";
-	for (auto& x : *Kpix ) cout<< x <<" ";
-      }
-      cout<<endl;
-	
       t1->Fill();
      
     }// Loop over kpix event
 
-
     t1->Print();
+    //t1->Write();
     tfile.Write();
     tfile.Close();
       
-    
     _dataRead.close(); // TODO: other func after this func will have trouble!
     
-    cout<< "In total, we have #" << eventcount << " events :)\n" << endl;
-    
-    
+    cout<< "In total, we have #" << cyclecount << " events :)\n" << endl;
+        
   }
 
+
+  //---------------------
   
   void ntupleMaker::makeTreeEx(){
     // do sth
