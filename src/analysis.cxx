@@ -84,7 +84,19 @@ void addStringToXml ( ofstream *xml, uint indent, string variable, string value 
 	*xml << endl;
 }
 
-
+double smallest_time_diff( vector<double> ext_list, int int_value)
+{
+	double trigger_diff = 8200.0;
+	for (int k = 0; k<ext_list.size(); ++k)
+	{
+		double delta_t = int_value-ext_list[k];
+		if (fabs(trigger_diff) > fabs(delta_t)) 
+		{
+			trigger_diff = delta_t;
+		}
+	}
+	return trigger_diff;
+}
 
 
 //////////////////////////////////////////
@@ -133,9 +145,11 @@ int main ( int argc, char **argv )
 	TH1F			*left_strip_entries[32][5];
 	TH1F			*right_strip_entries[32][5];
 	TH1F			*channel_entries_timed[32][5]; // Time distribution Total number of events differed per bucket and kpix
-	TH1F			*channel_entries_no_strip[32][5];
+	TH1F			*channel_entries_no_strip[32][5]; 
 	
-	TH1F			*trigger_difference[32];
+	TH1D			*trigger_difference[32]; //Time difference to an external timestamp
+	TH1D			*trigger_diff_connected[32]; //Time difference to an external timestamp
+	TH1D			*trigger_diff_disconnected[32]; //Time difference to an external timestamp
 	TH1F			*channel_entries_no_monster[32][5];
 	TH1F			*times_kpix[32][5];
 	TH1F			*times_kpix_monster[32][5];
@@ -176,6 +190,12 @@ int main ( int argc, char **argv )
 	ofstream		channel_file_noise;
 	ofstream		channel_file_calib;
 	ofstream 		channel_file_adc_mean;
+	
+	
+	
+	
+	ifstream 		calib_file1("include;
+	ifstream 		calib_file2;
 	
 	
 	unordered_map<uint, uint> kpix2strip_left;
@@ -316,7 +336,7 @@ int main ( int argc, char **argv )
 	TH1F *total_timed= new TH1F("Total_response_timed", "total_response_timed; Charge (ADC); #entries/#acq.cycles", 300, -0.5, 8191.5);
 	
 	
-	TH1F *beam_ext_time_diff = new TH1F("beam_ext_time_diff", "beam_ext_time_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 16384, -8192.5, 8191.5);
+	TH1D *beam_ext_time_diff = new TH1D("beam_ext_time_diff", "beam_ext_time_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 16001, -1000.5, 1000.5);
 	
 	
 	TH1F *ExtTrigPerCycle = new TH1F ("external_triggers_per_cycle", "ext_trig_per_acq.; #ext_triggers_per_acq.cycle; #entries/#acq.cycles",100,0.5,99.5);
@@ -486,8 +506,14 @@ int main ( int argc, char **argv )
 			tmp << "trig_count_k" << kpix << "_total";
 			trig_count[kpix][4]  = new TH1F (tmp.str().c_str(), "trig_count;  #triggered channels; #entries/#acq.cycles",1024, -0.5, 1023.5);
 			tmp.str("");
-			tmp << "beam_ext_time_diff_" << kpix;
-			trigger_difference[kpix] = new TH1F (tmp.str().c_str(), "intern_extern_trig_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 16384, -8192.5, 8191.5);
+			tmp << "ext_time_diff_k" << kpix;
+			trigger_difference[kpix] = new TH1D (tmp.str().c_str(), "intern_extern_trig_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 16001, -1000.5, 1000.5);
+			tmp.str("");
+			tmp << "ext_time_diff_con_k" << kpix;
+			trigger_diff_connected[kpix] = new TH1D (tmp.str().c_str(), "intern_extern_trig_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 16001, -1000.5, 1000.5);
+			tmp.str("");
+			tmp << "ext_time_diff_discon_k" << kpix;
+			trigger_diff_disconnected[kpix] = new TH1D (tmp.str().c_str(), "intern_extern_trig_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 16001, -1000.5, 1000.5);
 			tmp.str("");
 			tmp << "assigned_channels_k" << kpix << "_total";
 			AssignedChannelHist_Total[kpix] = new TH1F (tmp.str().c_str(), "assigned_channels_per_ext_trig;   #assigned_channels; #entries/#acq.cycles",40, -0.5, 39.5);
@@ -574,13 +600,13 @@ int main ( int argc, char **argv )
 				AssignedChannelHist[kpix][cycles]  = new TH1F (tmp.str().c_str(), "assigned_channels_per_ext_trig;  external_trigger_number; #assigned_channels ",100, -0.5, 99.5);
 				tmp.str("");
 				tmp << "trigger_difference_k" << kpix << "_evt_" << cycles;
-				trigger_difference_per_acq[kpix][cycles]  = new TH1F (tmp.str().c_str(), "trigger_difference;  #entries/#acq.cycles; #Delta T [BunchClkCount] ",16384, -8192.5, 8191.5);
+				trigger_difference_per_acq[kpix][cycles]  = new TH1F (tmp.str().c_str(), "trigger_difference;  #entries/#acq.cycles; #Delta T [BunchClkCount] ",16000, -1000.5, 1000.5);
 				//tmp.str("");
 				//tmp << "assigned_number_k" << kpix << "_evt_" << cycles;
 				//AssignedNumberHist[kpix][cycles]  = new TH1F (tmp.str().c_str(), "assigned_NumberOfChannel_per_ext_trig;  #same_assignement; #entries/#acq.cycles",40,0,40);
 			}
 			FolderName.str("");
-			FolderName << "Channels";
+			FolderName << "Strips and Channels";
 			kpix_folder->mkdir(FolderName.str().c_str());
 			TDirectory *channels_folder = kpix_folder->GetDirectory(FolderName.str().c_str());
 			rFile->cd(channels_folder->GetPath());
@@ -589,17 +615,19 @@ int main ( int argc, char **argv )
 				if (chanFound[kpix][channel])
 				{
 					FolderName.str("");
-					FolderName << "Channel_" << channel;
+					FolderName << "strip_" << kpix2strip_left.at(channel) << "_channel_" << channel;
 					channels_folder->mkdir(FolderName.str().c_str());
 					TDirectory *channel_folder = channels_folder->GetDirectory(FolderName.str().c_str());
 					rFile->cd(channel_folder->GetPath());
 	
 					tmp.str("");
-					tmp << "hist" << "_c" << dec << setw(4) << setfill('0') << channel;
+					tmp << "hist" << "_s" << dec << kpix2strip_left.at(channel);
+					tmp << "_c" << dec << setw(4) << setfill('0') << channel;
 					tmp << "_k" << dec << kpix;
 	
 					tmp_units.str("");
-					tmp_units << "hist" << "_c" << dec << setw(4) << setfill('0') << channel;
+					tmp_units << "hist" << "_s" << dec <<  kpix2strip_left.at(channel);
+					tmp_units << "_c" << dec << setw(4) << setfill('0') << channel;
 					tmp_units << "_k" << dec << kpix;
 					tmp_units << "; Charge (ADC); #entries/#acq.cycles";
 	
@@ -621,12 +649,15 @@ int main ( int argc, char **argv )
 	
 	
 							tmp.str("");  //set stringstream tmp to an empty string
-							tmp << "hist" << "_c" << dec << setw(4) << setfill('0') << channel; // add hist_c0$channel
+							
+							tmp << "hist" << "_s" << dec <<  kpix2strip_left.at(channel);
+							tmp << "_c" << dec << setw(4) << setfill('0') << channel;
 							tmp << "_b" << dec << bucket; // add _b$bucket
 							tmp << "_k" << dec << kpix; // add _k$kpix to stringstream
 	
 							tmp_units.str(""); //set stringstream decribing histogram units to an empty string
-							tmp_units << "hist" << "_c" << dec << setw(4) << setfill('0') << channel;  // add hist_c0$channel
+							tmp_units << "hist" << "_s" << dec <<  kpix2strip_left.at(channel);
+							tmp_units << "_c" << dec << setw(4) << setfill('0') << channel;
 							tmp_units << "_b" << dec << bucket; // add _b$bucket
 							tmp_units << "_k" << dec << kpix; // add _k$kpix to stringstream
 							tmp_units << "; Charge (ADC); #entries/#acq.cycles"; // add title: x label, y label to stringstream
@@ -634,13 +665,15 @@ int main ( int argc, char **argv )
 							hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,8191.5);
 	
 							tmp.str("");
-							tmp << "hist_timed" << "_c" << dec << setw(4) << setfill('0') << channel;
+							tmp << "hist_timed" << "_s" << dec <<  kpix2strip_left.at(channel);
+							tmp << "_c" << dec << setw(4) << setfill('0') << channel;
 							tmp << "_b" << dec << bucket;
 							tmp << "_k" << dec << kpix;
 							tmp << "_time_cut";
 	
 							tmp_units.str("");
-							tmp_units << "hist_timed" << "_c" << dec << setw(4) << setfill('0') << channel;
+							tmp_units << "hist_timed" << "_s" << dec << kpix2strip_left.at(channel);
+							tmp_units << "_c" << dec << setw(4) << setfill('0') << channel;
 							tmp_units << "_b" << dec << bucket;
 							tmp_units << "_k" << dec << kpix;
 							tmp_units << "; Charge (ADC); #entries/#acq.cycles";
@@ -648,13 +681,15 @@ int main ( int argc, char **argv )
 							hist_timed[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,8191.5);
 	
 							tmp.str("");
-							tmp << "time" << "_c" << dec << setw(4) << setfill('0') << channel;
+							tmp << "time" << "_s" << dec << kpix2strip_left.at(channel);
+							tmp << "_c" << dec << setw(4) << setfill('0') << channel;
 							tmp << "_b" << dec << bucket;
 							tmp << "_r" << dec << range;
 							tmp << "_k" << dec << kpix;
 	
 							tmp_units.str("");
-							tmp_units << "time" << "_c" << dec << setw(4) << setfill('0') << channel;
+							tmp_units << "time" << "_s" << dec << kpix2strip_left.at(channel);
+							tmp_units << "_c" << dec << setw(4) << setfill('0') << channel;
 							tmp_units << "_b" << dec << bucket;
 							tmp_units << "_k" << dec << kpix;
 							tmp_units << "; Time/bunchClkCount; #entries/#acq.cycles";
@@ -663,13 +698,15 @@ int main ( int argc, char **argv )
 	
 	
 							tmp.str("");
-							tmp << "charge" << "_c" << dec << setw(4) << setfill('0') << channel;
+							tmp << "charge" << "_s" << dec <<  kpix2strip_left.at(channel);
+							tmp << "_c" << dec << setw(4) << setfill('0') << channel;
 							tmp << "_b" << dec << bucket;
 							tmp << "_r" << dec << range;
 							tmp << "_k" << dec << kpix;
 	
 							tmp_units.str("");
-							tmp_units << "charge" << "_c" << dec << setw(4) << setfill('0') << channel;
+							tmp_units << "charge" << "_s" << dec <<  kpix2strip_left.at(channel);
+							tmp_units << "_c" << dec << setw(4) << setfill('0') << channel;
 							tmp_units << "_b" << dec << bucket;
 							tmp_units << "_k" << dec << kpix;
 							tmp_units << "; Charge/fC; #entries/#acq.cycles";
@@ -861,40 +898,40 @@ int main ( int argc, char **argv )
 				num_trig_count[kpix][bucket] += 1;
 				num_trig_count[kpix][4] += 1;
 				
+				double trig_diff = smallest_time_diff(time_ext, tstamp); //Calculation of minimal difference is done in a function for cleanup
 				
-				// Check for time difference between external time stamp and internal time stamp for noise filtering
-				double trig_diff = 8200.0;
 				int assigned_number;
 				if (time_ext.size() > 0) //only calculate the time difference between triggers if there are some external triggers
 				{
-					for (unsigned int j = 0; j < time_ext.size(); ++j)
-					{
-						trig_diff_list.push_back(tstamp-time_ext.at(j));
-						if (fabs(trig_diff) > fabs(tstamp-time_ext.at(j)))
-						{
-							trig_diff = tstamp-time_ext.at(j);
+					//for (unsigned int j = 0; j < time_ext.size(); ++j)
+					//{
+						//trig_diff_list.push_back(tstamp-time_ext.at(j));
+						//double delta_t = tstamp-time_ext.at(j);
+						//if (fabs(trig_diff) > fabs(delta_t))
+						//{
+							//trig_diff = tstamp-time_ext.at(j);
+							//assigned_number = j;
+						//}
+						////else
+						////{
+							////if (x<10)
+							////{ 
+								////cout << "Difference not lower than before" << endl;
+								////cout << "Channel time stamp = " << tstamp << endl;
+								////cout << "External match = " << time_ext.at(j) << endl;
+								////cout << "Old difference = " << trig_diff << endl;
+								////cout << "New difference = " << tstamp-time_ext.at(j) << endl;
+							////}
 					
-							assigned_number = j;
-						}
-						else
-						{
-							if (x<10)
-							{ 
-								cout << "Difference not lower than before" << endl;
-								cout << "Channel time stamp = " << tstamp << endl;
-								cout << "External match = " << time_ext.at(j) << endl;
-								cout << "Old difference = " << trig_diff << endl;
-								cout << "New difference = " << tstamp-time_ext.at(j) << endl;
-							}
-					
-						}
+						////}
 				      
-				    }
+				    //}
 				    //cout << "Trig diff old method = " <<  trig_diff << endl;
 				    //if (trig_diff_list.size() > 0) cout << "Trig diff new method = " <<  *std::min_element(trig_diff_list.begin(), trig_diff_list.end()) << endl; //seg fault when vector is empty
 				    //if (trig_diff_list.size() > 0) cout << "Trig diff new method position in vector = " <<  distance(trig_diff_list.begin(), min_element(trig_diff_list.begin(), trig_diff_list.end())) << endl; //seg fault when vector is empty
 				   
-				    assigned_number =  distance(trig_diff_list.begin(), min_element(trig_diff_list.begin(), trig_diff_list.end())); //position of smallest element in trigger difference vector
+				    //assigned_number =  distance(trig_diff_list.begin(), min_element(trig_diff_list.begin(), trig_diff_list.end())); //position of smallest element in trigger difference vector
+				    
 				    time_diff_kpix_ext[kpix].push_back(trig_diff);
 				    if (cycle_num < cycle_checking)
 				    {
@@ -902,28 +939,32 @@ int main ( int argc, char **argv )
 						trigger_difference_per_acq[kpix][cycle_num]->Fill(trig_diff);
 					}
 				    AssignedTrigger[kpix].push_back(assigned_number);
+					beam_ext_time_diff->Fill(trig_diff, weight);
+				    trigger_difference[kpix]->Fill(trig_diff, weight);
+				    if (kpix2strip_left.at(channel)!=9999)
+				    {
+						trigger_diff_connected[kpix]->Fill(trig_diff,weight);
+					}
+					else
+					{
+						trigger_diff_disconnected[kpix]->Fill(trig_diff,weight);	
+					}
 				    if((trig_diff >= 0.0 )  && (trig_diff  <= 3.0) )
 				    {
-						
-						//if (currPct > 75) cout << "DEBUG: KPiX|Channel|Bucket = " << kpix << '|' << channel << '|' << bucket << endl;
 						hist_timed[kpix][channel][bucket][0]->Fill(value, weight);
-						//if (currPct > 75) cout << "test" << endl;
 						 total_timed->Fill(value, weight);
-						//if (currPct > 75) cout << "test2" << endl;
 						channel_entries_total_timed->Fill(channel, weight);
-						//if (currPct > 75) cout << "test3" << endl;
 						channel_entries_timed[kpix][bucket]->Fill(channel, weight);
-						//if (currPct > 75) cout << "test4" << endl;
 						channel_entries_timed[kpix][4]->Fill(channel, weight);
-						//if (currPct > 75) cout << "test5" << endl;
 				    }
-				    beam_ext_time_diff->Fill(trig_diff, weight);
-				    trigger_difference[kpix]->Fill(trig_diff, weight);
+					//cout << "DEBUG " << trig_diff << endl;
+
 				}
 				//if (kpix != 26 && kpix != 28 && kpix != 30) cout << "Weird..." << kpix << endl;
 				//}
 				
 			}
+			//cout << "DEBUG time size" << time_ext.size() << endl;
 		}
 		for (kpix = 0; kpix < 32; kpix++)
 		{
