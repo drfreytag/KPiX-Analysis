@@ -194,7 +194,7 @@ int main ( int argc, char **argv )
 	
 	
 	
-	ifstream 		calib_file1("include;
+	ifstream 		calib_file1("include");
 	ifstream 		calib_file2;
 	
 	

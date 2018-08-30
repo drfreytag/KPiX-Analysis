@@ -22,7 +22,7 @@
 #include "Data.h"
 
 // extern header
-#include "KpixRead.h"
+//#include "KpixRead.h"
 
 // root header
 #include "TFile.h"
@@ -35,8 +35,9 @@
 // Class definition
 namespace lycoris
 {
+
   class ntupleMaker {
-     
+
   protected:
     DataRead               _dataRead;  //kpix event classes used for analysis of binary date
     KpixEvent              _cycleevent;    //
@@ -50,17 +51,42 @@ namespace lycoris
     uint                   _value;
     uint                   _range;
 
+    bool                   _debug;
+    
   public:
     ntupleMaker(const char* binFile);
     ~ntupleMaker(){};
+    void setDebug(bool debug){_debug = debug;};
     void CreateTree();
     void makeTreeEx();
     void loopKpix();
     void addBranch(TTree &tree){};
+
+    typedef struct {
+      uint tstamp; // bunchClkCount based
+      uint value; // unit of 1/8 of the bunchClkCount == based on AcqClk.
+    }kEXTTS;
+
+    typedef struct {
+      uint tstamp; // bunchClkCount based
+      uint kpix;
+      uint channel;
+      uint bucket;
+      uint range;
+      uint ADC;
+    }kDATA;
+
+    typedef struct {
+      uint CycleNr;
+      uint CycleSampleCount;
+      uint CycleTimeStamp;
+    }CYCLEN;
+    
   };
 
   ntupleMaker::ntupleMaker(const char* binFile){
     // Load the binary file and check throw exception if not exist
+    _debug = false;
     try {
       bool atest = _dataRead.open(binFile);
       if (!atest){
@@ -74,7 +100,7 @@ namespace lycoris
     }
     
   }
-  
+
   void ntupleMaker::loopKpix(){
     /* 
      * Test function for reading kpix data out
@@ -101,41 +127,29 @@ namespace lycoris
     TFile tfile("kpixTree.root","RECREATE","[dev] kpix ROOT file with histograms & trees");
     // Create a ROOT tree
     TTree *t1 = new TTree("Cycles","temperature etc /cycle");
-    TTree *t2 = new TTree("HitEvent","Hit/range/bucket/channel/kpix, with cycle index");
-    TTree *t3 = new TTree("ExtTstamp","external time stamp / cycle");
-    TH1F *htest   = new TH1F("htest","CycleNr",7000,83000,90000);
+    TTree *t3 = nullptr;
+    TTree *t2 = nullptr;
+    TH1F  *htest = nullptr;
+    if (_debug){
+      htest   = new TH1F("htest","CycleNr",7000,83000,90000);
+      t2 = new TTree("HitEvent","Hit/range/bucket/channel/kpix, with cycle index");
+      t3 = new TTree("ExtTstamp","external time stamp / cycle");
+    }
 
     // Define some templates for the tree branch
-    std::vector<uint> *kpixOnRun = new std::vector<uint>;
     
-    typedef struct {Float_t x,y;} POINT;
-    typedef struct {
-      uint CycleNr;
-      uint CycleSampleCount;
-      uint CycleTimeStamp;
-    }CYCLEN;
-    typedef struct {
-      uint tstamp; // bunchClkCount based
-      uint kpix;
-      uint channel;
-      uint bucket;
-      uint range;
-      uint ADC;
-    }kDATA;
-
-    typedef struct {
-      
-      uint tstamp; // bunchClkCount based
-      uint value; // unit of 1/8 of the bunchClkCount == based on AcqClk.
-    }kEXTTS;
-
-    //using Vec = std::vector<kEXTTS>;
+    //typedef struct {Float_t x,y,z;} POINT;
+ 
+    //std::map<std::string, std::vector<double>> dictTest;
     std::vector<kEXTTS> vtstamp;
-      
+    std::vector<kDATA>  vHits;
+    
     static kDATA Hits;
     static kEXTTS exttstamp;
     static CYCLEN cyclen;
     //static POINT hit;
+
+    std::vector<uint> kpixOnRun;
     int cyclecount=0;
     int nHits=0; // nData per cycle (Data is /bucket/channel/kpix)
     int nTrig=0; // nTrig per cycle
@@ -143,29 +157,35 @@ namespace lycoris
     uint CycleNr=0;
     // Create TBranches
     t1->Branch("tstamp",&vtstamp);
+    t1->Branch("Hits",&vHits);
+    //t1->Branch("dictTest",&dictTest);
+   
     t1->Branch("cyclen", &cyclen, "CycleNr/i:CycleTimeStamp/i:CycleSampleCount/i");
     t1->Branch("kpixOnRun", &kpixOnRun);
     t1->Branch("cyclecount", &cyclecount, "cyclecount/I");
-    //t1->Branch("Channel", &Channel);
-    //t1->Branch("Bucket", &Bucket);
     t1->Branch("nHits", &nHits, "nHits/I");
     t1->Branch("nTrig", &nTrig, "nTrig/i");
 
-    t2->Branch("ev", &ev, "ev/I");
-    t2->Branch("CycleNr", &CycleNr, "CycleNr/i");
-    t2->Branch("Hits", &Hits, "tstamp/i:kpix/i:channel/i:bucket/i:range/i:ADC/i");
-
-    t3->Branch("CycleNr", &CycleNr, "CycleNr/i");
-    t3->Branch("exttstamp", &exttstamp, "tstamp/i:value/i");
-
+    if (t2!=nullptr){
+      t2->Branch("ev", &ev, "ev/I");
+      t2->Branch("CycleNr", &CycleNr, "CycleNr/i");
+      t2->Branch("Hits", &Hits, "tstamp/i:kpix/i:channel/i:bucket/i:range/i:ADC/i");
+    }
+    if (t3!=nullptr){
+      t3->Branch("CycleNr", &CycleNr, "CycleNr/i");
+      t3->Branch("exttstamp", &exttstamp, "tstamp/i:value/i");
+    }
     /* // Here we loop over kpix event to fill the tree: */
     while ( _dataRead.next(&_cycleevent) ){
-      (*kpixOnRun).clear();
+      kpixOnRun.clear();
       vtstamp.clear();
+      vHits.clear();
+      //dictTest.clear();
       nHits=0;
       nTrig=0;
       cyclecount++;
-      htest->Fill( _cycleevent.eventNumber() );
+      
+      if (htest!=nullptr)   htest->Fill( _cycleevent.eventNumber() );
       
       cyclen.CycleNr = _cycleevent.eventNumber();
       cyclen.CycleSampleCount = _cycleevent.count();
@@ -197,12 +217,16 @@ namespace lycoris
 	  exttstamp.tstamp = _tstamp;
 	  exttstamp.value  = _value;
 	  vtstamp.push_back(exttstamp);
-	  t3->Fill();
+
+	  //std::vector<double> _test;
+	  //_test.push_back(1.9526);
+	  //dictTest.insert(std::make_pair("123",_test));
+	  if (t3!=nullptr)   t3->Fill();
 	}
 	
     	if ( _type == KpixSample::Data ){
-    	  if ( std::find(kpixOnRun->begin(), kpixOnRun->end(), _kpix) == kpixOnRun->end() ) 
-	    (*kpixOnRun).push_back(_kpix);
+    	  if ( std::find(kpixOnRun.begin(), kpixOnRun.end(), _kpix) == kpixOnRun.end() ) 
+	    kpixOnRun.push_back(_kpix);
 	  nHits++;
 	  ev++;
 
@@ -212,7 +236,10 @@ namespace lycoris
 	  Hits.bucket  = _bucket;
 	  Hits.ADC     = _value;
 	  Hits.range   = _range;
-	  t2->Fill();
+	  if (t2!=nullptr) t2->Fill();
+
+	  vHits.push_back(Hits);
+	  
     	}
       }
 
