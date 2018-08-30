@@ -44,15 +44,55 @@
 #include <XmlVariables.h>
 #include <string.h>
 #include <algorithm>
+#include <stdlib.h>
 
 #include "kpixmap.h"
 #include "kpix_left_and_right.h"
 using namespace std;
-	
 
+
+//////////////////////////////////////////
+// Global Variables
+//////////////////////////////////////////
+vector<TGraphErrors*> calib_graphs; //needed for current loopdir	
 //////////////////////////////////////////
 // Functions
 //////////////////////////////////////////
+
+
+void loopdir(TDirectory* dir, string histname)
+{
+	
+	TDirectory *dirsav = gDirectory;
+	TIter keys_iter(dir->GetListOfKeys());
+	TKey* key;
+	
+	while ((key = (TKey*)keys_iter()))
+	{
+		if (key->IsFolder())
+		{
+			dir->cd(key->GetName());
+			TDirectory *subdir = gDirectory;
+			//subfolder->cd();
+			loopdir(subdir, histname);
+			dirsav->cd();
+			continue;
+		}
+		else
+		{
+			string keyname = key->GetName();
+			size_t found = keyname.find(histname);
+			if (found == 0) 
+			{
+				TGraphErrors *calib_graph = (TGraphErrors*)key->ReadObj();
+				calib_graph->SetName(key->GetName());
+				calib_graphs.push_back(calib_graph);
+			}
+		}
+	}
+}
+
+
 
 // Coincidence function void coincidence(int* time_list1, int* time_list2, int* time_list3, int* channel_list1, int* channel_list2, int* channel_list3)
 
@@ -87,7 +127,7 @@ void addStringToXml ( ofstream *xml, uint indent, string variable, string value 
 double smallest_time_diff( vector<double> ext_list, int int_value)
 {
 	double trigger_diff = 8200.0;
-	for (int k = 0; k<ext_list.size(); ++k)
+	for (uint k = 0; k<ext_list.size(); ++k)
 	{
 		double delta_t = int_value-ext_list[k];
 		if (fabs(trigger_diff) > fabs(delta_t)) 
@@ -97,6 +137,7 @@ double smallest_time_diff( vector<double> ext_list, int int_value)
 	}
 	return trigger_diff;
 }
+
 
 
 //////////////////////////////////////////
@@ -118,7 +159,7 @@ int main ( int argc, char **argv )
 	KpixSample             *sample;   //
 	
 	// cycles to skip in front:
-	uint                   skip_cycles_front;
+	long int                   skip_cycles_front;
 	FILE*                  f_skipped_cycles;
 	string                 outtxt;
 	
@@ -139,7 +180,6 @@ int main ( int argc, char **argv )
 	KpixSample::SampleType type;
 	TH1F                   	*hist[32][1024][4][2];  // #entries/ADC histograms per channel, bucket, kpix and histogram
 	TH1F			*hist_timed[32][1024][4][2]; //  #entries/time_of_event per channel, bucket, kpix and histogram
-	//TH1F			*hist_charge[32][1024][4][2]; //  #entries/charge in coulomb if calibration file was given per channel, bucket, kpix and histogram
 	TH1F			*channel_time[32][1024][4][2];
 	TH1F			*channel_entries[32][5]; // ADC distribution Total number of events differed per bucket and kpix
 	TH1F			*left_strip_entries[32][5];
@@ -165,12 +205,6 @@ int main ( int argc, char **argv )
 	stringstream           tmp;
 	stringstream           tmp_units;
 	
-	stringstream           tmp2;
-	stringstream           tmp2_units;
-	
-	stringstream           tmp3;
-	stringstream           tmp3_units;
-	
 	// Stringstream initialization for folder naming
 	
 	stringstream			FolderName;
@@ -191,11 +225,9 @@ int main ( int argc, char **argv )
 	ofstream		channel_file_calib;
 	ofstream 		channel_file_adc_mean;
 	
-	
-	
-	
-	ifstream 		calib_file1("include;
-	ifstream 		calib_file2;
+	// Calibration slope, is filled when 
+	double					calib_slope[32][1024] = {1}; //ADD buckets later.
+	int						calibration_check = 0;
 	
 	
 	unordered_map<uint, uint> kpix2strip_left;
@@ -223,23 +255,64 @@ int main ( int argc, char **argv )
 	//	cout << "Strip mapping result, kpix #" << i << " is equal to strip #" << kpix2strip.at(i) << endl;
 	//}
 	
+	//////////////////////////////////////////
+	// File Read
+	//////////////////////////////////////////
+	
 	// Data file is the first and only arg
 	if ( argc != 2 && argc!= 3) {
 	cout << "Usage: ./analysis data_file [skip_cycles_front] \n";
 	return(1);
 	}
 	
-
-	// skip first few cycles:
+	char* end;
+	// skip first few cycles or read in calibration data file:
 	if ( argc == 3 ) {
-	skip_cycles_front = atoi( argv[2] );
-	cout<< " -- I am skipping first events: " << skip_cycles_front << endl;
-	tmp.str("");
-	tmp << argv[1] << ".printSkipped.txt";
-	outtxt = tmp.str();
-	f_skipped_cycles = fopen(outtxt.c_str(), "w");
+		//cout << "Even more debug " << strtol(argv[2], &end, 10) << endl;
+		if (strtol(argv[2], &end, 10) != 0 )
+		{
+			skip_cycles_front = strtol(argv[2], &end, 10);
+			cout<< " -- I am skipping first events: " << skip_cycles_front << endl;
+			tmp.str("");
+			tmp << argv[1] << ".printSkipped.txt";
+			outtxt = tmp.str();
+			f_skipped_cycles = fopen(outtxt.c_str(), "w");
+		}
+		else 
+		{
+			skip_cycles_front = 0;
+			TFile *calibration_file = TFile::Open(argv[2]);
+			calibration_check = 1;
+			loopdir(calibration_file, "calib_");
+			for (unsigned int i = 0; i<calib_graphs.size(); ++i)
+			{
+				//cout << "Current key1 = " << cal_key->GetClassName() << endl;
+				
+				string calib_name         = calib_graphs[i]->GetName();
+				
+				size_t kpix_num_start     = calib_name.find("_k")+2;
+				size_t channel_num_start  = calib_name.find("_c")+2;
+				size_t kpix_num_length       = calib_name.length() - kpix_num_start;
+				size_t channel_num_length    = calib_name.find("_b") - channel_num_start;
+				
+			    string channel_string = calib_name.substr(channel_num_start, channel_num_length);
+			    string kpix_string = calib_name.substr(kpix_num_start, kpix_num_length);
+			    
+			    int kpix = stoi(kpix_string);
+			    int channel = stoi(channel_string);
+				
+				//cout << "KPiX Number = " << kpix << endl;
+				//cout << "Channel Number = " << channel << endl;
+				
+				calib_slope[kpix][channel] = calib_graphs[i]->GetFunction("pol1")->GetParameter(1);
+				//cout << "Slope of KPiX " << kpix << " and channel " << channel << " is " <<  calib_slope[kpix][channel] << endl;
+				
+			}
+		}
+		
+	
 	}
-	else skip_cycles_front = 0;
+	
 	
 	
 	//////////////////////////////////////////
@@ -395,24 +468,24 @@ int main ( int argc, char **argv )
 		
 		}
 		
-		for (int kpix = 0; kpix<32; kpix++){
-		  if (kpixFound[kpix]) {
-		    int monster_check = 0;
-		    for (int i = 0; i < 8192; ++i){
-		      if (cycle_time_local[kpix][i] > monster_finder_limit) {
+		//for (int kpix = 0; kpix<32; kpix++){
+		  //if (kpixFound[kpix]) {
+		    //int monster_check = 0;
+		    //for (int i = 0; i < 8192; ++i){
+		      //if (cycle_time_local[kpix][i] > monster_finder_limit) {
 			
-			monster_check = 1; // if among the 8192 possible time points there exists one that has more than monster_finder_limit triggers the event is classified as a monster
-			break; // no reason to keep looking, we found a monster.
-		      }
-		    }
-		    /*if (monster_check){
-		      cout << " There is a monster in house #" << kpix <<" (kpix slot number) with more than " << monster_finder_limit << " (finder limit) eyes  under bed #" << acqCount << " (cycle number)" << endl;
-		      monster_cycles[kpix].push_back(acqCount);
-		      monster_counter[kpix]++;
-		      }*/
-		  }
+				//monster_check = 1; // if among the 8192 possible time points there exists one that has more than monster_finder_limit triggers the event is classified as a monster
+				//break; // no reason to keep looking, we found a monster.
+		      //}
+		    //}
+		    ////if (monster_check){
+		      ////cout << " There is a monster in house #" << kpix <<" (kpix slot number) with more than " << monster_finder_limit << " (finder limit) eyes  under bed #" << acqCount << " (cycle number)" << endl;
+		      ////monster_cycles[kpix].push_back(acqCount);
+		      ////monster_counter[kpix]++;
+		      ////}
+		  //}
 		  
-		}
+		//}
 		
 	}
 	
@@ -425,7 +498,7 @@ int main ( int argc, char **argv )
 	range = 0;
 	
 	
-	uint cycle_checking;  // Program crashes when more than ~1700 cycles are checked maybe a memory issues, therefore the checking will have a maximum of 1000
+	int cycle_checking;  // Program crashes when more than ~1700 cycles are checked maybe a memory issues, therefore the checking will have a maximum of 1000
 	if (acqCount < 1000) cycle_checking = acqCount/10.0;
 	else cycle_checking = 1000;
 	TH1F* 					AssignedChannelHist[32][cycle_checking];
@@ -437,7 +510,7 @@ int main ( int argc, char **argv )
 	General_folder->mkdir(FolderName.str().c_str());
 	TDirectory *gen_cycle_folder = General_folder->GetDirectory(FolderName.str().c_str());
 	rFile->cd(gen_cycle_folder->GetPath());
-	for (uint cycles = 0; cycles < cycle_checking; cycles++) // produce subfolders per cycle
+	for (int cycles = 0; cycles < cycle_checking; cycles++) // produce subfolders per cycle
 	{
 		FolderName.str("");
 		FolderName << "Cycle_" << cycles;
@@ -460,7 +533,7 @@ int main ( int argc, char **argv )
 	//////////////////////////////////////////
 	// New histogram generation within subfolder structure
 	//////////////////////////////////////////
-	
+
 	for (kpix = 0; kpix < 32; kpix++) //looping through all possible kpix
 	{
 		//
@@ -585,7 +658,7 @@ int main ( int argc, char **argv )
 			kpix_folder->mkdir(FolderName.str().c_str());
 			TDirectory *cycle_folder = kpix_folder->GetDirectory(FolderName.str().c_str());
 			rFile->cd(cycle_folder->GetPath());
-			for (uint cycles = 0; cycles < cycle_checking; cycles++)
+			for (int cycles = 0; cycles < cycle_checking; cycles++)
 			{
 				FolderName.str("");
 				FolderName << "cycle_" << cycles;
@@ -646,23 +719,39 @@ int main ( int argc, char **argv )
 							channel_folder->mkdir(FolderName.str().c_str());
 							TDirectory *buckets_folder = channel_folder->GetDirectory(FolderName.str().c_str());
 							rFile->cd(buckets_folder->GetPath());
-	
-	
-							tmp.str("");  //set stringstream tmp to an empty string
+							if (calibration_check == 1)
+							{
+								tmp.str("");  //set stringstream tmp to an empty string	
+								tmp << "hist_fc" << "_s" << dec <<  kpix2strip_left.at(channel);
+								tmp << "_c" << dec << setw(4) << setfill('0') << channel;
+								tmp << "_b" << dec << bucket; // add _b$bucket
+								tmp << "_k" << dec << kpix; // add _k$kpix to stringstream
 							
-							tmp << "hist" << "_s" << dec <<  kpix2strip_left.at(channel);
-							tmp << "_c" << dec << setw(4) << setfill('0') << channel;
-							tmp << "_b" << dec << bucket; // add _b$bucket
-							tmp << "_k" << dec << kpix; // add _k$kpix to stringstream
-	
-							tmp_units.str(""); //set stringstream decribing histogram units to an empty string
-							tmp_units << "hist" << "_s" << dec <<  kpix2strip_left.at(channel);
-							tmp_units << "_c" << dec << setw(4) << setfill('0') << channel;
-							tmp_units << "_b" << dec << bucket; // add _b$bucket
-							tmp_units << "_k" << dec << kpix; // add _k$kpix to stringstream
-							tmp_units << "; Charge (ADC); #entries/#acq.cycles"; // add title: x label, y label to stringstream
-						
-							hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,8191.5);
+								tmp_units.str(""); //set stringstream decribing histogram units to an empty string
+								tmp_units << "hist_fc" << "_s" << dec <<  kpix2strip_left.at(channel);
+								tmp_units << "_c" << dec << setw(4) << setfill('0') << channel;
+								tmp_units << "_b" << dec << bucket; // add _b$bucket
+								tmp_units << "_k" << dec << kpix; // add _k$kpix to stringstream
+								tmp_units << "; Charge (fC); #entries/#acq.cycles"; // add title: x label, y label to stringstream
+							}
+							else
+							{
+								tmp.str("");  //set stringstream tmp to an empty string
+								
+								tmp << "hist" << "_s" << dec <<  kpix2strip_left.at(channel);
+								tmp << "_c" << dec << setw(4) << setfill('0') << channel;
+								tmp << "_b" << dec << bucket; // add _b$bucket
+								tmp << "_k" << dec << kpix; // add _k$kpix to stringstream
+		
+								tmp_units.str(""); //set stringstream decribing histogram units to an empty string
+								tmp_units << "hist" << "_s" << dec <<  kpix2strip_left.at(channel);
+								tmp_units << "_c" << dec << setw(4) << setfill('0') << channel;
+								tmp_units << "_b" << dec << bucket; // add _b$bucket
+								tmp_units << "_k" << dec << kpix; // add _k$kpix to stringstream
+								tmp_units << "; Charge (ADC); #entries/#acq.cycles"; // add title: x label, y label to stringstream
+							}
+							hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,8191.5);							
+							
 	
 							tmp.str("");
 							tmp << "hist_timed" << "_s" << dec <<  kpix2strip_left.at(channel);
@@ -697,21 +786,6 @@ int main ( int argc, char **argv )
 							channel_time[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,8191.5);
 	
 	
-							tmp.str("");
-							tmp << "charge" << "_s" << dec <<  kpix2strip_left.at(channel);
-							tmp << "_c" << dec << setw(4) << setfill('0') << channel;
-							tmp << "_b" << dec << bucket;
-							tmp << "_r" << dec << range;
-							tmp << "_k" << dec << kpix;
-	
-							tmp_units.str("");
-							tmp_units << "charge" << "_s" << dec <<  kpix2strip_left.at(channel);
-							tmp_units << "_c" << dec << setw(4) << setfill('0') << channel;
-							tmp_units << "_b" << dec << bucket;
-							tmp_units << "_k" << dec << kpix;
-							tmp_units << "; Charge/fC; #entries/#acq.cycles";
-	
-							//hist_charge[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),300, -0.5,8191.5);
 							
 							
 						}
@@ -725,7 +799,7 @@ int main ( int argc, char **argv )
 	// Data read for all events for detailed look into single event structure
 	//////////////////////////////////////////
 	dataRead.open(argv[1]); //open binary file
-	uint cycle_num = 0;
+	int cycle_num = 0;
 	int cycle_num_ext = -1;
 	
 	while ( dataRead.next(&event) ) //loop through binary file event structure until end of file
@@ -877,9 +951,15 @@ int main ( int argc, char **argv )
 				trig_diff_list.push_back(5);
 				trig_diff_list.push_back(10);
 				trig_diff_list.push_back(0.5);
+				if (calibration_check == 1)
+				{
+					hist[kpix][channel][bucket][0]->Fill(double(value)/calib_slope[kpix][channel]*pow(10,15) , weight);
+				}
+				else
+				{
+					hist[kpix][channel][bucket][0]->Fill(value, weight);
+				}
 				
-				hist[kpix][channel][bucket][0]->Fill(value, weight);
-				//hist_charge[kpix][channel][bucket][0]->Fill(double(value)/calib_slope[channel]*pow(10,15) , weight);
 				hist_buck_sum[kpix][channel]->Fill(value,weight);
 				channel_entries_total->Fill(channel, weight);
 				channel_time[kpix][channel][bucket][0]->Fill(tstamp, weight);
