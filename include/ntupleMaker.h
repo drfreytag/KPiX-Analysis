@@ -74,7 +74,6 @@ namespace lycoris
     }
     
   }
-
   
   void ntupleMaker::loopKpix(){
     /* 
@@ -101,8 +100,9 @@ namespace lycoris
 
     TFile tfile("kpixTree.root","RECREATE","[dev] kpix ROOT file with histograms & trees");
     // Create a ROOT tree
-    TTree *t1 = new TTree("Cycles","General Tree with basic kpix info");
-    TTree *t2 = new TTree("HitEvent","Event level along bunchClkCount");
+    TTree *t1 = new TTree("Cycles","temperature etc /cycle");
+    TTree *t2 = new TTree("HitEvent","Hit/range/bucket/channel/kpix, with cycle index");
+    TTree *t3 = new TTree("ExtTstamp","external time stamp / cycle");
     TH1F *htest   = new TH1F("htest","CycleNr",7000,83000,90000);
 
     // Define some templates for the tree branch
@@ -124,12 +124,16 @@ namespace lycoris
     }kDATA;
 
     typedef struct {
+      
       uint tstamp; // bunchClkCount based
       uint value; // unit of 1/8 of the bunchClkCount == based on AcqClk.
     }kEXTTS;
 
+    //using Vec = std::vector<kEXTTS>;
+    //Vec *vtstamp = new Vec;
+      
     static kDATA Hits;
-    static kEXTTS ExtTrig;
+    static kEXTTS exttstamp;
     static CYCLEN cyclen;
     //static POINT hit;
     int cyclecount=0;
@@ -138,6 +142,7 @@ namespace lycoris
     int ev=0;
     uint CycleNr=0;
     // Create TBranches
+    //t1->Branch("tstamp",&vtstamp);
     t1->Branch("cyclen", &cyclen, "CycleNr/i:CycleTimeStamp/i:CycleSampleCount/i");
     t1->Branch("kpixOnRun", &kpixOnRun);
     t1->Branch("cyclecount", &cyclecount, "cyclecount/I");
@@ -145,16 +150,18 @@ namespace lycoris
     //t1->Branch("Bucket", &Bucket);
     t1->Branch("nHits", &nHits, "nHits/I");
     t1->Branch("nTrig", &nTrig, "nTrig/i");
-    
+
     t2->Branch("ev", &ev, "ev/I");
     t2->Branch("CycleNr", &CycleNr, "CycleNr/i");
     t2->Branch("Hits", &Hits, "tstamp/i:kpix/i:channel/i:bucket/i:range/i:ADC/i");
-    //t2->Branch("ExtTrig", &ExtTrig, "tstamp/i:value/i");
+
+    t3->Branch("CycleNr", &CycleNr, "CycleNr/i");
+    t3->Branch("exttstamp", &exttstamp, "tstamp/i:value/i");
 
     /* // Here we loop over kpix event to fill the tree: */
     while ( _dataRead.next(&_cycleevent) ){
       (*kpixOnRun).clear();
-
+      //(*vtstamp).clear();
       nHits=0;
       nTrig=0;
       cyclecount++;
@@ -187,6 +194,10 @@ namespace lycoris
 
 	if (_type == KpixSample::Timestamp) {
 	  nTrig++;
+	  exttstamp.tstamp = _tstamp;
+	  exttstamp.value  = _value;
+	  //vtstamp->push_back(exttstamp);
+	  t3->Fill();
 	}
 	
     	if ( _type == KpixSample::Data ){

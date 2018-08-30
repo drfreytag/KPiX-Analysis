@@ -20,4 +20,3 @@ threshold_scan_script.sh
 SLAC_plot_script.sh
 channel_list_noise.txt
 run.sh
-src/ntupleTest.cxx
