@@ -130,7 +130,7 @@ namespace lycoris
     }kEXTTS;
 
     //using Vec = std::vector<kEXTTS>;
-    //Vec *vtstamp = new Vec;
+    std::vector<kEXTTS> vtstamp;
       
     static kDATA Hits;
     static kEXTTS exttstamp;
@@ -142,7 +142,7 @@ namespace lycoris
     int ev=0;
     uint CycleNr=0;
     // Create TBranches
-    //t1->Branch("tstamp",&vtstamp);
+    t1->Branch("tstamp",&vtstamp);
     t1->Branch("cyclen", &cyclen, "CycleNr/i:CycleTimeStamp/i:CycleSampleCount/i");
     t1->Branch("kpixOnRun", &kpixOnRun);
     t1->Branch("cyclecount", &cyclecount, "cyclecount/I");
@@ -161,7 +161,7 @@ namespace lycoris
     /* // Here we loop over kpix event to fill the tree: */
     while ( _dataRead.next(&_cycleevent) ){
       (*kpixOnRun).clear();
-      //(*vtstamp).clear();
+      vtstamp.clear();
       nHits=0;
       nTrig=0;
       cyclecount++;
@@ -196,7 +196,7 @@ namespace lycoris
 	  nTrig++;
 	  exttstamp.tstamp = _tstamp;
 	  exttstamp.value  = _value;
-	  //vtstamp->push_back(exttstamp);
+	  vtstamp.push_back(exttstamp);
 	  t3->Fill();
 	}
 	

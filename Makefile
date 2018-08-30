@@ -27,8 +27,12 @@ OBJ=$(PWD)/.obj
 BIN=$(PWD)/bin
 
 #default:
-all: dir map $(EXT_OBJ) $(binaries)
+all: dir map LycorisDict.cxx $(EXT_OBJ) $(binaries)
 ana: dir map analysis
+
+
+LycorisDict.cxx: $(INC)/ntupleMaker.h $(INC)/LinkDef.h
+	rootcint -f $@ -c $(CFLAGS) -p $^
 
 $(OBJ)/%.o: $(EXT_DIR)/%.cpp $(EXT_DIR)/%.h 
 	$(CC) -c $(CFLAGS) $(KP_RLIB) -o $@ $<
