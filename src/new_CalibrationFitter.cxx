@@ -954,6 +954,7 @@ int main ( int argc, char **argv ) {
 		    tmp << "calib_" << serial << "_c" << dec << setw(4) << setfill('0') << channel;
 		    tmp << "_b" << dec << bucket;
 		    tmp << "_r" << dec << range;
+		    tmp << "_k" << dec << kpix;
 		    //grCalib->SetTitle(tmp.str().c_str());
 		    grCalib->Write(tmp.str().c_str());
 		    
@@ -969,6 +970,7 @@ int main ( int argc, char **argv ) {
 		    tmp << "resid_" << serial << "_c" << dec << setw(4) << setfill('0') << channel;
 		    tmp << "_b" << dec << bucket;
 		    tmp << "_r" << dec << range;
+		    tmp << "_k" << dec << kpix;
 		    //grResid->SetTitle(tmp.str().c_str());
 		    grResid->Write(tmp.str().c_str());
 		    

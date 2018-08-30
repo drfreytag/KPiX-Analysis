@@ -42,18 +42,19 @@ def loopdir(keys):  # loop through all subdirectories of the root file and add a
 						for name in args.name:
 							for refuse in args.refuse:
 								for channel in args.channel:	
-									for bucket in args.bucket:
-										for kpix in args.kpix:
-											if (bucket == 4):
-												if ((name in key_object.GetName() and refuse not in key_object.GetName()) \
-												and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('b' not in key_object.GetName()) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
-													#print 'Histogram found: ', key_object.GetName()
-													graph_list.append(key_object)
-											else:
-												if ((name in key_object.GetName() and refuse not in key_object.GetName()) \
-												and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('b'+str(bucket) in key_object.GetName() or bucket == 9999) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
-													#print 'Histogram found: ', key_object.GetName()
-													graph_list.append(key_object)
+									for strip in args.strip:
+										for bucket in args.bucket:
+											for kpix in args.kpix:
+												if (bucket == 4):
+													if ((name in key_object.GetName() and refuse not in key_object.GetName()) \
+													and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('_s'+str(strip)+'_' in key_object.GetName() or strip == '9999') and ('b' not in key_object.GetName()) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
+														#print 'Histogram found: ', key_object.GetName()
+														graph_list.append(key_object)
+												else:
+													if ((name in key_object.GetName() and refuse not in key_object.GetName()) \
+													and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('_s'+str(strip)+'_' in key_object.GetName() or strip == '9999') and ('b'+str(bucket) in key_object.GetName() or bucket == 9999) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
+														#print 'Histogram found: ', key_object.GetName()
+														graph_list.append(key_object)
 			else:
 				if(args.name == 'everything' and key_object.ReadObj().GetEntries() != 0):
 					#print key_object.GetName()
@@ -67,20 +68,21 @@ def loopdir(keys):  # loop through all subdirectories of the root file and add a
 						for name in args.name:
 							for refuse in args.refuse:
 								for channel in args.channel:	
-									for bucket in args.bucket:
-										for kpix in args.kpix:
-											if (bucket == 4):
-												if ((name in key_object.GetName() and refuse not in key_object.GetName()) \
-												and (key_object.ReadObj().GetEntries() != 0) \
-												and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('b' not in key_object.GetName()) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
-													#print 'Histogram found: ', key_object.GetName()
-													hist_list.append(key_object)
-											else:
-												if ((name in key_object.GetName() and refuse not in key_object.GetName()) \
-												and (key_object.ReadObj().GetEntries() != 0) \
-												and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('b'+str(bucket) in key_object.GetName() or bucket == 9999) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
-													#print 'Histogram found: ', key_object.GetName()
-													hist_list.append(key_object)
+									for strip in args.strip:
+										for bucket in args.bucket:
+											for kpix in args.kpix:
+												if (bucket == 4):
+													if ((name in key_object.GetName() and refuse not in key_object.GetName()) \
+													and (key_object.ReadObj().GetEntries() != 0) \
+													and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('_s'+str(strip)+'_' in key_object.GetName() or strip == '9999') and ('b' not in key_object.GetName()) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
+														#print 'Histogram found: ', key_object.GetName()
+														hist_list.append(key_object)
+												else:
+													if ((name in key_object.GetName() and refuse not in key_object.GetName()) \
+													and (key_object.ReadObj().GetEntries() != 0) \
+													and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('_s'+str(strip)+'_' in key_object.GetName() or strip == '9999') and ('b'+str(bucket) in key_object.GetName() or bucket == 9999) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
+														#print 'Histogram found: ', key_object.GetName()
+														hist_list.append(key_object)
 
 def hist_plotter():
 	if ('same' in args.draw_option):
@@ -99,7 +101,13 @@ def hist_plotter():
 		x_high = None
 		y_low = None
 		y_high = None
-		for histogram in hist_list:
+		new_hist_list = []
+		if args.order:
+			for i in args.order:
+				new_hist_list.append(hist_list[i]) 
+		else:
+			new_hist_list = hist_list
+		for histogram in new_hist_list:
 			##------------------
 			##loop through the histograms, get all parameters
 			obj = histogram.ReadObj()
@@ -268,7 +276,15 @@ def graph_plotter():
 		x_high = None
 		y_low = None
 		y_high = None
-		for graph in graph_list:
+		
+		new_graph_list = []
+		if args.order:
+			for i in args.order:
+				new_graph_list.append(graph_list[i]) 
+		else:
+			new_graph_list = graph_list
+		
+		for graph in new_graph_list:
 			##------------------
 			##loop through the histograms, get all parameters
 			obj = graph.ReadObj()
@@ -465,6 +481,7 @@ parser = MyParser()
 parser.add_argument('file_in', nargs='+', help='name of the input file')
 parser.add_argument('-n', '--name', dest='name', default=['everything'], nargs='*',  help='used to specify the name of the plot which should be used')
 parser.add_argument('-c', '--channel', dest='channel', default=['9999'], nargs='*', help='used to specify the channel of the plot which should be used')
+parser.add_argument('-s', '--strip', dest='strip', default=['9999'], nargs='*', help='used to specify the strip of the plot which should be used')
 parser.add_argument('-b', '--bucket', dest='bucket', default=[9999], nargs='*', type=int, help='used to specify the bucket of the plot which should be used | type=int')
 parser.add_argument('-k', '--kpix', dest='kpix', default=[9999], nargs='*', type=int, help='used to specify the bucket of the plot which should be used | type=int')
 parser.add_argument('-d', '--draw', dest='draw_option', default='', help='specify the drawing option as given by the root draw option, needs to be given as a single string (e.g. hist same or hist same multifile')
@@ -479,6 +496,7 @@ parser.add_argument('--ylog', dest='ylog', help='if given as an option, set y ax
 parser.add_argument('--color', dest='color', default=[60, 416, 1, 432, 402, 880, 860, 900, 800, 840], nargs='*', type=int, help='list of colors to be used | type=int')
 parser.add_argument('--xtitle', dest='xtitle', help='choose the name of the x axis title')
 parser.add_argument('--ytitle', dest='ytitle', help='choose the name of the y axis title')
+parser.add_argument('--order', dest='order', nargs='+', type=int,  help='choose the order of plotting with same (to ensure no histograms overlap)')
 
 args = parser.parse_args()
 if len(sys.argv) < 2:
@@ -506,7 +524,7 @@ for x in root_file_list:
 	key_root = x.GetListOfKeys()
 	loopdir(key_root)
 
-save_loc = ''
+save_loc = 'testbeam_august/'
 ##-----------------	
 ##general output
 #print args.color
@@ -516,6 +534,7 @@ print 'Looking for histograms/graphs'
 print '----------------------'
 print 'Name contains ', args.name
 print 'Channel [9999 = everything] ',args.channel
+print 'Strip [9999 = everything] ',args.strip
 print 'Bucket [9999 = everything; 4 = only total] ',args.bucket
 print 'KPiX [9999 = everything] ',args.kpix
 
@@ -527,6 +546,7 @@ if (args.ylog and args.yaxisrange[0] is 0):
 	print 'Setting y axis to log, only works if the range was specified to start at y_min > 0'
 ##------------------
 ##start of the plotting.
+
 
 if (len(hist_list) is not 0):
 	hist_plotter()

@@ -139,21 +139,46 @@ for chan in xrange(920):
 	if right_strip_b3:
 		Input_right_b3.append(right_strip_b3_hist.GetBinContent(chan+1))
 
-max_tot=max(Input_left)
-if (max(Input_right)>max_tot):
-	max_tot=max(Input_right)
-max_b0=max(Input_left_b0)
-if (max(Input_right_b0)>max_b0):
-	max_b0=max(Input_right_b0)
-max_b1=max(Input_left_b1)
-if (max(Input_right_b1)>max_b1):
-	max_b1=max(Input_right_b1)
-max_b2=max(Input_left_b2)
-if (max(Input_right_b2)>max_b2):
-	max_b2=max(Input_right_b2)
-max_b3=max(Input_left_b3)
-if (max(Input_right_b3)>max_b3):
-	max_b3=max(Input_right_b3)
+if Input_left:
+	max_tot=max(Input_left)
+else:
+	max_tot=0
+if Input_left_b0:
+	max_b0=max(Input_left_b0)
+else:
+	max_b0=0
+if Input_left_b1:
+	max_b1=max(Input_left_b1)
+else:
+	max_b1=0
+if Input_left_b2:
+	max_b2=max(Input_left_b2)
+else:
+	max_b2=0
+if Input_left_b3:
+	max_b3=max(Input_left_b3)
+else:
+	max_b3=0
+	
+if Input_right:	
+	if (max(Input_right)>max_tot):
+		max_tot=max(Input_right)
+
+if Input_right_b0:	
+	if (max(Input_right_b0)>max_b0):
+		max_b0=max(Input_right_b0)
+
+if Input_right_b1:	
+	if (max(Input_right_b1)>max_b1):
+		max_b1=max(Input_right_b1)
+
+if Input_right_b2:	
+	if (max(Input_right_b2)>max_b2):
+		max_b2=max(Input_right_b2)
+
+if Input_right_b3:	
+	if (max(Input_right_b3)>max_b3):
+		max_b3=max(Input_right_b3)
 
 	
 if Input_left:
