@@ -150,7 +150,7 @@ def loopdir(keys):  # loop through all subdirectories of the root file and add a
 		if ('TDirectory' in key_object.GetClassName()):
 			loopdir(key_object.ReadObj().GetListOfKeys())
 		else:
-			if (('hist_c' in key_object.GetName()) and ('_b' in key_object.GetName()) and ('_k'+args.kpix in key_object.GetName()) and ('time' not in key_object.GetName())):
+			if (('hist_s' in key_object.GetName()) and ('_b' in key_object.GetName()) and ('_k'+args.kpix in key_object.GetName()) and ('time' not in key_object.GetName())):
 				hist_list.append(key_object)
 
 
