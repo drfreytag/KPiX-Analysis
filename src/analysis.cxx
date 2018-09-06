@@ -130,7 +130,7 @@ double smallest_time_diff( vector<double> ext_list, int int_value)
 	for (uint k = 0; k<ext_list.size(); ++k)
 	{
 		double delta_t = int_value-ext_list[k];
-		if (fabs(trigger_diff) > fabs(delta_t)) 
+		if (fabs(trigger_diff) > fabs(delta_t) && delta_t > 0) 
 		{
 			trigger_diff = delta_t;
 		}
@@ -280,6 +280,7 @@ int main ( int argc, char **argv )
 		}
 		else 
 		{
+			cout << " -- Reading " << argv[2] << " as calibration input file." << endl;
 			skip_cycles_front = 0;
 			TFile *calibration_file = TFile::Open(argv[2]);
 			calibration_check = 1;
@@ -580,13 +581,13 @@ int main ( int argc, char **argv )
 			trig_count[kpix][4]  = new TH1F (tmp.str().c_str(), "trig_count;  #triggered channels; #entries/#acq.cycles",1024, -0.5, 1023.5);
 			tmp.str("");
 			tmp << "ext_time_diff_k" << kpix;
-			trigger_difference[kpix] = new TH1D (tmp.str().c_str(), "intern_extern_trig_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 16001, -1000.5, 1000.5);
+			trigger_difference[kpix] = new TH1D (tmp.str().c_str(), "intern_extern_trig_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 8001, -0.5, 1000.5);
 			tmp.str("");
 			tmp << "ext_time_diff_con_k" << kpix;
-			trigger_diff_connected[kpix] = new TH1D (tmp.str().c_str(), "intern_extern_trig_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 16001, -1000.5, 1000.5);
+			trigger_diff_connected[kpix] = new TH1D (tmp.str().c_str(), "intern_extern_trig_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 8001, -0.5, 1000.5);
 			tmp.str("");
 			tmp << "ext_time_diff_discon_k" << kpix;
-			trigger_diff_disconnected[kpix] = new TH1D (tmp.str().c_str(), "intern_extern_trig_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 16001, -1000.5, 1000.5);
+			trigger_diff_disconnected[kpix] = new TH1D (tmp.str().c_str(), "intern_extern_trig_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 8001, -0.5, 1000.5);
 			tmp.str("");
 			tmp << "assigned_channels_k" << kpix << "_total";
 			AssignedChannelHist_Total[kpix] = new TH1F (tmp.str().c_str(), "assigned_channels_per_ext_trig;   #assigned_channels; #entries/#acq.cycles",40, -0.5, 39.5);
@@ -673,7 +674,7 @@ int main ( int argc, char **argv )
 				AssignedChannelHist[kpix][cycles]  = new TH1F (tmp.str().c_str(), "assigned_channels_per_ext_trig;  external_trigger_number; #assigned_channels ",100, -0.5, 99.5);
 				tmp.str("");
 				tmp << "trigger_difference_k" << kpix << "_evt_" << cycles;
-				trigger_difference_per_acq[kpix][cycles]  = new TH1F (tmp.str().c_str(), "trigger_difference;  #entries/#acq.cycles; #Delta T [BunchClkCount] ",16000, -1000.5, 1000.5);
+				trigger_difference_per_acq[kpix][cycles]  = new TH1F (tmp.str().c_str(), "trigger_difference;  #entries/#acq.cycles; #Delta T [BunchClkCount] ",8001, -0.5, 1000.5);
 				//tmp.str("");
 				//tmp << "assigned_number_k" << kpix << "_evt_" << cycles;
 				//AssignedNumberHist[kpix][cycles]  = new TH1F (tmp.str().c_str(), "assigned_NumberOfChannel_per_ext_trig;  #same_assignement; #entries/#acq.cycles",40,0,40);
