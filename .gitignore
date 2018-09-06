@@ -8,7 +8,7 @@ bin/
 ChangeLog
 .cproject
 .project
-*txt
+txt
 *.root
 lib/
 build/
