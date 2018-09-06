@@ -10,6 +10,8 @@ ChangeLog
 .project
 *txt
 *.root
+lib/
+build/
 
 include/kpix_left.hplot_script.sh
 threshold_scan_script.sh
