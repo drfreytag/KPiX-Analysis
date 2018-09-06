@@ -649,7 +649,8 @@ int main ( int argc, char **argv ) {
 
   TH1F *slope_hist_k26 = new TH1F("slope_k26", "Slope distribution; Slope [ADC/fC]; #entries", 200, -20, 20);
   TH1F *slope_hist_k28 = new TH1F("slope_k28", "Slope distribution; Slope [ADC/fC]; #entries", 200, -20, 20);
- 
+  TH1F *slope_hist_k30 = new TH1F("slope_k30", "Slope distribution; Slope [ADC/fC]; #entries", 200, -20, 20);
+   
   TH1F *slope_residual = new TH1F("slope_residual", "Slope_residual; Slope_residual[ADC/fC]; #entries", 2000, -100, 100);
   TH1F *pedestals_fc = new TH1F("pedestals_fc", "Pedestals distribution; Charge [fC]; #entries", 1000, -100, 100);
   
@@ -659,14 +660,16 @@ int main ( int argc, char **argv ) {
   
   TH1F *slope_vs_channel_26 = new TH1F("slope_vs_channel_26", "; Channel ID; Slope [ADC/fC]", 1024, -0.5, 1023.5);
   TH1F *slope_vs_channel_28 = new TH1F("slope_vs_channel_28", "; Channel ID; Slope [ADC/fC]", 1024, -0.5, 1023.5);
-
+  TH1F *slope_vs_channel_30 = new TH1F("slope_vs_channel_30", "; Channel ID; Slope [ADC/fC]", 1024, -0.5, 1023.5);
+  
   TH1F *slope_vs_strip = new TH1F("slope_vs_strip", "; Strip_number; Slope [ADC/fC]", 1840, -0.5, 1839.5);
   TH1F *slope_vs_strip_26 = new TH1F("slope_vs_strip_26", "; Strip_number; Slope [ADC/fC]", 920, -0.5, 919.5);
   TH1F *slope_vs_strip_28 = new TH1F("slope_vs_strip_28", "; Strip_number; Slope [ADC/fC]", 920, 919.5, 1839.5);
-  
+    
   TH1F *RMSfc_v_channel = new TH1F("RMSfc_vs_channel", "; Channel_ID; RMS [fC]", 1024, -0.5, 1023.5);
   TH1F *RMSfc_v_channel_26 = new TH1F("RMSfc_vs_channel_26", "; Channel_ID; RMS [fC]", 1024, -0.5, 1023.5);
   TH1F *RMSfc_v_channel_28 = new TH1F("RMSfc_vs_channel_28", "; Channel_ID; RMS [fC]", 1024, -0.5, 1023.5);
+  TH1F *RMSfc_v_channel_30 = new TH1F("RMSfc_vs_channel_30", "; Channel_ID; RMS [fC]", 1024, -0.5, 1023.5);
       
   TH1F *RMSfc_v_channel_connected = new TH1F("RMSfc_vs_channel_connected", "; Channel_ID; RMS [fC]", 1024, -0.5, 1023.5);
   
@@ -676,6 +679,7 @@ int main ( int argc, char **argv ) {
   TH1F *PedestalsRMS_fc0 = new TH1F("pedestalsRMS_fc0", "Pedestals RMS, All Chn; [fC]; a.u.", 1000, 0, 4);
   TH1F *PedestalsRMS_fc0_26 = new TH1F("pedestalsRMS_fc0_26", "Pedestals RMS, All Chn; [fC]; a.u.", 1000, 0, 4);
   TH1F *PedestalsRMS_fc0_28 = new TH1F("pedestalsRMS_fc0_28", "Pedestals RMS, All Chn; [fC]; a.u.", 1000, 0, 4);
+  TH1F *PedestalsRMS_fc0_30 = new TH1F("pedestalsRMS_fc0_30", "Pedestals RMS, All Chn; [fC]; a.u.", 1000, 0, 4);
   
   TH1F *PedestalsRMS_fc0_disc = new TH1F("pedestalsRMS_fc0_disc", "Pedestals RMS, disc. Chn; [fC]; a.u.", 1000, 0, 4);
   TH1F *PedestalsRMS_fc0_disc_26 = new TH1F("pedestalsRMS_fc0_disc_26", "Pedestals RMS, disc. Chn; [fC]; a.u.", 1000, 0, 4);
@@ -1010,7 +1014,8 @@ int main ( int argc, char **argv ) {
 		      PedestalsRMS_fc0->Fill( ped_charge_err * pow(10,15) );
 		      if (kpix==26) PedestalsRMS_fc0_26->Fill( ped_charge_err * pow(10,15) );
 		      if (kpix==28) PedestalsRMS_fc0_28->Fill( ped_charge_err * pow(10,15) );
-			
+		      if (kpix==30) PedestalsRMS_fc0_30->Fill( ped_charge_err * pow(10,15) );
+		      
 		      //cout << ped_charge_err * pow(10,15) << endl;
 		      if ( kpix2strip_left.at(channel) == 9999 ){
 			PedestalsRMS_fc0_disc->Fill( ped_charge_err * pow(10,15) );
@@ -1049,11 +1054,17 @@ int main ( int argc, char **argv ) {
 				    slope_vs_strip->SetBinContent( kpix2strip_right.at(channel) + 1, slope / pow(10,15) ); 
 				  }
 		      } 
+
+		      if (kpix==30){
+			slope_hist_k30->Fill(slope/pow(10,15));
+			slope_vs_channel_30->SetBinContent( channel+1, slope / pow(10,15) );
+		      }
 		      
 		      if (abs(ped_charge_err * pow(10,15)) < 20) {
 			RMSfc_v_channel->SetBinContent(channel, ped_charge_err * pow(10,15));
 			if (kpix==26) RMSfc_v_channel_26->SetBinContent(channel, ped_charge_err * pow(10,15));
 			if (kpix==28) RMSfc_v_channel_28->SetBinContent(channel, ped_charge_err * pow(10,15));
+			if (kpix==30) RMSfc_v_channel_30->SetBinContent(channel, ped_charge_err * pow(10,15));
 			
 			if (kpix2strip_left.at(channel) != 9999) RMSfc_v_channel_connected->SetBinContent(channel, ped_charge_err * pow(10,15));
 			RMSfc_v_strip_left->SetBinContent( kpix2strip_left.at(channel)+1, ped_charge_err * pow(10,15) );
