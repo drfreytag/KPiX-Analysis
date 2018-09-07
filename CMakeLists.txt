@@ -47,9 +47,25 @@ install( TARGETS Dict LIBRARY DESTINATION lib )
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/libDict_rdict.pcm ${CMAKE_CURRENT_BINARY_DIR}/libDict.rootmap DESTINATION lib )
 
 # add exe:
-add_executable(ana ${PROJECT_SOURCE_DIR}/src/analysis.cxx)
-target_link_libraries(ana ${ROOT_LIBRARIES} ${KPIX_LIB} ${LIBXML2_LIBRARIES} Dict)
-list(APPEND INSTALL_TARGETS ana)
+add_executable(analysis ${PROJECT_SOURCE_DIR}/src/analysis.cxx)
+target_link_libraries(analysis ${ROOT_LIBRARIES} ${KPIX_LIB} ${LIBXML2_LIBRARIES} Dict)
+list(APPEND INSTALL_TARGETS analysis)
+
+add_executable(DuoKpix_CalibFitter ${PROJECT_SOURCE_DIR}/src/DuoKpix_CalibFitter.cxx)
+target_link_libraries(DuoKpix_CalibFitter ${ROOT_LIBRARIES} ${KPIX_LIB} ${LIBXML2_LIBRARIES} Dict)
+list(APPEND INSTALL_TARGETS DuoKpix_CalibFitter)
+
+add_executable(analysisLite ${PROJECT_SOURCE_DIR}/src/analysisLite.cxx)
+target_link_libraries(analysisLite ${ROOT_LIBRARIES} ${KPIX_LIB} ${LIBXML2_LIBRARIES} Dict)
+list(APPEND INSTALL_TARGETS analysisLite)
+
+add_executable(count ${PROJECT_SOURCE_DIR}/src/count.cxx)
+target_link_libraries(count ${ROOT_LIBRARIES} ${KPIX_LIB} ${LIBXML2_LIBRARIES} Dict)
+list(APPEND INSTALL_TARGETS count)
+
+add_executable(new_CalibrationFitter ${PROJECT_SOURCE_DIR}/src/new_CalibrationFitter.cxx)
+target_link_libraries(new_CalibrationFitter ${ROOT_LIBRARIES} ${KPIX_LIB} ${LIBXML2_LIBRARIES} Dict)
+list(APPEND INSTALL_TARGETS new_CalibrationFitter)
 
 add_executable(ntupleTest ${PROJECT_SOURCE_DIR}/src/ntupleTest.cxx)
 target_link_libraries(ntupleTest ${ROOT_LIBRARIES} ${KPIX_LIB} ${LIBXML2_LIBRARIES} Dict)

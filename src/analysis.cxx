@@ -680,7 +680,7 @@ int main ( int argc, char **argv )
 				//AssignedNumberHist[kpix][cycles]  = new TH1F (tmp.str().c_str(), "assigned_NumberOfChannel_per_ext_trig;  #same_assignement; #entries/#acq.cycles",40,0,40);
 			}
 			FolderName.str("");
-			FolderName << "Strips and Channels";
+			FolderName << "Strips_and_Channels";
 			kpix_folder->mkdir(FolderName.str().c_str());
 			TDirectory *channels_folder = kpix_folder->GetDirectory(FolderName.str().c_str());
 			rFile->cd(channels_folder->GetPath());
