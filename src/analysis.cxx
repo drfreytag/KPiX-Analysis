@@ -410,7 +410,7 @@ int main ( int argc, char **argv )
 	TH1F *total_timed= new TH1F("Total_response_timed", "total_response_timed; Charge (ADC); #entries/#acq.cycles", 300, -0.5, 8191.5);
 	
 	
-	TH1D *beam_ext_time_diff = new TH1D("beam_ext_time_diff", "beam_ext_time_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 16001, -1000.5, 1000.5);
+	TH1D *beam_ext_time_diff = new TH1D("beam_ext_time_diff", "beam_ext_time_diff; #Delta T (BunchClkCount); #entries/#acq.cycles", 8001, -0.5, 1000.5);
 	
 	
 	TH1F *ExtTrigPerCycle = new TH1F ("external_triggers_per_cycle", "ext_trig_per_acq.; #ext_triggers_per_acq.cycle; #entries/#acq.cycles",100,0.5,99.5);
@@ -734,6 +734,7 @@ int main ( int argc, char **argv )
 								tmp_units << "_b" << dec << bucket; // add _b$bucket
 								tmp_units << "_k" << dec << kpix; // add _k$kpix to stringstream
 								tmp_units << "; Charge (fC); #entries/#acq.cycles"; // add title: x label, y label to stringstream
+								hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,199.5);	
 							}
 							else
 							{
@@ -750,8 +751,9 @@ int main ( int argc, char **argv )
 								tmp_units << "_b" << dec << bucket; // add _b$bucket
 								tmp_units << "_k" << dec << kpix; // add _k$kpix to stringstream
 								tmp_units << "; Charge (ADC); #entries/#acq.cycles"; // add title: x label, y label to stringstream
+								hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,8191.5);	
 							}
-							hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,8191.5);							
+													
 							
 	
 							tmp.str("");
