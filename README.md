@@ -43,13 +43,47 @@ git push -u myana local.dev
 
 Collaboration ATTENTION! Please always push to your own branch, then to ask for a pull-request on the central git repository!
 
-#### Compile
+#### Compile with CMake
 
 ```
-make -j 4
+mkdir build/; cd build/
+cmake ..
+make install
 ```
-Make options:
-* mini: only analysis.cxx compiled
+
+#### Usage:
+
+If you run an analysis on Acquire binary:
+```
+bin/analysis acquire.bin
+```
+
+If you run ananalysis on Calibration binary:
+```
+bin/new_CalibrationFitter calib.xml calib.bin
+```
+
+If you want the fancy ecal map:
+```
+cd python
+python ecal_mapping.py my_ecal_acquire.bin.root -k 30
+```
+
+If you want the coloful strips :
+```
+cd python
+python strip_mapping.py my_strip.bin.root
+```
+
+If you want to produce the so-called DA map (the 1024 channels in a 32*(4*8) matrix to activate/deactivate their internal trigger), based on the slope value, pedestal RMS and even hot channels during acquire noise run:
+```
+python python/channel_disabler.py --calib calib.bin.root --acquire acquire.bin.root -k 26 28
+```
+
+or for ecal:
+```
+python python/channel_disabler.py --calib calib.bin.root --acquire acquire.bin.root -k 30 --ecal True
+```
 
 #### Branch descriptions:
 
