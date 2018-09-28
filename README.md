@@ -100,6 +100,7 @@ python python/channel_disabler.py --calib calib.bin.root --acquire acquire.bin.r
 
 * CMakeLists.txt: cmake config file
 * src/ :
+```
 src/
 ├── analysis.cxx 
 ├── analysisEcal.cxx
@@ -114,8 +115,10 @@ src/
 ├── ntupleTest.cxx -> ../test/ntupleTest.cxx
 ├── printDat.cxx
 └── subtr_pedestal.cpp
+```
 
 * include/ :
+```
 include/
 ├── analysis.h
 ├── ECAL_new1_ng.h
@@ -128,8 +131,10 @@ include/
 ├── RootCompare.h
 ├── test.h
 └── tracker_59_calibration.h
+```
 
 * scripts/ :
+```
 scripts/
 ├── debugger.C
 ├── mapRun.sh
@@ -140,16 +145,19 @@ scripts/
 ├── run.sh
 ├── tb_analyse_script.sh
 └── testbeam_time_diff_script.sh
+```
 
 * data/:
+```
 data/
 ├── compare.conf
 ├── kpix_to_tracker.dat
 ├── tracker_to_kpix_left.dat
 └── tracker_to_kpix_right.dat
-
+```
 
 * bin :
+```
 bin/
 ├── analysis
 ├── analysisLite
@@ -158,10 +166,12 @@ bin/
 ├── new_CalibrationFitter
 ├── ntupleTest
 └── printDat
+```
 
 * test/ :
+```
 test/
 ├── ntupleTest.cxx
 └── run.sh
-
+```
 
