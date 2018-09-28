@@ -63,6 +63,10 @@ add_executable(count ${PROJECT_SOURCE_DIR}/src/count.cxx)
 target_link_libraries(count ${ROOT_LIBRARIES} ${KPIX_LIB} ${LIBXML2_LIBRARIES} Dict)
 list(APPEND INSTALL_TARGETS count)
 
+add_executable(printDat ${PROJECT_SOURCE_DIR}/src/printDat.cxx)
+target_link_libraries(printDat ${ROOT_LIBRARIES} ${KPIX_LIB} ${LIBXML2_LIBRARIES} Dict)
+list(APPEND INSTALL_TARGETS printDat)
+
 add_executable(new_CalibrationFitter ${PROJECT_SOURCE_DIR}/src/new_CalibrationFitter.cxx)
 target_link_libraries(new_CalibrationFitter ${ROOT_LIBRARIES} ${KPIX_LIB} ${LIBXML2_LIBRARIES} Dict)
 list(APPEND INSTALL_TARGETS new_CalibrationFitter)
