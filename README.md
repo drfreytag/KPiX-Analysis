@@ -20,7 +20,7 @@ mkdir lib
 cp $KPIX-DAQ/libkpix.so lib/
 ```
 
-### Basic setup:
+### How-to Install?
 --------------
 
 #### Add the central KPiX-Daq repository to get the master branch:
@@ -30,7 +30,7 @@ git clone https://github.com/Lycoris2017/KPiX-Analysis.git kpix_ana
 cd kpix_ana
 ```
 
-#### (Option) As developper:
+#### (Optional) As developper:
 
 If you are a developper of this software, please click the 'Fork' on top right of this page. Then add your mirror and push your 'dev' branch to it:
 
@@ -50,6 +50,9 @@ mkdir build/; cd build/
 cmake ..
 make install
 ```
+
+### How-to Use?
+--------------
 
 #### Usage:
 
@@ -85,8 +88,80 @@ or for ecal:
 python python/channel_disabler.py --calib calib.bin.root --acquire acquire.bin.root -k 30 --ecal True
 ```
 
+### Repo management
+--------------
+
 #### Branch descriptions:
 
 * master: up-to-date latest development version.
+* experimental: collaborative branch for development.
+
+#### Subdir structure:
+
+* CMakeLists.txt: cmake config file
+* src/ :
+src/
+├── analysis.cxx 
+├── analysisEcal.cxx
+├── analysisLite.cxx
+├── analysis_test.cxx
+├── calib_compare.cxx
+├── calibrationFitter.cxx
+├── count.cxx
+├── crossCalib.cpp
+├── DuoKpix_CalibFitter.cxx
+├── new_CalibrationFitter.cxx
+├── ntupleTest.cxx -> ../test/ntupleTest.cxx
+├── printDat.cxx
+└── subtr_pedestal.cpp
+
+* include/ :
+include/
+├── analysis.h
+├── ECAL_new1_ng.h
+├── kpix_left_and_right.h
+├── kpix_left.h
+├── kpixmap.h
+├── kpix_right.h
+├── LinkDef.h
+├── ntupleMaker.h
+├── RootCompare.h
+├── test.h
+└── tracker_59_calibration.h
+
+* scripts/ :
+scripts/
+├── debugger.C
+├── mapRun.sh
+├── obsolete
+│   ├── Makefile.20180830
+│   └── test.sh
+├── plot_script.sh
+├── run.sh
+├── tb_analyse_script.sh
+└── testbeam_time_diff_script.sh
+
+* data/:
+data/
+├── compare.conf
+├── kpix_to_tracker.dat
+├── tracker_to_kpix_left.dat
+└── tracker_to_kpix_right.dat
+
+
+* bin :
+bin/
+├── analysis
+├── analysisLite
+├── count
+├── DuoKpix_CalibFitter
+├── new_CalibrationFitter
+├── ntupleTest
+└── printDat
+
+* test/ :
+test/
+├── ntupleTest.cxx
+└── run.sh
 
 
