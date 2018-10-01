@@ -1,6 +1,10 @@
 // Develop log: @ Sep 7 mengqing
 /*
  * error bar wrong to do!
+ * Logic: 
+ * - main: fCPrint
+ * - leve-1 slave: adc2fC => apply slope to 
+ *   - level-2 slave: getSlope => to find the correct slope from the calibration root file
  */
 
 
