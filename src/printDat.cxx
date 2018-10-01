@@ -20,13 +20,15 @@
 #include <KpixEvent.h>
 #include <KpixSample.h>
 #include <Data.h>
-#include <DataRead.h>
+//#include <DataRead.h>
 #include <math.h>
 #include <fstream>
 #include <string.h>
 
 #include "TH1F.h"
 #include "TFile.h"
+
+//#include "KpixRead.h"
 
 using namespace std;
 
@@ -36,7 +38,7 @@ int main ( int argc, char **argv ) {
   bool                   printalot=false;
   bool                   print10evts=false;
   bool                   print10hits=false;
-  DataRead               dataRead;
+  KpixRead               dataRead;
   //off_t                  fileSize;
   //off_t                  filePos;
   KpixEvent              event;

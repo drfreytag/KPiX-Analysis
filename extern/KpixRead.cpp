@@ -17,7 +17,7 @@
 // Proprietary and confidential to SLAC.
 //-----------------------------------------------------------------------------
 // Modification history :
-// 04/12/2011: created
+// 04/12/2011: created, Named DataRead.cpp
 //-----------------------------------------------------------------------------
 // Modified by Mengqing Wu <mengqing.wu@desy.de>
 // Modified : 21/08/2018
@@ -40,9 +40,9 @@
 #include <stdint.h>
 using namespace std;
 
-#ifdef RTEMS
+//#ifdef RTEMS
 #define O_LARGEFILE 0
-#endif
+//#endif
 
 // Constructor
 KpixRead::KpixRead ( ) {
