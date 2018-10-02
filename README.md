@@ -98,7 +98,8 @@ python python/channel_disabler.py --calib calib.bin.root --acquire acquire.bin.r
 
 #### Subdir structure:
 
-* CMakeLists.txt: cmake config file
+* CMakeLists.txt: cmake config file.
+* init.sh: environmental var definition.
 * src/ :
 ```
 src/
@@ -132,7 +133,22 @@ include/
 ├── test.h
 └── tracker_59_calibration.h
 ```
-
+* extern/ : external libraries comes here (basically kpix bin decode binaries)
+```
+extern/
+├── include
+│   ├── Data.h
+│   ├── DataRead.h
+│   ├── KpixEvent.h
+│   ├── KpixSample.h
+│   └── XmlVariables.h
+└── src
+    ├── Data.cpp
+    ├── DataRead.cpp
+    ├── KpixEvent.cpp
+    ├── KpixSample.cpp
+    └── XmlVariables.cpp
+```
 * scripts/ :
 ```
 scripts/
@@ -147,7 +163,7 @@ scripts/
 └── testbeam_time_diff_script.sh
 ```
 
-* data/:
+* data/: data needs for `scripts/` or `include/` or `src/`.
 ```
 data/
 ├── compare.conf
@@ -156,7 +172,7 @@ data/
 └── tracker_to_kpix_right.dat
 ```
 
-* bin :
+* bin : executables to run analyses or build up tree/particle evnts.
 ```
 bin/
 ├── analysis
@@ -168,7 +184,7 @@ bin/
 └── printDat
 ```
 
-* test/ :
+* test/ : test dir, you do not care.
 ```
 test/
 ├── ntupleTest.cxx

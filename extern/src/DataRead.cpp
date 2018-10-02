@@ -17,7 +17,7 @@
 // Proprietary and confidential to SLAC.
 //-----------------------------------------------------------------------------
 // Modification history :
-// 04/12/2011: created
+// 04/12/2011: created, Named DataRead.cpp
 //-----------------------------------------------------------------------------
 // Modified by Mengqing Wu <mengqing.wu@desy.de>
 // Modified : 21/08/2018
@@ -27,7 +27,7 @@
 //-----------------------------------------------------------------------------
 
 
-#include "KpixRead.h"
+#include "DataRead.h"
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -45,7 +45,7 @@ using namespace std;
 #endif
 
 // Constructor
-KpixRead::KpixRead ( ) {
+DataRead::DataRead ( ) {
    fd_          = -1;
    size_        = 0;
    sawRunStart_ = false;
@@ -53,14 +53,14 @@ KpixRead::KpixRead ( ) {
    sawRunTime_  = false;
    rdAddr_      = 0;
    rdCount_     = 0;
-   smem_        = NULL;
+   //smem_        = NULL;
 }
 
 // Deconstructor
-KpixRead::~KpixRead ( ) { }
+DataRead::~DataRead ( ) { }
 
 // Process xml
-void KpixRead::xmlParse ( uint32_t size, char *data ) {
+void DataRead::xmlParse ( uint32_t size, char *data ) {
    char         *buff;
    uint32_t      mySize;
    uint32_t      myType;
@@ -81,14 +81,14 @@ void KpixRead::xmlParse ( uint32_t size, char *data ) {
    else if ( bzEnable_ ) {
 // #ifdef USE_BZLIB
 //       if ( BZ2_bzRead ( &bzerror,bzFile_,buff, mySize ) != (int32_t)mySize )  {
-//          cout << "KpixRead::xmlParse -> Read error!" << endl;
+//          cout << "DataRead::xmlParse -> Read error!" << endl;
 //          return;
 //       }
 // #endif
    }
 
    else if ( ::read(fd_, buff, mySize) != (int32_t)mySize) {
-      cout << "KpixRead::xmlParse -> Read error!" << endl;
+      cout << "DataRead::xmlParse -> Read error!" << endl;
       return;
    }
    buff[mySize-1] = 0;
@@ -119,7 +119,7 @@ void KpixRead::xmlParse ( uint32_t size, char *data ) {
 }
 
 // Open file
-bool KpixRead::open ( string file, bool compressed ) {
+bool DataRead::open ( string file, bool compressed ) {
 
 // #ifdef USE_BZLIB
 //    bzEnable_ = compressed;
@@ -149,7 +149,7 @@ bool KpixRead::open ( string file, bool compressed ) {
 //       else bzEnable_ = false;
 
 //       if ( !bzEnable_ ) {
-//          cout << "KpixRead::open -> Failed to open compressed file: " << file << endl;
+//          cout << "DataRead::open -> Failed to open compressed file: " << file << endl;
 //          return(false);
 //       }
 //       cout << "Opened compressed file" << endl;
@@ -160,7 +160,7 @@ bool KpixRead::open ( string file, bool compressed ) {
    // Attempt to open file
    //   else {
       if ( (fd_ = ::open (file.c_str(),O_RDONLY | O_LARGEFILE)) < 0 ) {
-         cout << "KpixRead::open -> Failed to open file: " << file << endl;
+         cout << "DataRead::open -> Failed to open file: " << file << endl;
          return(false);
       }
       //   }
@@ -168,7 +168,7 @@ bool KpixRead::open ( string file, bool compressed ) {
 }
 
 // Open file
-void KpixRead::close () {
+void DataRead::close () {
 // #ifdef USE_BZLIB
 //    int32_t bzerror;
 // #endif
@@ -187,7 +187,7 @@ void KpixRead::close () {
 }
 
 //! Return file size in bytes
-off_t KpixRead::size ( ) {
+off_t DataRead::size ( ) {
    off_t curr;
 
    if ( fd_ < 0 ) return(0);
@@ -200,13 +200,13 @@ off_t KpixRead::size ( ) {
 }
 
 //! Return file position in bytes
-off_t KpixRead::pos ( ) {
+off_t DataRead::pos ( ) {
    if ( fd_ < 0 ) return(0);
    return(lseek(fd_, 0, SEEK_CUR));
 }
 
 // Get next data record
-bool KpixRead::next (Data *data) {
+bool DataRead::next (Data *data) {
    uint32_t size;
    char *shBuff;
    bool found = false;
@@ -215,19 +215,19 @@ bool KpixRead::next (Data *data) {
 //    int32_t  bzerror;
 // #endif
 
-   if ( fd_ < 0 && smem_ == NULL && !bzEnable_ ) return(false);
+   if ( fd_ < 0 /*&& smem_ == NULL && !bzEnable_*/ ) return(false);
 
    // Read until we get data
    do { 
 
       // First read frame size from data file
-      if ( smem_ != NULL ) {
-         if ( dataSharedRead((DataSharedMemory *)smem_,&rdAddr_,&rdCount_, &size, (uint8_t **)(&shBuff) ) == 0 ) {
-            return(false);
-         }
-      } 
-      else if ( bzEnable_ ) {
-
+//      if ( smem_ != NULL ) {
+//         if ( dataSharedRead((DataSharedMemory *)smem_,&rdAddr_,&rdCount_, &size, (uint8_t **)(&shBuff) ) == 0 ) {
+//            return(false);
+//         }
+//      } 
+//      else if ( bzEnable_ ) {
+//
 // #ifdef USE_BZLIB
 
 //          cout << "Reading size field" << endl;
@@ -238,12 +238,12 @@ bool KpixRead::next (Data *data) {
 //          shBuff = NULL;
 // #endif
 
-      }
-      else {
+//      }
+//      else {
 	if ( read(fd_,&size,4) != 4 ) return(false);
          shBuff = NULL;
-      }
-
+//      }
+//
       if ( size == 0 ) continue;
 
       //cout << "Size field = 0x" << hex << size << endl; // wmq
@@ -271,28 +271,30 @@ bool KpixRead::next (Data *data) {
 
          // Unknown
          default: 
-            cout << "KpixRead::next -> Unknown data type 0x" 
+            cout << "DataRead::next -> Unknown data type 0x" 
                  << hex << setw(8) << setfill('0') << ((size >> 28) & 0xF) << " skipping." << endl;
-            if ( smem_ != NULL ) return(false);   
-            else return(lseek(fd_, (size & 0x0FFFFFFF), SEEK_CUR));
+	    //            if ( smem_ != NULL ) return(false);   
+            //else
+	    return(lseek(fd_, (size & 0x0FFFFFFF), SEEK_CUR));
             break;
       }
    } while ( ! found );
 
    // Read data
-   if ( smem_ != NULL ) {
-      data->copy ( (uint32_t *)shBuff,size );
-      cout<<"Read Data: I am copying!\n"; // wmq
-      return(true);
-   }
-   else {
-      if (bzEnable_) return(data->read(bzFile_,size));
-      else return(data->read(fd_,size));
-   }
+   // if ( smem_ != NULL ) {
+   //    data->copy ( (uint32_t *)shBuff,size );
+   //    cout<<"Read Data: I am copying!\n"; // wmq
+   //    return(true);
+   // }
+   // else {
+   //  if (bzEnable_) return(data->read(bzFile_,size));
+   //      else
+   return(data->read(fd_,size));
+      //   }
 }
 
 // Get next data record
-Data *KpixRead::next ( ) {
+Data *DataRead::next ( ) {
   Data *tmp = new Data;
    if ( next(tmp) ) return(tmp);
    else {
@@ -302,39 +304,39 @@ Data *KpixRead::next ( ) {
 }
 
 // Get a config value
-string KpixRead::getConfig ( string var ) {
+string DataRead::getConfig ( string var ) {
    return(config_.get(var));
 }
 
 // Get a status value
-string KpixRead::getStatus ( string var ) {
+string DataRead::getStatus ( string var ) {
    return(status_.get(var));
 }
 
 // Get a config value
-uint32_t KpixRead::getConfigInt ( string var ) {
+uint32_t DataRead::getConfigInt ( string var ) {
    return(config_.getInt(var));
 }
 
 // Get a status value
-uint32_t KpixRead::getStatusInt ( string var ) {
+uint32_t DataRead::getStatusInt ( string var ) {
    return(status_.getInt(var));
 }
 
 // Dump config
-void KpixRead::dumpConfig ( ) {
+void DataRead::dumpConfig ( ) {
    cout << "Dumping current config variables:" << endl;
    cout << config_.getList("   Config: ");
 }
 
 // Dump status
-void KpixRead::dumpStatus ( ) {
+void DataRead::dumpStatus ( ) {
    cout << "Dumping current status variables:" << endl;
    cout << status_.getList("   Status: ");
 }
 
 //! Get config as XML
-string KpixRead::getConfigXml ( ) {
+string DataRead::getConfigXml ( ) {
    string ret;
    ret = "";
    ret.append("<system>\n");
@@ -346,7 +348,7 @@ string KpixRead::getConfigXml ( ) {
 }
 
 //! Dump status
-string KpixRead::getStatusXml ( ) {
+string DataRead::getStatusXml ( ) {
    string ret;
    ret = "";
    ret.append("<system>\n");
@@ -358,61 +360,61 @@ string KpixRead::getStatusXml ( ) {
 }
 
 // Get a start value
-string KpixRead::getRunStart ( string var ) {
+string DataRead::getRunStart ( string var ) {
    return(start_.get(var));
 }
 
 // Get a stop value
-string KpixRead::getRunStop ( string var ) {
+string DataRead::getRunStop ( string var ) {
    return(stop_.get(var));
 }
 
 // Get a time value
-string KpixRead::getRunTime ( string var ) {
+string DataRead::getRunTime ( string var ) {
    return(time_.get(var));
 }
 
 // Dump start
-void KpixRead::dumpRunStart ( ) {
+void DataRead::dumpRunStart ( ) {
    cout << "Dumping run start variables:" << endl;
    cout << start_.getList("   RunStart: ");
 }
 
 // Dump stop
-void KpixRead::dumpRunStop ( ) {
+void DataRead::dumpRunStop ( ) {
    cout << "Dumping run stop variables:" << endl;
    cout << stop_.getList("    RunStop: ");
 }
 
 // Dump time
-void KpixRead::dumpRunTime ( ) {
+void DataRead::dumpRunTime ( ) {
    cout << "Dumping run time variables:" << endl;
    cout << time_.getList("    RunTime: ");
 }
 
 // Return true if we saw start marker, self clearing
-bool  KpixRead::sawRunStart ( ) {
+bool  DataRead::sawRunStart ( ) {
    bool ret = sawRunStart_;
    sawRunStart_ = false;
    return(ret);
 }
 
 // Return true if we saw stop marker, self clearing
-bool  KpixRead::sawRunStop ( ) {
+bool  DataRead::sawRunStop ( ) {
    bool ret = sawRunStop_;
    sawRunStop_ = false;
    return(ret);
 }
 
 // Return true if we saw time marker, self clearing
-bool  KpixRead::sawRunTime ( ) {
+bool  DataRead::sawRunTime ( ) {
    bool ret = sawRunTime_;
    sawRunTime_ = false;
    return(ret);
 }
 
 // Enable shared 
-// void KpixRead::openShared ( string system, uint32_t id, int32_t uid ) {
+// void DataRead::openShared ( string system, uint32_t id, int32_t uid ) {
 
 //    // Attempt to open and init shared memory
 //    if ( (smemFd_ = dataSharedOpenAndMap ( (DataSharedMemory **)(&smem_) , system.c_str(), id, uid )) < 0 ) {

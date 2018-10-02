@@ -20,13 +20,15 @@
 #include <KpixEvent.h>
 #include <KpixSample.h>
 #include <Data.h>
-#include <DataRead.h>
+//#include <DataRead.h>
 #include <math.h>
 #include <fstream>
 #include <string.h>
 
 #include "TH1F.h"
 #include "TFile.h"
+
+#include "DataRead.h"
 
 using namespace std;
 
