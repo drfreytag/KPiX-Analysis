@@ -1,3 +1,12 @@
+
+#------------------
+#- Author: Mengqing Wu <mengqing.wu@desy.de>
+#- Generated: September, 2018
+#- Modified: October 1st, 2018
+#- for LYCORIS project at DESY.
+#------------------
+
+
 ##-- Specify the minimum version for CMake
 
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
@@ -22,8 +31,6 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH ${LIBRARY_INSTALL_RPATH})
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-set(KPIX_LOCAL_LIB extern) 
-
 ##-- C11 setup
 SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ADD_DEFINITIONS("-Wunused-value -Wall -pedantic -Wshadow -fdiagnostics-color=auto") 
@@ -43,6 +50,7 @@ include_directories( ${LIBXML2_INCLUDE_DIR} )
 ##-- Extern Packages to install prior
 if (USE_KPIX)
   message(" [INFO] local KPiX lite package used.")
+  set(KPIX_LOCAL_LIB extern) 
   include_directories( ${PROJECT_SOURCE_DIR}/extern/include)
   
   aux_source_directory( ${PROJECT_SOURCE_DIR}/extern/src LIB_SRC)
@@ -59,7 +67,6 @@ else () # not tested, definately not working...
   set(CMAKE_INSTALL_RPATH ${KPIX_INSTALL_RPATH})
   include_directories( /usr/local/include/kpix )
   find_library(KPIX_EXT_LIB kpix)
-  list(APPEND )
   
 endif (USE_KPIX)
 
