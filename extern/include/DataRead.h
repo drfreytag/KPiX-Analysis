@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// File          : KpixRead.h
+// File          : DataRead.h
 // Author        : Ryan Herbst  <rherbst@slac.stanford.edu>
 // Created       : 04/12/2011
 // Project       : General Purpose
@@ -32,7 +32,7 @@
 #include <map>
 #include <Data.h>
 #include <XmlVariables.h>
-#include <DataSharedMem.h>
+//#include <DataSharedMem.h>
 #include <stdint.h>
 
 /* #ifdef USE_BZLIB */
@@ -49,11 +49,11 @@ using namespace std;
 typedef map<string,string> VariableHolder;
 
 //! Class to contain generic register data.
-class KpixRead {
+class DataRead {
 
       // Shared memory
-      uint32_t smemFd_;
-      void *smem_;
+  // uint32_t smemFd_;
+  //    void *smem_;
       uint32_t rdAddr_;
       uint32_t rdCount_;
 
@@ -85,10 +85,10 @@ class KpixRead {
    public:
 
       //! Constructor
-      KpixRead ( );
+      DataRead ( );
 
       //! Deconstructor
-      ~KpixRead ( );
+      ~DataRead ( );
 
       //! Open File
       /*! 

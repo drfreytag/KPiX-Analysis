@@ -28,7 +28,7 @@
 #include "TH1F.h"
 #include "TFile.h"
 
-//#include "KpixRead.h"
+#include "DataRead.h"
 
 using namespace std;
 
@@ -38,7 +38,7 @@ int main ( int argc, char **argv ) {
   bool                   printalot=false;
   bool                   print10evts=false;
   bool                   print10hits=false;
-  KpixRead               dataRead;
+  DataRead               dataRead;
   //off_t                  fileSize;
   //off_t                  filePos;
   KpixEvent              event;
