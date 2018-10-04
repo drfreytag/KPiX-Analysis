@@ -1,26 +1,12 @@
 //-----------------------------------------------------------------------------
-// File          : analysis.cpp
-// Author        : Uwe Krämer (orig. Ryan Herbst) <uwe.kraemer@desy.de>
-// Created       : 06/28/2017
-// Project       : KPiX Analysis
-//-----------------------------------------------------------------------------
-// Description :
-// General analysis of KPiX data.
-//-----------------------------------------------------------------------------
-// Copyright (c) 2012 by SLAC. All rights reserved.
-// Proprietary and confidential to SLAC.
-//-----------------------------------------------------------------------------
-// Modification history :
-// 05/30/2012: created
-// 06/28/2017: large scale rewrite of original calibrationFitter.cpp
+// File          : printDat.cxx
+// Author        : Mengqing Wu (origin from Ryan@SLAC)
+// Created       : 01/10/2018
+// Project       : simple evt loop to print data.
 //-----------------------------------------------------------------------------
 #include <iostream>
 #include <iomanip>
 #include <stdarg.h>
-#include <KpixEvent.h>
-#include <KpixSample.h>
-#include <Data.h>
-//#include <DataRead.h>
 #include <math.h>
 #include <fstream>
 #include <string.h>
@@ -29,6 +15,9 @@
 #include "TFile.h"
 
 #include "DataRead.h"
+#include "KpixEvent.h"
+#include "KpixSample.h"
+#include "Data.h"
 
 using namespace std;
 
@@ -37,7 +26,7 @@ using namespace std;
 int main ( int argc, char **argv ) {
   bool                   printalot=false;
   bool                   print10evts=false;
-  bool                   print10hits=false;
+  bool                   print10Sam=false;
   DataRead               dataRead;
   //off_t                  fileSize;
   //off_t                  filePos;
@@ -87,20 +76,21 @@ int main ( int argc, char **argv ) {
   // Read Data - init
   /////////////////////////////////////////
   // check over how many kpixes w/ how many channels connected  
-  printalot = false, print10evts=true, print10hits=false;
+  printalot = false, print10evts=true, print10Sam=false;
   
   while ( dataRead.next(&event) ) {
     kpixeventcount++;
 
-    if (kpixeventcount < 10 && print10evts) {
+    /*if (kpixeventcount < 10 && print10evts) {
       cout << "[dev] 'KpixEvent' Level:" << endl;
       cout << "\tEventNumber = " << event.eventNumber()<<endl;
       cout << "\tTimeStamp = " << event.timestamp() <<endl;
       cout << "\tCount = " << event.count() <<endl;
-      }
+      }*/
     
-    int DataTypeEvtCount=0;
-    int tenhits=0;
+    int DataSampleCount=0, TempSampleCount=0;
+    int tenSamples=0;
+    
     for (uint x1=0; x1 < event.count(); x1++) {
       //// Get sample
       sample  = event.sample(x1);
@@ -115,24 +105,36 @@ int main ( int argc, char **argv ) {
       type    = sample->getSampleType();
       
       if ( type == KpixSample::Data ){
-	DataTypeEvtCount++;
+	DataSampleCount++;
 	
 	kpixFound[kpix]          = true;
 	chanFound[kpix][channel] = true;
 	bucketFound[kpix][channel][bucket] = true;
 	
-	if ( print10hits &&  tenhits < 10 ){
+	if ( print10Sam &&  tenSamples < 11 ){
 	  //cout << kpixeventcount << endl;
 	  cout<<"[dev] kpix = "<<kpix<<", channel = " <<channel <<", bucket = " <<bucket <<"\n";
-	  tenhits++;
+	  tenSamples++;
+	}
+      }
+
+      if ( type == KpixSample::Temperature){
+	TempSampleCount++;
+	if ( print10Sam &&  tenSamples < 11 ){
+	  cout<<"[*]   This is Temperature!" << endl;
+	  cout<<"[dev] kpix = "<<kpix<<", channel = " <<channel <<", bucket = " <<bucket <<"\n";
+	  tenSamples++;
 	}
       }
       
       kpixFound[0] = false; // in any case, kpix=0 is a virtual index
     }
-    if (kpixeventcount < 10 && print10evts)
-      cout << "\tDataTypeCount = " << DataTypeEvtCount <<endl;
     
+    if (kpixeventcount < 10 && print10evts){
+      cout << "\tDataSampleCount = " << DataSampleCount <<endl;
+      cout << "\tTempSampleCount = " << TempSampleCount <<endl;
+    }
+
   }
   dataRead.close();
   

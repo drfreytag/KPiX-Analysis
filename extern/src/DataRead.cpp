@@ -275,7 +275,8 @@ bool DataRead::next (Data *data) {
                  << hex << setw(8) << setfill('0') << ((size >> 28) & 0xF) << " skipping." << endl;
 	    //            if ( smem_ != NULL ) return(false);   
             //else
-	    return(lseek(fd_, (size & 0x0FFFFFFF), SEEK_CUR));
+	    cout << "Type-Size is: "<< size << ", where size = "<< (size & 0x0FFFFFFF) << endl;
+	    return(lseek(fd_, ((size) & 0x0FFFFFFF), SEEK_CUR));
             break;
       }
    } while ( ! found );
