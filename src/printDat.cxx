@@ -24,6 +24,7 @@ using namespace std;
 
 // Process the data
 int main ( int argc, char **argv ) {
+  bool                   doMiniAna=false; 
   bool                   printalot=false;
   bool                   print10evts=false;
   bool                   print10Sam=false;
@@ -122,7 +123,6 @@ int main ( int argc, char **argv ) {
 	TempSampleCount++;
 	if ( print10Sam &&  tenSamples < 11 ){
 	  cout<<"[*]   This is Temperature!" << endl;
-	  cout<<"[dev] kpix = "<<kpix<<", channel = " <<channel <<", bucket = " <<bucket <<"\n";
 	  tenSamples++;
 	}
       }
@@ -130,16 +130,18 @@ int main ( int argc, char **argv ) {
       kpixFound[0] = false; // in any case, kpix=0 is a virtual index
     }
     
+
     if (kpixeventcount < 10 && print10evts){
       cout << "\tDataSampleCount = " << DataSampleCount <<endl;
       cout << "\tTempSampleCount = " << TempSampleCount <<endl;
     }
 
   }
-  dataRead.close();
   
+  dataRead.close();
+
   cout<< "In total, we have #"
-      << kpixeventcount
+      << dec << kpixeventcount
       << " events :)\n"<<endl;
 
   if (kpixeventcount>0) weight = 1.0/kpixeventcount;
@@ -151,7 +153,8 @@ int main ( int argc, char **argv ) {
   //////////////////////////////////////////
   // Read Data
   /////////////////////////////////////////
-  
+  doMiniAna=false;
+  if (!doMiniAna)  return 0;
   //  Initialize all histograms
   vector<uint> numkpix_vec;
   for (kpix=0; kpix<32; kpix++) {

@@ -4,6 +4,7 @@
 *.save*
 *.so
 *.o
+*.log
 bin/
 ChangeLog
 .cproject
