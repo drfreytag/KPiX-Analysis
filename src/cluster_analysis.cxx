@@ -60,6 +60,44 @@ vector<TGraphErrors*> calib_graphs; //needed for current loopdir
 //////////////////////////////////////////
 
 
+class clustercharge 
+{
+	std::vector<int> time;
+	std::vector<double> charge;
+	public:
+	void fill_values(int, double);
+	std::vector<double> aggregate()
+	{
+		vector<double> correlated_charge;
+		double charge_sum[8192] = {0};
+		
+		for (int i = 0; i < time.size(); i++)
+		{
+			for (int j = i; j < time.size(); j++)
+			{
+				if (time[j] == time[i] && j>i)
+				{
+					charge_sum[i] += charge[j];
+				}
+			}
+			if (charge_sum[i] > 0)
+			{
+				correlated_charge.push_back(charge_sum[i]);
+			}
+		}
+		return correlated_charge;
+		
+	}
+};
+
+void clustercharge::fill_values(int x, double y)
+{
+	time.push_back(x);
+	charge.push_back(y);
+}
+
+
+
 void loopdir(TDirectory* dir, string histname)
 {
 	
@@ -178,7 +216,7 @@ int main ( int argc, char **argv )
 	TH1F 					*left_strip_entries[32];
 	TH1F                   	*hist[32][1024];
 	TH1F                   	*hist_cluster[32][256];  // #entries/ADC histograms per channel, bucket, kpix and histogram
-	
+	TH1F 					*cluster_entries[32];
 	
 	// Stringstream initialization for histogram naming
 	stringstream           tmp;
@@ -368,7 +406,7 @@ int main ( int argc, char **argv )
 	
 	
 	dataRead.close();
-	double weight = 1.0/acqProcessed;
+	double weight = 1.0;//acqProcessed;
 	
 	//////////////////////////////////////////
 	// New histogram generation within subfolder structure
@@ -392,6 +430,9 @@ int main ( int argc, char **argv )
 			tmp << "Left_Strip_entries_k_" << kpix << "_total";
 			left_strip_entries[kpix] = new TH1F(tmp.str().c_str(), "Strip_Entries; Strip_address; #entries/#acq.cycles", 920,-0.5, 919.5);
 			
+			tmp.str("");
+			tmp << "Cluster_entries_k_" << kpix << "_total";
+			cluster_entries[kpix] = new TH1F(tmp.str().c_str(), "Cluster_Entries; Cluster_address; #entries/#acq.cycles", 256,-0.5, 255);
 			
 			FolderName.str("");
 			FolderName << "Strips_and_Channels";
@@ -415,7 +456,7 @@ int main ( int argc, char **argv )
 					tmp_units << "_c" << dec << setw(4) << setfill('0') << channel;
 					tmp_units << "_k" << dec << kpix; // add _k$kpix to stringstream
 					tmp_units << "; Charge (fC); #entries/#acq.cycles"; // add title: x label, y label to stringstream
-					hist[kpix][channel] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),5460, -0.5,545.5);	
+					hist[kpix][channel] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),2730, -0.5,545.5);	
 					
 					
 				}
@@ -438,7 +479,7 @@ int main ( int argc, char **argv )
 				tmp_units << "hist_fc" << "_cluster" <<  cluster;
 				tmp_units << "_k" << dec << kpix; // add _k$kpix to stringstream
 				tmp_units << "; Clustered Charge (fC); #entries/#acq.cycles"; // add title: x label, y label to stringstream
-				hist_cluster[kpix][cluster] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),5460, -0.5,545.5);	
+				hist_cluster[kpix][cluster] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),2730, -0.5,545.5);	
 				
 			}
 		}
@@ -460,11 +501,15 @@ int main ( int argc, char **argv )
 		if ( cycle_num > skip_cycles_front)
 		{
 			std::vector<double> time_ext;
+			//float time_corr_clustered_charge[32][256];
+			clustercharge ClustCharge[32][256];
+			
 			
 			//std::vector<int> Assignment_number;
-			int num_trig_count[32][5] = {0};
-			double clustered_value[32][256] = {0};
-		
+			
+			
+			//cout << "Beginning a new EVENT" << endl;
+			
 			//cout << " NEW EVENT " << endl;
 			for (x=0; x < event.count(); x++)
 			{
@@ -494,23 +539,24 @@ int main ( int argc, char **argv )
 					
 						
 					int cluster = kpix2strip_left.at(channel)/cluster_size;
-					
+					//cout << tstamp << endl;
 					if (bucket == 0)
 					{
 						left_strip_entries[kpix]->Fill(kpix2strip_left.at(channel), weight);
+						cluster_entries[kpix]->Fill(cluster, weight);
+						
+						int timestamp = tstamp;
 						
 						if (calibration_check == 1)
 						{
 							double charge_value = double(value)/calib_slope[kpix][channel]*pow(10,15);
-	
-							clustered_value[kpix][cluster] += charge_value;
+							
+							ClustCharge[kpix][cluster].fill_values(timestamp, charge_value);
 							hist[kpix][channel]->Fill(charge_value, weight);
 							
 						}
 					}
 
-					num_trig_count[kpix][bucket] += 1;
-					num_trig_count[kpix][4] += 1;
 					
 					double trig_diff = smallest_time_diff(time_ext, tstamp); //Calculation of minimal difference is done in a function for cleanup
 					
@@ -518,17 +564,18 @@ int main ( int argc, char **argv )
 				}
 
 			}
+			
+			
 			for (int kpix_num = 0; kpix_num < 32; ++kpix_num)
 			{
 				if (kpixFound[kpix_num])
 				{
 					for (int cluster = 0; cluster < clusters; ++cluster)
 					{
-						//cout << "Clustered charge: Cluster" << cluster << "KPIX: " << kpix_num << endl;
-						//cout << clustered_value[kpix_num][cluster] << endl; 
-						if ( clustered_value[kpix_num][cluster] > 1 )
+						std::vector<double> aggregate_charge = ClustCharge[kpix_num][cluster].aggregate();
+						for (int i =0; i < aggregate_charge.size(); i++)
 						{
-							hist_cluster[kpix_num][cluster]->Fill(clustered_value[kpix_num][cluster], weight);
+							hist_cluster[kpix_num][cluster]->Fill(aggregate_charge[i], weight);
 						}
 					}
 				}

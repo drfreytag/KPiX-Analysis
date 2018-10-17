@@ -122,6 +122,10 @@ add_executable(analysis ${PROJECT_SOURCE_DIR}/src/analysis.cxx)
 target_link_libraries(analysis ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
 list(APPEND INSTALL_EXE_TARGETS analysis)
 
+add_executable(cluster_analysis ${PROJECT_SOURCE_DIR}/src/cluster_analysis.cxx)
+target_link_libraries(cluster_analysis ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
+list(APPEND INSTALL_EXE_TARGETS cluster_analysis)
+
 # tree builders:
 
 add_executable(ntupleTest ${PROJECT_SOURCE_DIR}/src/ntupleTest.cxx)
