@@ -734,7 +734,7 @@ int main ( int argc, char **argv )
 								tmp_units << "_b" << dec << bucket; // add _b$bucket
 								tmp_units << "_k" << dec << kpix; // add _k$kpix to stringstream
 								tmp_units << "; Charge (fC); #entries/#acq.cycles"; // add title: x label, y label to stringstream
-								hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,199.5);	
+								hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),5460, -0.5,545.5);	
 							}
 							else
 							{
@@ -845,9 +845,11 @@ int main ( int argc, char **argv )
 					
 					kpix_entries_right[kpix][4]->Fill(channel/32, 31-channel%32, weight);
 					kpix_entries_right[kpix][bucket]->Fill(channel/32, 31-channel%32, weight);
-					
-					left_strip_entries[kpix][bucket]->Fill(kpix2strip_left.at(channel), weight);
-					left_strip_entries[kpix][4]->Fill(kpix2strip_left.at(channel), weight);
+					//if (channel != 395 && channel != 375 && channel != 429 && channel != 333) //DIRTY FIX FOR PRC, GET RID OF IT AGAIN
+					//{
+						left_strip_entries[kpix][bucket]->Fill(kpix2strip_left.at(channel), weight);
+						left_strip_entries[kpix][4]->Fill(kpix2strip_left.at(channel), weight);
+					//}
 					
 					right_strip_entries[kpix][bucket]->Fill(kpix2strip_right.at(channel), weight);
 					right_strip_entries[kpix][4]->Fill(kpix2strip_right.at(channel), weight);
@@ -1117,6 +1119,7 @@ int main ( int argc, char **argv )
 			cout << "Number of monster events in " << kpix << " = " << monster_counter[kpix] << endl;
 			cout << "Number of normed monster events in " << kpix << " = " << monster_counter[kpix]*weight << endl;
 			cout << "Number of entries in KPiX" << kpix << " = " << channel_entries[kpix][4]->GetEntries() << endl << endl;
+			cout << "Number of NORMED entries in KPiX" << kpix << " = " << (channel_entries[kpix][4]->GetEntries())*weight << endl << endl;
 			
 			for (int bin = 1; bin < 1025; bin++)  // bin 0 is the underflow, therefore need to start counting at 1. Bin == channel_address+1
 			{
