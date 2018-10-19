@@ -720,6 +720,8 @@ int main ( int argc, char **argv ) {
 		  tmp << "hist_" << serial << "_c" << dec << setw(4) << setfill('0') << channel;
 		  tmp << "_b" << dec << bucket;
 		  tmp << "_r" << dec << range;
+		  tmp << "_k" << dec << kpix;
+		  
 		  
 		  hist = new TH1F(tmp.str().c_str(),
 				  (tmp.str()+";ADC; Entries / N_of_Cycles").c_str(),
