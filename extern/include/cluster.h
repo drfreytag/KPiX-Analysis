@@ -9,7 +9,8 @@ using namespace std;
 
 class cluster
 {
-		
+	//private:
+		//void charge_aggregation;
 	public:
 		double position;
 		double charge;

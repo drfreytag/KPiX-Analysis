@@ -56,6 +56,7 @@ using namespace std;
 // Global Variables
 //////////////////////////////////////////
 vector<TGraphErrors*> calib_graphs; //needed for current loopdir	
+vector<TH1F*> pedestal_hists;
 //////////////////////////////////////////
 // Functions
 //////////////////////////////////////////
@@ -90,12 +91,27 @@ void loopdir(TDirectory* dir, string histname)
 		else
 		{
 			string keyname = key->GetName();
-			size_t found = keyname.find(histname);
-			if (found == 0) 
+			string keytype = key->GetClassName();
+			size_t found_object = keyname.find(histname);
+			size_t found_type = keytype.find("TH1");
+			if (found_type != 0)
 			{
-				TGraphErrors *calib_graph = (TGraphErrors*)key->ReadObj();
-				calib_graph->SetName(key->GetName());
-				calib_graphs.push_back(calib_graph);
+				
+				if (found_object == 0) 
+				{
+					TGraphErrors *calib_graph = (TGraphErrors*)key->ReadObj();
+					calib_graph->SetName(key->GetName());
+					calib_graphs.push_back(calib_graph);
+				}
+			}
+			else
+			{
+				if (found_object == 0) 
+				{
+					TH1F *pedestal_hist = (TH1F*)key->ReadObj();
+					pedestal_hist->SetName(key->GetName());
+					pedestal_hists.push_back(pedestal_hist);
+				}
 			}
 		}
 	}
@@ -188,7 +204,8 @@ int main ( int argc, char **argv )
 	
 	TH1F 					*left_strip_entries[32];
 	TH1F                   	*hist[32][1024];
-	TH1F                   	*hist_cluster[32][256];  // #entries/ADC histograms per channel, bucket, kpix and histogram
+	TH1F                   	*hist_cluster_position; 
+	TH1F                   	*hist_cluster_charge; 
 	TH1F 					*cluster_entries[32];
 	
 	TH1F 					*left_strip_entries_map;
@@ -214,6 +231,7 @@ int main ( int argc, char **argv )
 	
 	// Calibration slope, is filled when 
 	double					calib_slope[32][1024] = {1}; //ADD buckets later.
+	double					pedestal[32][1024] = {1};
 	int						calibration_check = 0;
 	
 	
@@ -257,6 +275,7 @@ int main ( int argc, char **argv )
 			TFile *calibration_file = TFile::Open(argv[2]);
 			calibration_check = 1;
 			loopdir(calibration_file, "calib_");
+			loopdir(calibration_file, "hist_");
 			for (unsigned int i = 0; i<calib_graphs.size(); ++i)
 			{
 				//cout << "Current key1 = " << cal_key->GetClassName() << endl;
@@ -281,6 +300,38 @@ int main ( int argc, char **argv )
 				//cout << "Slope of KPiX " << kpix << " and channel " << channel << " is " <<  calib_slope[kpix][channel] << endl;
 				
 			}
+			
+			for (unsigned int i = 0; i<pedestal_hists.size(); ++i)
+			{
+				//cout << "Current key1 = " << cal_key->GetClassName() << endl;
+				
+				string pedestal_name         = pedestal_hists[i]->GetName();
+				
+				size_t kpix_num_start     = pedestal_name.find("_k")+2;
+				size_t channel_num_start  = pedestal_name.find("_c")+2;
+				size_t kpix_num_length       = pedestal_name.length() - kpix_num_start;
+				size_t channel_num_length    = pedestal_name.find("_b") - channel_num_start;
+				
+			    string channel_string = pedestal_name.substr(channel_num_start, channel_num_length);
+			    string kpix_string = pedestal_name.substr(kpix_num_start, kpix_num_length);
+			    
+			    //cout << "Channel Number = " <<  channel_string << endl;
+			   // cout << "KPiX Number = " << kpix_string << endl;
+			    
+			    int kpix_num = stoi(kpix_string);
+			    int channel_num = stoi(channel_string);
+				
+				//cout << "KPiX Number = " << kpix_num << endl;
+				//cout << "Channel Number = " << channel_num << endl;
+				//cout << "Parameter 0 " << pedestal_hists[i]->GetFunction("gaus")->GetParameter(0) << endl;
+				//cout << "Parameter 1 " << pedestal_hists[i]->GetFunction("gaus")->GetParameter(1) << endl;
+				//cout << "Parameter 2 " << pedestal_hists[i]->GetFunction("gaus")->GetParameter(2) << endl;
+				pedestal[kpix_num][channel_num] = pedestal_hists[i]->GetFunction("gaus")->GetParameter(1);
+				//cout << "Slope of KPiX " << kpix << " and channel " << channel << " is " <<  calib_slope[kpix][channel] << endl;
+				
+			}
+			
+			
 		}
 		
 	
@@ -327,9 +378,10 @@ int main ( int argc, char **argv )
 	// Single unique histogram generation
 	//////////////////////////////////////////
 	
-	
-	
-	
+	TH2F *cluster_position_vs_charge = new TH2F ("cluster position vs charge", "Cluster position vs charge; Strip position;  Charge (fC)", 410,-0.5,919.5, 20,-0.5,299.5);
+	TH2F *position_vs_charge = new TH2F ("position vs charge", "position vs charge; Strip position;  Charge (fC)", 230,-0.5,919.5, 160,-0.5,159.5);
+	TH2F *position_vs_corrcharge = new TH2F ("position vs corrected charge", "position vs corrected charge; Strip position;  Charge (fC)", 230,-0.5,919.5, 40,-0.5,39.5);
+	TH1F *charge_sum_position = new TH1F ("charge_sum_position" , "charge_sum_position; Strip position; Charge Sum (fC)", 410, -0.5, 919.5);
 	
 	while ( dataRead.next(&event) ) // event read to check for filled channels and kpix to reduce number of empty histograms.
 	{
@@ -391,6 +443,10 @@ int main ( int argc, char **argv )
 	tmp << "Left_Strip_entries_map_k_total";
 	left_strip_entries_map = new TH1F(tmp.str().c_str(), "Strip_Entries; Strip_address; #entries/#acq.cycles", 920,-0.5, 919.5);
 
+	hist_cluster_charge = new TH1F("hist_fc_cluster","hist_fc_cluster; Clustered Charge (fC); #entries/#acq.cycles",2730, -0.5,545.5);
+	hist_cluster_position = new TH1F("hist_cluster","hist_cluster; Cluster Position (Strip Address); #entries/#acq.cycles",920, -0.5,919.5);
+	
+	
 
 	for (kpix = 0; kpix < 32; kpix++) //looping through all possible kpix
 	{
@@ -443,27 +499,12 @@ int main ( int argc, char **argv )
 					
 				}
 			}
-			FolderName.str("");
-			FolderName << "Clusters";
-			kpix_folder->mkdir(FolderName.str().c_str());
-			TDirectory *cluster_folder = kpix_folder->GetDirectory(FolderName.str().c_str());
-			rFile->cd(cluster_folder->GetPath());
-			for (int cluster = 0; cluster < 1024/cluster_size; cluster++)
-			{
-				
-				
-				
-				tmp.str("");  //set stringstream tmp to an empty string	
-				tmp << "hist_fc" << "_cluster" <<  cluster;
-				tmp << "_k" << dec << kpix; // add _k$kpix to stringstream
-				
-				tmp_units.str(""); //set stringstream decribing histogram units to an empty string
-				tmp_units << "hist_fc" << "_cluster" <<  cluster;
-				tmp_units << "_k" << dec << kpix; // add _k$kpix to stringstream
-				tmp_units << "; Clustered Charge (fC); #entries/#acq.cycles"; // add title: x label, y label to stringstream
-				hist_cluster[kpix][cluster] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),2730, -0.5,545.5);	
-				
-			}
+			//FolderName.str("");
+			//FolderName << "Clusters";
+			//kpix_folder->mkdir(FolderName.str().c_str());
+			//TDirectory *cluster_folder = kpix_folder->GetDirectory(FolderName.str().c_str());
+			//rFile->cd(cluster_folder->GetPath());
+
 		}
 	}
 	
@@ -532,16 +573,32 @@ int main ( int argc, char **argv )
 						
 						if (calibration_check == 1)
 						{
-							double charge_value = double(value)/calib_slope[kpix][channel]*pow(10,15);
 							
-							hist[kpix][channel]->Fill(charge_value, weight);
+							//cout << calib_slope[kpix][channel]/pow(10,15) << endl;
 							
-							if (kpix == 26)
+							
+							
+							if (calib_slope[kpix][channel]/pow(10,15) > 1 && calib_slope[kpix][channel]/pow(10,15) < 15 && kpix2strip_left.at(channel) != 9999 && pedestal[kpix][channel] < 1000 && pedestal[kpix][channel] > 100) // Filter out channels with horrible calibration and non connected channels.
 							{
-								//correlated_charge[timestamp][kpix2strip_left.at(channel)] = charge_value;
-								correlated_charge[timestamp].position.push_back(kpix2strip_left.at(channel));
-								correlated_charge[timestamp].charge.push_back(charge_value);
+								double charge_value = double(value)/calib_slope[kpix][channel]*pow(10,15);
+								double corrected_charge_value = charge_value - ( pedestal[kpix][channel] /calib_slope[kpix][channel]*pow(10,15) );
+								//cout << "Charge value : " << charge_value << endl;
+								//cout << "Corrected charge value : " << corrected_charge_value << endl;
+								//cout << "Pedestal : " << pedestal[kpix][channel]/(calib_slope[kpix][channel]/pow(10,15)) << endl;
 								
+								hist[kpix][channel]->Fill(charge_value, weight);
+								
+								if (kpix == 26)
+								{
+									//correlated_charge[timestamp][kpix2strip_left.at(channel)] = charge_value;
+									correlated_charge[timestamp].position.push_back(kpix2strip_left.at(channel));
+									correlated_charge[timestamp].charge.push_back(charge_value);
+									position_vs_charge->Fill(kpix2strip_left.at(channel), charge_value, weight);
+									position_vs_corrcharge->Fill(kpix2strip_left.at(channel), corrected_charge_value, weight);
+									
+									charge_sum_position->Fill(kpix2strip_left.at(channel), charge_value);
+									
+								}
 							}
 							
 							
@@ -562,19 +619,24 @@ int main ( int argc, char **argv )
 				
 				if (cor_charge.second.position.size() > 1 )
 				{
-					cout << "Time Coordinate " << cor_charge.first << endl; 
+					//cout << "Time Coordinate " << cor_charge.first << endl; 
 					for ( int i = 0 ; i < cor_charge.second.position.size(); i++)
 					{
-						cout << "Spatial Coordinate " << cor_charge.second.position.at(i) << endl;
-						cout << "Charge " << cor_charge.second.charge.at(i) << endl;
+						//cout << "Spatial Coordinate " << cor_charge.second.position.at(i) << endl;
+						//cout << "Charge " << cor_charge.second.charge.at(i) << endl;
 						
 					}
 					
 					
 				}
 				chargecluster.construct(cor_charge.second.position, cor_charge.second.charge);
-				cout << chargecluster.position << endl;
-				cout << chargecluster.charge << endl;
+				
+				hist_cluster_charge->Fill(chargecluster.charge, weight);
+				hist_cluster_position->Fill(chargecluster.position, weight);
+				cluster_position_vs_charge->Fill(chargecluster.position, chargecluster.charge, weight);
+				
+				//cout << "Cluster Position " << chargecluster.position << endl;
+				//cout << "Cluster Charge " << chargecluster.charge << endl;
 				
 			}
 				
