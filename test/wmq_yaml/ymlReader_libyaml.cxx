@@ -16,40 +16,113 @@
 #include "TFile.h"
 
 #include <yaml.h>
+#include <assert.h>
 
 using namespace std;
 
-void myparser(string type, const char* str){};
-int exParser();
 
-int main(){
+void compactParser(const char* fn);
 
-  // // File descriptor
-  // int32_t fd_;
-  
-  // string file = "SimConfig.yml";
-  
-  // // Open a file
-  // if ( (fd_ = ::open (file.c_str(),O_RDONLY | O_LARGEFILE)) < 0 ) {
-  //   cout << "DataRead::open -> Failed to open file: " << file << endl;
-  //   return 0;
-  // }
-  
-  // // Read a file to a const char* with size of 
-  // ::read(fd_, buff, 25);
+int exParser1(const char* fn);
+int exParser2(const char* fn);
 
-  exParser();
+int main(int argc, const char* argv[]){
+
+  if (argc<2){
+    cout << "Usage: ymlReader config.yml"<<endl;
+    return 0;
+  }
+ 
+  compactParser(argv[1]);
+  //  exParser1(argv[1]);
   
   return 1;
 }
 
 // Process yml
-/*void myparser(string type, const char* str){
-}*/
+void compactParser(const char* fn){
 
-int exParser()
+  /* funcs:
+   * 1) a fake DataRead wrapper;
+   * 2) 
+   */
+  
+  std::ifstream ifs;
+  
+  ifs.open(fn, std::ifstream::in);
+  if (!ifs.is_open()) {
+
+    cout<< "Error: in file not open" << endl;
+    return;
+  }
+  
+  //  const auto offset = 100;
+  //  ifs.seekg(offset);
+  int length = 100;
+  char* pChars = new char[100];
+
+  ifs.seekg(0, ios::beg);
+  
+  // read the data chunk to buffer and from buffer to output stream
+  //std::vector buff (100, 0);
+  //ifs.read(buff.data(), buff.size());
+  //os.write(buff.data(), buff.size());
+
+  ifs.read(pChars, length);
+
+
+  // -- debug START: output file to test
+  std::ofstream os;
+  os.open("test.txt", ios::out);
+  os.write(pChars, length);
+  os.close();
+  // -- debug END
+  
+  ifs.close();
+}
+
+
+int exParser2(const char* fn)
 {
-  FILE *fh = fopen("cal.yml", "r");
+
+  FILE *file = fopen(fn, "r");
+  yaml_parser_t parser;
+  yaml_document_t document;
+  yaml_node_t *node;
+  int i = 1;
+
+  assert(file);
+  assert(yaml_parser_initialize(&parser));
+
+  // you can use yaml_parser_set_input_string for string input
+  yaml_parser_set_input_file(&parser, file);
+  
+  if (!yaml_parser_load(&parser, &document)) {
+    goto done;
+  }
+
+  while(1) {
+    node = yaml_document_get_node(&document, i);
+    if(!node) break;
+    printf("Node [%d]: %d\n", i++, node->type);
+    if(node->type == YAML_SCALAR_NODE) {
+      printf("Scalar [%d]: %s\n", node->data.scalar.style, node->data.scalar.value);
+    }
+  }
+  yaml_document_delete(&document);
+
+
+ done:
+  yaml_parser_delete(&parser);
+  assert(!fclose(file));
+  
+  return 1;
+}
+
+
+int exParser1(const char* fn){
+
+  FILE *fh = fopen( fn, "r");
   yaml_parser_t parser;
   yaml_token_t  token;   /* new variable */
   //  yaml_event_t  event;   /* New variable */

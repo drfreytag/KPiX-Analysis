@@ -7,5 +7,3 @@ DesyTrackerRoot.DesyTracker.KpixDaqCore.SysConfig.enable:True
 DesyTrackerRoot.DesyTracker.KpixDaqCore.KpixClockGen.enable:True
 DesyTrackerRoot.DesyTracker.KpixDaqCore.AcquisitionControl.enable:True
 DesyTrackerRoot.DesyTracker.KpixDaqCore.KpixAsicArray.enable:True
-DesyTrackerRoot.DesyTrackerRunControl.CalState:Inject
-DesyTrackerRoot.DesyTrackerRunControl.CalChannel:0
