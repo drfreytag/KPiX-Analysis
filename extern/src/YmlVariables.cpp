@@ -1,9 +1,9 @@
 //-----------------------------------------------------------------------------
-// File          : ymlHandler.cxx
+// File          : YmlVariables.cpp
 // Author        : Mengqing Wu <mengqing.wu@desy.de>
-// Created       : 18/10/2018
-// Update        : 24/10/2018
-// Project       : read compact yml variables into a map
+// Created       : 25/10/2018
+// Project       : Lycoris telescope
+// Function      : Compact yml variable handler
 //-----------------------------------------------------------------------------
 
 /*
@@ -26,101 +26,23 @@
 #include <vector>
 #include <sstream> //isstringstream
 #include <string>
-//#include <cstring> // strchr()
-  
-/*
- * X-macro to do a mapping of the YmlLevel names
- */
-#define YML_LEVEL_TABLE \
-  X(Root,       "DesyTrackerRoot") \
-  X(DataWriter, "DataWriter") \
-  X(RunControl, "DesyTrackerRunControl") \
-  X(Config,     "DesyTracker")
 
-#define X(a, b) a,
-enum YML_LEVEL{
-  YML_LEVEL_TABLE
-};
-#undef X
-
-#define X(a, b)b,
-char *yml_level[] = {
-  YML_LEVEL_TABLE
-};
-#undef X
+#include "YmlVariables.h"
 
 using namespace std;
 
-class ymlHandler{
-
-private:
-  //char* _buff;
-  std::map<std::string, std::string> _vars; // !!! important -> key:value storage
-  bool _debug;
-  
-public:
-  //-- Constructor
-  ymlHandler();
-
-  //-- Deconstructor
-  ~ymlHandler();
-
-  //-- X-Macro test usage
-  enum YML_LEVEL test = Root;
-
-  //-- string processors
-  //  char* c_getline(char* cin);
-  
-  //-- funcs
-  char* fakeDataReader (const char* fn);
-  bool buffParser (char* type, char* buff); // type <- yml_level[]
-  bool YmlVarReader (std::string ymlline);
-
-  void setDebug (bool debug) { _debug = debug; }
-  void print() {
-    puts("-- Print var map:\n");
-    for ( auto& it : _vars ) cout << it.first << " : " << it.second << endl;
-  }
-  
-  uint32_t getInt( std::string var );
-  std::string getStr( std::string var);
-  
-};
-
-
-/// --- application main func --- ///
-
-int main(int argc, const char* argv[])
-{
- if (argc<2){
-    cout << "Usage: ymlHandler config.yml"<<endl;
-    return 1;
-  }
- 
- ymlHandler yhand;
- auto data   = yhand.fakeDataReader( argv[1] );
-
- // cout << "main :: debug - data" << endl;
- // cout << data << endl;
- 
- yhand.buffParser( yml_level[RunControl], data);
- yhand.print(); 
- return (0);
-  
-}
-
 /// ------ class functions part: -------- ///
 
-ymlHandler::ymlHandler(){
+YmlVariables::YmlVariables(){
 
   if (_debug) printf("X-Macro: yml level test = %s\n", yml_level[test]);
   _vars.clear();
   _debug=false;
 }
 
-ymlHandler::~ymlHandler(){}  // empty template
+YmlVariables::~YmlVariables(){}  // empty template
 
-uint32_t ymlHandler::getInt ( std::string var ) {
+uint32_t YmlVariables::getInt ( std::string var ) {
   uint32_t     ret;
   string       value;
   const char   *sptr;
@@ -138,20 +60,20 @@ uint32_t ymlHandler::getInt ( std::string var ) {
   return (ret); 
 }
 
-std::string ymlHandler::getStr( std::string var ) {
+std::string YmlVariables::getStr( std::string var ) {
 
   auto iter = _vars.find( var );
   if ( iter == _vars.end() )
     return ("");
   
-  if (_debug) printf(" Find your key : value -> %s : %s", iter->first, iter->second);
+  if (_debug) printf(" Find your key : value -> %s : %s", (iter->first).c_str(), (iter->second).c_str() );
   return iter->second;
    return ("");
 }
 
 
 
-bool ymlHandler::YmlVarReader( std::string ymlline ){
+bool YmlVariables::YmlVarReader( std::string ymlline ){
   
   /* funcs:
    * - a valid char* _buff --> read "Root.Mom.C1.C2...Var:Val" to a _vars["C1:C2...:Var"]=Val;
@@ -218,7 +140,7 @@ bool ymlHandler::YmlVarReader( std::string ymlline ){
 }
 
 
-char* ymlHandler::fakeDataReader(const char* fn) {
+char* YmlVariables::fakeDataReader(const char* fn) {
 
   /* funcs:
    * a fake DataRead wrapper to get a char* _buff readout as if from DataReader;
@@ -248,7 +170,7 @@ char* ymlHandler::fakeDataReader(const char* fn) {
   return datab;
 }
 
-bool ymlHandler::buffParser( char* type, char* buff ){
+bool YmlVariables::buffParser( const char* type, char* buff ){
 
   /* funcs:
    * - loop over all the lines from the char buff[];

@@ -24,8 +24,11 @@ option(MODE_DEBUG
   "Use DEBUG mode, ONLY single module to compile!" OFF)
 
 option(USE_YAML
-  "Turn libyaml-dependency " OFF)
-  
+  "Turn libyaml-dependency ON/OFF." OFF)
+
+option(ADD_EXE_SIMPLE
+  "Add simiple executables: cout/printDat etc." ON)
+
 ##-- cmake setup
 set(CMAKE_BUILD_TYPE Debug )
 
@@ -114,19 +117,21 @@ install( FILES ${CMAKE_CURRENT_BINARY_DIR}/libDict_rdict.pcm ${CMAKE_CURRENT_BIN
 
 ##-- add exe: # maybe cmake can be scripted with a loop using aux_source_directory func?
 
-add_executable(ymlHandler ${PROJECT_SOURCE_DIR}/src/ymlHandler.cxx)
-target_link_libraries(ymlHandler ${ROOT_LIBRARIES})
-list(APPEND INSTALL_EXE_TARGETS ymlHandler)
+add_executable(useYmlVariables ${PROJECT_SOURCE_DIR}/src/useYmlVariables.cxx)
+target_link_libraries(useYmlVariables ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} )
+list(APPEND INSTALL_EXE_TARGETS useYmlVariables)
 
 # simple evt loop code:
 
-add_executable(printDat ${PROJECT_SOURCE_DIR}/src/printDat.cxx)
-target_link_libraries(printDat ${ROOT_LIBRARIES}  ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES})
-list(APPEND INSTALL_EXE_TARGETS printDat)
-
-add_executable(count ${PROJECT_SOURCE_DIR}/src/count.cxx)
-target_link_libraries(count ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
-list(APPEND INSTALL_EXE_TARGETS count)
+if (ADD_EXE_SIMPLE)
+  add_executable(printDat ${PROJECT_SOURCE_DIR}/src/printDat.cxx)
+  target_link_libraries(printDat ${ROOT_LIBRARIES}  ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES})
+  list(APPEND INSTALL_EXE_TARGETS printDat)
+  
+  add_executable(count ${PROJECT_SOURCE_DIR}/src/count.cxx)
+  target_link_libraries(count ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES})
+  list(APPEND INSTALL_EXE_TARGETS count)
+endif(ADD_EXE_SIMPLE)
 
 # calibration ana:
 
