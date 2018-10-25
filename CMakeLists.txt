@@ -23,7 +23,8 @@ option(USE_KPIX
 option(MODE_DEBUG
   "Use DEBUG mode, ONLY single module to compile!" OFF)
 
-option(USE_YAML "Turn libyaml-dependency " OFF)
+option(USE_YAML
+  "Turn libyaml-dependency " OFF)
   
 ##-- cmake setup
 set(CMAKE_BUILD_TYPE Debug )
@@ -153,9 +154,9 @@ list(APPEND INSTALL_EXE_TARGETS cluster_analysis)
 
 # tree builders:
 
-add_executable(ntupleTest ${PROJECT_SOURCE_DIR}/src/ntupleTest.cxx)
-target_link_libraries(ntupleTest ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
-list(APPEND INSTALL_EXE_TARGETS ntupleTest)
+add_executable(TreeMaker ${PROJECT_SOURCE_DIR}/src/TreeMaker.cxx)
+target_link_libraries(TreeMaker ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
+list(APPEND INSTALL_EXE_TARGETS TreeMaker)
 
 
 
