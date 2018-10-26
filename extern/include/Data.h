@@ -1,24 +1,16 @@
 //-----------------------------------------------------------------------------
 // File          : Data.h
-// Author        : Ryan Herbst  <rherbst@slac.stanford.edu>
-// Created       : 04/12/2011
-// Project       : General Purpose
+// Author        : Mengqing Wu <mengqing.wu@desy.de>
+// Created       : 25/10/2018
+// Project       : Lycoris Telescope DAQ
 //-----------------------------------------------------------------------------
 // Description :
-// Generic data container
-//-----------------------------------------------------------------------------
-// This file is part of 'SLAC Generic DAQ Software'.
-// It is subject to the license terms in the LICENSE.txt file found in the 
-// top-level directory of this distribution and at: 
-//    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
-// No part of 'SLAC Generic DAQ Software', including this file, 
-// may be copied, modified, propagated, or distributed except according to 
-// the terms contained in the LICENSE.txt file.
-// Proprietary and confidential to SLAC.
+// Generic data container, originally from Ryan Herbst @SLAC
 //-----------------------------------------------------------------------------
 // Modification history :
-// 04/12/2011: created
+// 25/10/2018 :  add Yml access
 //-----------------------------------------------------------------------------
+
 #ifndef __DATA_H__
 #define __DATA_H__
 
@@ -65,7 +57,8 @@ class Data {
          XmlStatus   = 2,
          XmlRunStart = 3,
          XmlRunStop  = 4,
-         XmlRunTime  = 5
+         XmlRunTime  = 5,
+         YmlConfig   = 6
       };
 
       //! Constructor

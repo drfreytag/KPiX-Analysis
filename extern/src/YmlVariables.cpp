@@ -30,14 +30,25 @@
 #include "YmlVariables.h"
 
 using namespace std;
+ 
+// #define X(a, b)b,
+//   /* All bugs fixed by char const* instead of char*;
+//    * otherwise it complains string convert to char*.
+//    */
+//   char const* yml_level[] = {
+//     YML_LEVEL_TABLE
+//   };
+// #undef X
 
 /// ------ class functions part: -------- ///
 
 YmlVariables::YmlVariables(){
 
+  //yml_level = _yml_level;
   if (_debug) printf("X-Macro: yml level test = %s\n", yml_level[test]);
   _vars.clear();
   _debug=false;
+  
 }
 
 YmlVariables::~YmlVariables(){}  // empty template

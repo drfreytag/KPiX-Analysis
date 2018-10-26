@@ -1,29 +1,16 @@
 //-----------------------------------------------------------------------------
 // File          : DataRead.cpp
-// Author        : Ryan Herbst  <rherbst@slac.stanford.edu>
-// Created       : 04/12/2011
-// Project       : General Purpose
+// Author        : Mengqing Wu <mengqing.wu@desy.de>
+// Created       : 25/10/2018
+// Project       : Lycoris Telescope DAQ
 //-----------------------------------------------------------------------------
 // Description :
-// Read data & configuration from disk
-//-----------------------------------------------------------------------------
-// This file is part of 'SLAC Generic DAQ Software'.
-// It is subject to the license terms in the LICENSE.txt file found in the 
-// top-level directory of this distribution and at: 
-//    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html. 
-// No part of 'SLAC Generic DAQ Software', including this file, 
-// may be copied, modified, propagated, or distributed except according to 
-// the terms contained in the LICENSE.txt file.
-// Proprietary and confidential to SLAC.
+// Read data & configuration from disk, originally from Ryan Herbst @SLAC
 //-----------------------------------------------------------------------------
 // Modification history :
-// 04/12/2011: created, Named DataRead.cpp
-//-----------------------------------------------------------------------------
-// Modified by Mengqing Wu <mengqing.wu@desy.de>
-// Modified : 21/08/2018
-// Project  : Lycoris
-// Target   : Make it lighter, and use C/C++ std lib instead of linux file descriptor for reading bin file.
-//
+// 21/08/2018 : scrap out of old KPiX DAQ package;
+// xx/09/2018 : BZLIB free, shared memory free;
+// 25/10/2018 : has Yml string from bin data to readable holder
 //-----------------------------------------------------------------------------
 
 
@@ -59,15 +46,40 @@ DataRead::DataRead ( ) {
 // Deconstructor
 DataRead::~DataRead ( ) { }
 
+// Process yml
+void DataRead::ymlParse ( uint32_t size, char *data ){
+	char *buff; // empty input currently.
+	uint32_t mySize;
+
+	// Decode size
+	mySize = ( size & 0x0FFFFFFF );
+
+	// Read buff
+	buff = (char *) malloc (mySize + 1);
+	if ( data != NULL ) memcpy (buff, data, mySize);
+
+	else {
+		if ( ::read(fd_, buff, mySize) != (int32_t)mySize ){
+			cout << "DataRead::ymlParse -> Read error!" << endl;
+			return;
+		}
+	}
+	buff[mySize-1] = 0; // not understand, from xmlParse;
+
+	// currently, only RunControl data to process...
+	yaml_.buffParser( yml_level[RunControl], buff);
+	yaml_.print();
+
+	free(buff);
+	return;
+}
+
 // Process xml
 void DataRead::xmlParse ( uint32_t size, char *data ) {
    char         *buff;
    uint32_t      mySize;
    uint32_t      myType;
 
-// #ifdef USE_BZLIB
-//    int32_t          bzerror;
-// #endif
 
    // Decode size
    myType = (size >> 28) & 0xF;
@@ -78,14 +90,6 @@ void DataRead::xmlParse ( uint32_t size, char *data ) {
    // Read file
    buff = (char *) malloc(mySize+1);
    if ( data != NULL ) memcpy(buff,data,mySize);
-   else if ( bzEnable_ ) {
-// #ifdef USE_BZLIB
-//       if ( BZ2_bzRead ( &bzerror,bzFile_,buff, mySize ) != (int32_t)mySize )  {
-//          cout << "DataRead::xmlParse -> Read error!" << endl;
-//          return;
-//       }
-// #endif
-   }
 
    else if ( ::read(fd_, buff, mySize) != (int32_t)mySize) {
       cout << "DataRead::xmlParse -> Read error!" << endl;
@@ -132,7 +136,8 @@ bool DataRead::open ( string file, bool compressed ) {
    size_ = 0;
    status_.clear();
    config_.clear();
-
+   yaml_.clear();
+   
    // Attempt to open compressed file
 //    if ( bzEnable_ ) {
 
@@ -207,101 +212,113 @@ off_t DataRead::pos ( ) {
 
 // Get next data record
 bool DataRead::next (Data *data) {
-   uint32_t size;
-   char *shBuff;
-   bool found = false;
+	uint32_t size;
+	char *shBuff;
+	bool found = false;
+	
+	// #ifdef USE_BZLIB
+	//    int32_t  bzerror;
+	// #endif
+	
+	if ( fd_ < 0 /*&& smem_ == NULL && !bzEnable_*/ ) return(false);
+	
+	// Read until we get data
+	do { 
 
-// #ifdef USE_BZLIB
-//    int32_t  bzerror;
-// #endif
+		// First read frame size from data file
+		//      if ( smem_ != NULL ) {
+		//         if ( dataSharedRead((DataSharedMemory *)smem_,&rdAddr_,&rdCount_, &size, (uint8_t **)(&shBuff) ) == 0 ) {
+		//            return(false);
+		//         }
+		//      } 
+		//      else if ( bzEnable_ ) {
+		//
+		// #ifdef USE_BZLIB
+		
+		//          cout << "Reading size field" << endl;
+		//          if ( BZ2_bzRead ( &bzerror,bzFile_,&size,4 ) != 4 ) {
+		//             cout << "Size field read fail" << endl;
+		//             return(false);
+		//          }
+		//          shBuff = NULL;
+		// #endif
+		
+		//      }
+		//      else {
+		if ( read(fd_,&size,4) != 4 ) return(false);
+		shBuff = NULL;
+		//      }
+		//
+		if ( size == 0 ) continue;
+		
+		//cout << "Size field = 0x" << hex << size << endl; // wmq
+		//cout << "size >> 28 = " << (size >> 28) <<endl; // wmq
+		// Frame type
+		switch ( (size >> 28) & 0xF ) {
+			
+			// Data
+		case Data::RawData : found = true; break;
+			
+			// Configuration
+		case Data::XmlConfig : xmlParse(size,shBuff); break;
+			
+			// Status
+		case Data::XmlStatus : xmlParse(size,shBuff); break;
+			
+			// Start
+		case Data::XmlRunStart : sawRunStart_ = true; xmlParse(size,shBuff); break;
+			
+			// Stop
+		case Data::XmlRunStop : sawRunStop_ = true; xmlParse(size,shBuff); break;
+			
+			// Time
+		case Data::XmlRunTime : sawRunTime_ = true; xmlParse(size,shBuff); break;
 
-   if ( fd_ < 0 /*&& smem_ == NULL && !bzEnable_*/ ) return(false);
+			// Yml
+		case Data::YmlConfig :
 
-   // Read until we get data
-   do { 
-
-      // First read frame size from data file
-//      if ( smem_ != NULL ) {
-//         if ( dataSharedRead((DataSharedMemory *)smem_,&rdAddr_,&rdCount_, &size, (uint8_t **)(&shBuff) ) == 0 ) {
-//            return(false);
-//         }
-//      } 
-//      else if ( bzEnable_ ) {
-//
-// #ifdef USE_BZLIB
-
-//          cout << "Reading size field" << endl;
-//          if ( BZ2_bzRead ( &bzerror,bzFile_,&size,4 ) != 4 ) {
-//             cout << "Size field read fail" << endl;
-//             return(false);
-//          }
-//          shBuff = NULL;
-// #endif
-
-//      }
-//      else {
-	if ( read(fd_,&size,4) != 4 ) return(false);
-         shBuff = NULL;
-//      }
-//
-      if ( size == 0 ) continue;
-
-      //cout << "Size field = 0x" << hex << size << endl; // wmq
-      //cout << "size >> 28 = " << (size >> 28) <<endl; // wmq
-      // Frame type
-      switch ( (size >> 28) & 0xF ) {
-         
-         // Data
-         case Data::RawData : found = true; break;
-
-         // Configuration
-         case Data::XmlConfig : xmlParse(size,shBuff); break;
-
-         // Status
-         case Data::XmlStatus : xmlParse(size,shBuff); break;
-
-         // Start
-         case Data::XmlRunStart : sawRunStart_ = true; xmlParse(size,shBuff); break;
-
-         // Stop
-         case Data::XmlRunStop : sawRunStop_ = true; xmlParse(size,shBuff); break;
-
-         // Time
-         case Data::XmlRunTime : sawRunTime_ = true; xmlParse(size,shBuff); break;
-
-         // Unknown
-         default: 
+			cout << " [DataRead::next] YmlConfig Data-type -> 0x" 
+			     << hex << setw(8) << setfill('0') << ((size >> 28) & 0xF) << " skipping." << endl;
+			cout << " \tType-Size is: "<< size << ", where size = "<< (size & 0x0FFFFFFF) << endl;
+			
+			ymlParse(size, shBuff);
+			
+			//return(lseek(fd_, ((size) & 0x0FFFFFFF), SEEK_CUR));
+			break;
+			
+			// Unknown
+		default: 
             cout << "DataRead::next -> Unknown data type 0x" 
                  << hex << setw(8) << setfill('0') << ((size >> 28) & 0xF) << " skipping." << endl;
-	    //            if ( smem_ != NULL ) return(false);   
+            //            if ( smem_ != NULL ) return(false);   
             //else
-	    cout << "Type-Size is: "<< size << ", where size = "<< (size & 0x0FFFFFFF) << endl;
-	    return(lseek(fd_, ((size) & 0x0FFFFFFF), SEEK_CUR));
+            cout << " |- Type-Size is: "<< size << ", where size = "<< (size & 0x0FFFFFFF) << endl;
+            return(lseek(fd_, ((size) & 0x0FFFFFFF), SEEK_CUR));
             break;
-      }
-   } while ( ! found );
-
-   // Read data
-   // if ( smem_ != NULL ) {
-   //    data->copy ( (uint32_t *)shBuff,size );
-   //    cout<<"Read Data: I am copying!\n"; // wmq
-   //    return(true);
-   // }
-   // else {
-   //  if (bzEnable_) return(data->read(bzFile_,size));
-   //      else
-   return(data->read(fd_,size));
-      //   }
+		}
+	} while ( ! found );
+	
+	// Read data
+	// if ( smem_ != NULL ) {
+	//    data->copy ( (uint32_t *)shBuff,size );
+	//    cout<<"Read Data: I am copying!\n"; // wmq
+	//    return(true);
+	// }
+	// else {
+	//  if (bzEnable_) return(data->read(bzFile_,size));
+	//      else
+	return(data->read(fd_,size));
+	//   }
 }
 
 // Get next data record
 Data *DataRead::next ( ) {
-  Data *tmp = new Data;
-   if ( next(tmp) ) return(tmp);
-   else {
-      delete tmp;
-      return(NULL);
-   }
+	Data *tmp = new Data;
+	if ( next(tmp) ) return(tmp);
+	else {
+		delete tmp;
+		return(NULL);
+	}
 }
 
 // Get a config value

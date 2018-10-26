@@ -27,7 +27,7 @@ option(USE_YAML
   "Turn libyaml-dependency ON/OFF." OFF)
 
 option(ADD_EXE_SIMPLE
-  "Add simiple executables: cout/printDat etc." ON)
+  "Add simiple executables: cout/printDat etc." OFF)
 
 ##-- cmake setup
 set(CMAKE_BUILD_TYPE Debug )
@@ -142,6 +142,11 @@ list(APPEND INSTALL_EXE_TARGETS new_CalibrationFitter)
 add_executable(DuoKpix_CalibFitter ${PROJECT_SOURCE_DIR}/src/DuoKpix_CalibFitter.cxx)
 target_link_libraries(DuoKpix_CalibFitter ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
 list(APPEND INSTALL_EXE_TARGETS DuoKpix_CalibFitter)
+
+##-- new for analyzing yml data:
+add_executable(CalibAnaYml ${PROJECT_SOURCE_DIR}/src/CalibAnaYml.cxx)
+target_link_libraries(CalibAnaYml ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
+list(APPEND INSTALL_EXE_TARGETS CalibAnaYml)
 
 # full ana:
 

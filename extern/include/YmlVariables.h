@@ -16,6 +16,8 @@
  *  - for more levels under 2nd level:
  *    - map.key -> "2nd-level-name:3rd:4rd..."
  */
+#ifndef __YML_VARIABLES_H__
+#define __YML_VARIABLES_H__
 
 #include <iostream>
 #include <stdio.h>
@@ -30,11 +32,13 @@
 /*
  * X-macro to do a mapping of the YmlLevel names
  */
-#define YML_LEVEL_TABLE \
+
+#define YML_LEVEL_TABLE		\
   X(Root,       "DesyTrackerRoot")	\
   X(DataWriter, "DataWriter")		\
   X(RunControl, "DesyTrackerRunControl") \
-  X(Config,     "DesyTracker")
+  X(Config,     "DesyTracker") \
+  X(SysLog,     "SystemLog")
 
 #define X(a, b) a,
 enum YML_LEVEL{
@@ -43,10 +47,14 @@ enum YML_LEVEL{
 #undef X
 
 #define X(a, b)b,
-char const*yml_level[] = {
+// All bugs fixed by char const* instead of char*;
+ // otherwise it complains string convert to char*.
+ //
+static char const*yml_level[] = {
   YML_LEVEL_TABLE
 };
 #undef X
+
 
 using namespace std;
 
@@ -58,6 +66,10 @@ private:
   bool _debug;
   
 public:
+
+  //-- public variables
+  //  const char *yml_level;
+
   //-- Constructor
   YmlVariables();
 
@@ -75,7 +87,11 @@ public:
   bool buffParser (const char* type, char* buff); // type <- yml_level[]
   bool YmlVarReader (std::string ymlline);
 
+  // clear the variable map
+  void clear () { _vars.clear(); }
+  
   void setDebug (bool debug) { _debug = debug; }
+
   void print() {
     puts("-- Print var map:\n");
     for ( auto& it : _vars ) cout << it.first << " : " << it.second << endl;
@@ -86,4 +102,4 @@ public:
   
 };
 
-
+#endif

@@ -34,8 +34,11 @@ int main(int argc, const char* argv[])
 
  // cout << "main :: debug - data" << endl;
  // cout << data << endl;
+
  
- yhand.buffParser( yml_level[RunControl], data);
+ yhand.buffParser( yml_level[RunControl],
+ //yhand.buffParser( "",
+                   data);
  yhand.print(); 
  return (0);
   
