@@ -41,6 +41,22 @@ git commit -m "init commit, copy from central master branch"
 git push -u myana local.dev
 ```
 
+__VERY IMPORTANT!!!__
+
+When you are confident about your commit, AND you want to MERGE your branch to the central branch: do the following:
+
+1. if you want to avoid spaghetti-history you can __rebase__:
+```
+git checkout YOUR_COOL_DEV_BRANCH
+git rebase master
+```
+2. then you switch to master, and merge with your development:
+```
+git checkout master
+git merge YOUR_COOL_DEV_BRANCH
+```
+
+
 Collaboration ATTENTION! Please always push to your own branch, then to ask for a pull-request on the central git repository!
 
 #### Compile with CMake

@@ -19,6 +19,11 @@ project(Lycoris)
 ##-- Options for extern packages
 option(USE_KPIX 
   "Use extern KPiX libraries to decode data!" ON)
+
+option(MODE_DEBUG
+  "Use DEBUG mode, ONLY single module to compile!" OFF)
+
+option(USE_YAML "Turn libyaml-dependency " OFF)
   
 ##-- cmake setup
 set(CMAKE_BUILD_TYPE Debug )
@@ -40,6 +45,22 @@ ADD_DEFINITIONS("-Wunused-value -Wall -pedantic -Wshadow -fdiagnostics-color=aut
 find_package(LibXml2 REQUIRED)
 find_package(ROOT REQUIRED)
 #find_package(ROOT COMPONENTS RooStats)
+
+##-- everything needed for YAML: 'libyaml-dev' used
+if (USE_YAML)
+  # w/o Anaconda, use this other than the 2 below lines!
+  #FIND_PATH(LIBYAML_INCLUDE_DIR NAMES yaml.h) 
+  #FIND_LIBRARY(LIBYAML_LIBRARIES NAMES yaml libyaml)
+  set(LIBYAML_INCLUDE_DIR /usr/include)
+  set(LIBYAML_LIBRARIES /usr/lib/x86_64-linux-gnu/libyaml.so)
+  
+  INCLUDE(FindPackageHandleStandardArgs)
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(Yaml DEFAULT_MSG LIBYAML_LIBRARIES LIBYAML_INCLUDE_DIR)
+  MARK_AS_ADVANCED(LIBYAML_INCLUDE_DIR LIBYAML_LIBRARIES)
+  #message("[debug] LIBYAML_INCLUDE_DIR = ${LIBYAML_INCLUDE_DIR}")
+  #message("[debug] LIBYAML_LIBRARIES = ${LIBYAML_LIBRARIES}")
+
+endif(USE_YAML)
 
 ##-- Library folder to be included
 include_directories( ${PROJECT_SOURCE_DIR}/include )
@@ -91,6 +112,10 @@ install( TARGETS Dict LIBRARY DESTINATION lib )
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/libDict_rdict.pcm ${CMAKE_CURRENT_BINARY_DIR}/libDict.rootmap DESTINATION lib )
 
 ##-- add exe: # maybe cmake can be scripted with a loop using aux_source_directory func?
+
+add_executable(ymlHandler ${PROJECT_SOURCE_DIR}/src/ymlHandler.cxx)
+target_link_libraries(ymlHandler ${ROOT_LIBRARIES})
+list(APPEND INSTALL_EXE_TARGETS ymlHandler)
 
 # simple evt loop code:
 
