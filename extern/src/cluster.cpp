@@ -34,4 +34,8 @@ void cluster::construct(vector<int> hit_position, vector<double> hit_charge)
 	charge = charge_sum;
 }
 
+//void cluster::cluster_finder(vector<int> hit_position, vector<double> hit_charge)
+//{
+	
+
 

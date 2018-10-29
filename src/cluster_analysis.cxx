@@ -61,13 +61,6 @@ vector<TH1F*> pedestal_hists;
 // Functions
 //////////////////////////////////////////
 
-		
-
-struct spacecharge
-{
-	vector<int> position;
-	vector<double> charge;
-};
 
 
 void loopdir(TDirectory* dir, string histname)
@@ -526,10 +519,7 @@ int main ( int argc, char **argv )
 			
 			
 			std::vector<double> time_ext;
-			//float time_corr_clustered_charge[32][256];
-			//std::map<int, map<int, double>> correlated_charge;
-			std::map<int, spacecharge> correlated_charge;
-			//std::vector<int> Assignment_number;
+			std::map<int, vector<pair<int, double>>> timed_spacecharge;
 			
 			
 			//cout << "Beginning a new EVENT" << endl;
@@ -590,9 +580,8 @@ int main ( int argc, char **argv )
 								
 								if (kpix == 26)
 								{
-									//correlated_charge[timestamp][kpix2strip_left.at(channel)] = charge_value;
-									correlated_charge[timestamp].position.push_back(kpix2strip_left.at(channel));
-									correlated_charge[timestamp].charge.push_back(charge_value);
+									//timed_spacecharge[timestamp][kpix2strip_left.at(channel)] = charge_value;
+									timed_spacecharge[timestamp].position.push_back(make_pair(kpix2strip_left.at(channel), charge_value));
 									position_vs_charge->Fill(kpix2strip_left.at(channel), charge_value, weight);
 									position_vs_corrcharge->Fill(kpix2strip_left.at(channel), corrected_charge_value, weight);
 									
@@ -614,21 +603,9 @@ int main ( int argc, char **argv )
 
 			}
 			//cout << " Next Event " << endl;
-			for (auto const& cor_charge : correlated_charge )
+			for (auto& cor_charge : timed_spacecharge )
 			{
-				
-				if (cor_charge.second.position.size() > 1 )
-				{
-					//cout << "Time Coordinate " << cor_charge.first << endl; 
-					for ( int i = 0 ; i < cor_charge.second.position.size(); i++)
-					{
-						//cout << "Spatial Coordinate " << cor_charge.second.position.at(i) << endl;
-						//cout << "Charge " << cor_charge.second.charge.at(i) << endl;
-						
-					}
-					
-					
-				}
+				sort(cor_charge.second.begin(), cor_charge.second.end());
 				chargecluster.construct(cor_charge.second.position, cor_charge.second.charge);
 				
 				hist_cluster_charge->Fill(chargecluster.charge, weight);

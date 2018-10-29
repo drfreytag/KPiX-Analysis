@@ -111,7 +111,7 @@ def hist_plotter():
 			##------------------
 			##loop through the histograms, get all parameters
 			obj = histogram.ReadObj()
-			#print 'Number of entries =', obj.GetEntries()
+			print 'Number of entries =', obj.GetEntries()
 			x_axis = obj.GetXaxis()
 			y_axis = obj.GetYaxis()
 			##------------------
@@ -193,12 +193,12 @@ def hist_plotter():
 		yaxis.SetTitle(y_title)
 		#if (args.ylog is True):
 		legend.Draw()
-		if ('test' not in args.output_name):
-			print 'Creating /home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+args.output_name
-			c1.SaveAs('/home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+args.output_name)
+		if (args.output_name):
+			print 'Creating '+folder_loc+filename_list[0]+'_'+args.output_name
+			c1.SaveAs(folder_loc+filename_list[0]+'_'+args.output_name)
 		else:
-			print 'Creating /home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+histogram.GetName()+'.png'
-			c1.SaveAs('/home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+histogram.GetName()+'.png')
+			print 'Creating '+folder_loc+filename_list[0]+'_'+graph.GetName()+'.png'
+			c1.SaveAs(folder_loc+filename_list[0]+'_'+graph.GetName()+'.png')
 		c1.Close()
 	else:
 		counter = 0
@@ -208,7 +208,7 @@ def hist_plotter():
 			#ROOT.gROOT.SetBatch(1)
 			c1 = ROOT.TCanvas( 'test', 'Test', 1200,900 ) #
 			obj = histogram.ReadObj()
-			#print 'Number of entries =', obj.GetEntries()
+			print 'Number of entries =', obj.GetEntries()
 			x_axis = obj.GetXaxis()
 			y_axis = obj.GetYaxis()
 			c1.cd()
@@ -248,12 +248,13 @@ def hist_plotter():
 			obj.Draw(args.draw_option)
 			#ROOT.gROOT.SetBatch(0)
 			#raw_input('Press Enter to look at the next histogram')
+			
 			if (args.output_name):
-				print 'Creating /home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+args.output_name
-				c1.SaveAs('/home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+args.output_name)
+				print 'Creating '+folder_loc+filename_list[0]+'_'+args.output_name
+				c1.SaveAs(folder_loc+filename_list[0]+'_'+args.output_name)
 			else:
-				print 'Creating /home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+histogram.GetName()+'.png'
-				c1.SaveAs('/home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+histogram.GetName()+'.png')
+				print 'Creating '+folder_loc+filename_list[0]+'_'+graph.GetName()+'.png'
+				c1.SaveAs(folder_loc+filename_list[0]+'_'+graph.GetName()+'.png')
 			c1.Close()
 			counter= counter+1
 			#for i in xrange(obj.FindFirstBinAbove(0),obj.FindLastBinAbove(0),1):
@@ -337,12 +338,12 @@ def graph_plotter():
 		yaxis.SetTitle(y_title)
 		#if (args.ylog is True):
 		legend.Draw()
-		if ('test' not in args.output_name):
-			print 'Creating /home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+args.output_name
-			c1.SaveAs('/home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+args.output_name)
+		if (args.output_name):
+			print 'Creating '+folder_loc+filename_list[0]+'_'+args.output_name
+			c1.SaveAs(folder_loc+filename_list[0]+'_'+args.output_name)
 		else:
-			print 'Creating /home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+graph.GetName()+'.png'
-			c1.SaveAs('/home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+graph.GetName()+'.png')
+			print 'Creating '+folder_loc+filename_list[0]+'_'+graph.GetName()+'.png'
+			c1.SaveAs(folder_loc+filename_list[0]+'_'+graph.GetName()+'.png')
 		c1.Close()
 	else:
 		counter = 0
@@ -375,11 +376,11 @@ def graph_plotter():
 			#ROOT.gROOT.SetBatch(0)
 			#raw_input('Press Enter to look at the next histogram')
 			if (args.output_name):
-				print 'Creating /home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+args.output_name
-				c1.SaveAs('/home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+args.output_name)
+				print 'Creating '+folder_loc+filename_list[0]+'_'+args.output_name
+				c1.SaveAs(folder_loc+filename_list[0]+'_'+args.output_name)
 			else:
-				print 'Creating /home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+graph.GetName()+'.png'
-				c1.SaveAs('/home/lycoris-dev/Documents/'+save_loc+filename_list[0]+'_'+graph.GetName()+'.png')
+				print 'Creating '+folder_loc+filename_list[0]+'_'+graph.GetName()+'.png'
+				c1.SaveAs(folder_loc+filename_list[0]+'_'+graph.GetName()+'.png')
 			c1.Close()
 			counter= counter+1
 			#for i in xrange(obj.FindFirstBinAbove(0),obj.FindLastBinAbove(0),1):
@@ -507,7 +508,7 @@ print ''
 
 
 
-legend_location = [0.15,0.75,0.3,0.85]
+legend_location = [0.55,0.75,0.85,0.85]
 
 ##-----------------	
 ##produce empty root file and filename lists.
@@ -524,7 +525,7 @@ for x in root_file_list:
 	key_root = x.GetListOfKeys()
 	loopdir(key_root)
 
-save_loc = 'testbeam_august/'
+folder_loc = '/home/uwe/kpix_analysis/plots/'
 ##-----------------	
 ##general output
 #print args.color
