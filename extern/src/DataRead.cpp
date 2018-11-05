@@ -41,6 +41,8 @@ DataRead::DataRead ( ) {
    rdAddr_      = 0;
    rdCount_     = 0;
    //smem_        = NULL;
+   debug_       = false;
+   yaml_.setDebug(debug_);
 }
 
 // Deconstructor
@@ -66,9 +68,10 @@ void DataRead::ymlParse ( uint32_t size, char *data ){
 	}
 	buff[mySize-1] = 0; // not understand, from xmlParse;
 
-	// currently, only RunControl data to process...
-	yaml_.buffParser( yml_level[RunControl], buff);
-	yaml_.print();
+	// currently, all yml data to process...
+	// need a flag to iterate to status, or config at least.
+	yaml_.buffParser( yml_level[Root], buff);
+	if (debug_)  yaml_.print();
 
 	free(buff);
 	return;
@@ -321,6 +324,23 @@ Data *DataRead::next ( ) {
 	}
 }
 
+string DataRead::getYmlConfig (string var) {
+  var = m_str_yamlcfg +":"+var;
+  return( yaml_.getStr(var) );
+}
+uint32_t DataRead::getYmlConfigInt ( string var ) {
+  var = m_str_yamlcfg +":"+var;
+  return( yaml_.getInt(var) );
+}
+string DataRead::getYmlStatus( string var ) {
+  var = m_str_yamlst +":"+var;
+  return( yaml_.getStr(var) );
+}
+uint32_t DataRead::getYmlStatusInt ( string var ) {
+  var = m_str_yamlst +":"+var;
+  return( yaml_.getInt(var) );
+}
+
 // Get a config value
 string DataRead::getConfig ( string var ) {
    return(config_.get(var));
@@ -328,13 +348,15 @@ string DataRead::getConfig ( string var ) {
 
 // Get a status value
 string DataRead::getStatus ( string var ) {
-   return(status_.get(var));
+  return(status_.get(var));
 }
 
 // Get a config value
+
 uint32_t DataRead::getConfigInt ( string var ) {
-   return(config_.getInt(var));
+  return(config_.getInt(var));
 }
+
 
 // Get a status value
 uint32_t DataRead::getStatusInt ( string var ) {

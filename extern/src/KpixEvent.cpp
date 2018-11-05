@@ -40,6 +40,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "KpixEvent.h"
+
+#include  <iomanip>
+
 using namespace std;
 
 // Constructor
@@ -74,6 +77,7 @@ uint KpixEvent::count ( ) {
 KpixSample *KpixEvent::sample (uint index) {
    if ( index >= count() ) return(NULL);
    else {
+     cout << "[evt debug] sample data : 0x"<< hex << setw(8) << setfill('0')<< (data_[headSize_+(index*sampleSize_)]) << endl;
       sample_.setData(&(data_[headSize_+(index*sampleSize_)]),eventNumber());
       return(&sample_);
    }

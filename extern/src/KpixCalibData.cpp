@@ -19,6 +19,7 @@
 using namespace std;
 
 // Old class name: ChannelData
+using namespace lycoris;
 
 KpixCalibData::KpixCalibData() {
   uint x;

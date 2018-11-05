@@ -77,9 +77,11 @@ std::string YmlVariables::getStr( std::string var ) {
   if ( iter == _vars.end() )
     return ("");
   
-  if (_debug) printf(" Find your key : value -> %s : %s", (iter->first).c_str(), (iter->second).c_str() );
+  if (_debug)
+
+    printf(" Find your key : value -> %s : %s\n", (iter->first).c_str(), (iter->second).c_str() );
   return iter->second;
-   return ("");
+
 }
 
 
@@ -123,7 +125,7 @@ bool YmlVariables::YmlVarReader( std::string ymlline ){
     //-- get all levels name stacked:
     else{ 
       //tkKeys.push_back(tkKey);
-
+      /*
       if ( tkKey == yml_level[Root] )
 	cout << " Warning: not expect Root here   -> " << tkKey << endl;
       else if ( tkKey == yml_level[DataWriter] ||
@@ -131,11 +133,13 @@ bool YmlVariables::YmlVarReader( std::string ymlline ){
 		tkKey == yml_level[RunControl]
 		)
 	cout << " Warning: not expect Mother here -> " << tkKey << endl;
+      
       else {// child node found!
+      */
 	if ( _debug )cout << "[debug] child node found -> " << tkKey << endl;
 	if ( !variable.empty() )   variable += ":";
 	variable += tkKey;
-      }
+	/*}*/
       
     }
     
@@ -167,7 +171,7 @@ char* YmlVariables::fakeDataReader(const char* fn) {
     return nullptr;
   }
 
-  // set the length you want to readout
+  // sethe length you want to readout
   long file_length = file.tellg();
   file.seekg (0, std::ios_base::beg);
   file.clear ();
@@ -188,28 +192,32 @@ bool YmlVariables::buffParser( const char* type, char* buff ){
    * - according to " mother node ? type ", parse to VarReader or not.
     */
 
+  bool stripRoot = ( strcmp(type, yml_level[Root]) != 0 ) ;
+    
   std::string buff_str = buff;
 
   istringstream iss(buff_str);
   std::string line = "";
 
   if (_debug) cout << " debug: you want type -> "<< type << endl;
-  
+
   while ( std::getline(iss, line, '\n') ){
     if ( line.empty() ) continue;
 
     if (_debug) cout << " Line -> " << line << endl;
 
-    long root_pos = line.find('.');
-    if ( line.substr(0, root_pos) != yml_level[Root] ){ // move to next yml level!
-      if (_debug) cout << " Wrong Root -> "<< line.substr(0, root_pos);
-      continue; // wrong root!
+    if ( stripRoot ){
+      long root_pos = line.find('.');
+      if ( line.substr(0, root_pos) != yml_level[Root] ){ // move to next yml level!
+	if (_debug) cout << " Wrong Root -> "<< line.substr(0, root_pos);
+	continue; // wrong root!
+      }
+      else {
+	line = line.substr( root_pos+1, line.size() );
+	if (_debug) cout << " Root stripped -> "<< line << endl;
+      }
     }
-    else {
-      line = line.substr( root_pos+1, line.size() );
-      if (_debug) cout << " Root stripped -> "<< line << endl;
-    }
-
+    
     long mom_pos = line.find('.');
     if ( (line.substr(0, mom_pos)) == type ) {// You find MOM!
       if (_debug) 

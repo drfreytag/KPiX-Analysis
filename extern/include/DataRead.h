@@ -67,15 +67,17 @@ class DataRead {
 	XmlVariables stop_;
 	XmlVariables time_;
 
-	YmlVariables yaml_;
-	
+	YmlVariables yaml_; 
+		
 	// Start/Stop flags
 	bool sawRunStart_;
 	bool sawRunStop_;
 	bool sawRunTime_;
 	
  public:
-	
+
+	bool     debug_;
+
 	//! Constructor
 	DataRead ( );
 	
@@ -116,30 +118,36 @@ class DataRead {
 	 * Returns NULL on failure
 	 */
 	Data *next ( );
-	
+
+	string m_str_yamlst = yml_level[RunControl];
+	string m_str_yamlcfg = yml_level[Config];
 	//! Get a config value
 	/*! 
 	 * \param var Config variable name
 	 */
 	string getConfig ( string var );
-	
+	string getYmlConfig ( string var );
+
 	//! Get a config value as integer
 	/*! 
 	 * \param var Config variable name
 	 */
 	uint32_t getConfigInt ( string var );
-	
+	uint32_t getYmlConfigInt ( string var );
+
 	//! Get a status value
 	/*! 
 	 * \param var Status variable name
 	 */
 	string getStatus ( string var );
+	string getYmlStatus ( string var );
 	
 	//! Get a status value as integer
 	/*! 
 	 * \param var Status variable name
 	 */
 	uint32_t getStatusInt ( string var );
+	uint32_t getYmlStatusInt ( string var );
 	
 	//! Dump config
 	void dumpConfig ( );

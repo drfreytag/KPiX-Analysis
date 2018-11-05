@@ -15,6 +15,10 @@
 #include <fstream>
 
 // Channel data
+
+namespace lycoris
+{
+
 class KpixCalibData {
  public:
 
@@ -57,3 +61,5 @@ class KpixCalibData {
   
 
 };
+
+}// namespace lycoris end
