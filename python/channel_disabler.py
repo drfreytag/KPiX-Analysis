@@ -23,7 +23,7 @@ class MyParser(argparse.ArgumentParser):
         sys.exit(2)
 
 class ChannelDisabler:
-    def __init__(self, file_in=[], kpix=0):
+    def __init__(self, file_in=[], kpix=0, ecal=False):
 
         '''
         Achtung! the file_in can only contain 1 of each type of root file, 
@@ -32,6 +32,7 @@ class ChannelDisabler:
         if not file_in:
             exit("Your file_in is empty")
 
+        self.ecal = ecal  # Default = False
         self.slope_name =  'slope_vs_channel'
         self.RMS_name = 'RMSfc_vs_channel'
         self.acquire_name = 'Channel_entries_k_'
@@ -138,16 +139,17 @@ class ChannelDisabler:
                 if (acquire_obj.GetBinContent(chan+1) >= 0.02):
 	            noisy_channels_acquire.append(chan)
 
-        for line in self.mapping_file: #level1: check channel map for disconnected ones
-	    if 'm1.insert' in line:
-		line=line[22:-4]
-		line_split=line.split(',')
-	        if (line_split[1] == '9999') and (int(line_split[0]) not in dc_channels):
-		    dc_channels.append(int(line_split[0]))		
-
+        if (not self.ecal):
+	    for line in self.mapping_file: #level1: check channel map for disconnected ones
+		if 'm1.insert' in line:
+		    line=line[22:-4]
+		    line_split=line.split(',')
+		    if (line_split[1] == '9999') and (int(line_split[0]) not in dc_channels):
+			dc_channels.append(int(line_split[0]))		
+	
                     
         kpix = np.chararray(1024)		#create mapper kpix
-        #filename_map = './data/disable.txt'		#choose filename
+        #filename_map = './data/disable.txt'	#choose filename
         
         print 'Dead channels from calibration slope = ', dead_channels_slope
         print 'Dead channels from calibration RMS = ', dead_channels_RMS
@@ -158,7 +160,8 @@ class ChannelDisabler:
 
 
         for chan in xrange(1024):		#create the character mapping of the channels
-	    if (chan in dc_channels) or (chan in dead_channels_slope) or (chan in dead_channels_RMS) or (chan in noisy_channels) or (chan in noisy_channels_acquire):		#A for active and D for deactivated channels
+            
+            if (chan in dc_channels) or (chan in dead_channels_slope) or (chan in dead_channels_RMS) or (chan in noisy_channels) or (chan in noisy_channels_acquire):		#A for active and D for deactivated channels
 		kpix[chan] = 'D'
 	    else :
 		kpix[chan] = 'A'
@@ -204,6 +207,7 @@ parser = MyParser()
 parser.add_argument('--calib', dest='calib', nargs='?', help='input calibration file')
 parser.add_argument('--acquire', dest='acquire', nargs='?', help='input pedestal file')
 parser.add_argument('-k', dest='kpix', nargs='+', default=[], type=int, help='which kpix to check, eg: 1 or 1 2')
+parser.add_argument('--ecal', dest='ecal', type=bool, nargs='?', default=False, help='ecal sensor used here')
 
 if len(sys.argv) < 2:
 	print parser.print_help()
@@ -211,6 +215,9 @@ if len(sys.argv) < 2:
 
 args = parser.parse_args()
 ######### Parser #########
+
+######### Main: #########
+
 file_in=[]
 if args.calib:
     file_in.append(args.calib)
@@ -220,10 +227,10 @@ if args.acquire:
 print args.kpix
 if args.kpix:
     for k in args.kpix:
-        disabler = ChannelDisabler(file_in, k)
+        disabler = ChannelDisabler(file_in, k, args.ecal)
         disabler.run()
 else:
-    disabler = ChannelDisabler(file_in)
+    disabler = ChannelDisabler(file_in, 0, args.ecal)
     disabler.run()
 		
 
