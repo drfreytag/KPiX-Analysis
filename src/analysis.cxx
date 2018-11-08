@@ -326,8 +326,8 @@ int main ( int argc, char **argv )
 	}
 	
 	// Create output names
-	tmp.str("");
-	tmp << argv[1] << ".root";
+       	tmp.str("");
+	tmp << argv[1] << "_"<< calibration_check << ".root";
 	outRoot = tmp.str();
 	
 	//================================================ Charge calibration, currently not working

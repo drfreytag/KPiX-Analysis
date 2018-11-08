@@ -12,15 +12,24 @@ void adcPrinter(int strip){
    *  -- folder  KPiX_26
    */
   TH1::AddDirectory(kFALSE);
-
-  // HGT, 
-  TString fns = "/scratch/data/tracker_test/2018_09_06_15_48_39.bin.root";
-  TString fnbg = "/scratch/data/tracker_test/2018_09_05_15_31_31.bin.root";
+  gStyle->SetOptStat(0);
+  gROOT->ForceStyle();
   
+  /*// HGT, 
+  TString fns  = "/scratch/data/tracker_test/2018_09_06_15_48_39.bin.root";
+  TString fnbg = "/scratch/data/tracker_test/2018_09_05_15_31_31.bin.root";
+  */
   /*// Aug: extTrig,
-  TString fns = "/scratch/data/tracker_test/eudaq/testbeam_201808/2018_08_17_20_30_20.bin.root";
+  TString fns  = "/scratch/data/tracker_test/eudaq/testbeam_201808/2018_08_17_20_30_20.bin.root";
   TString fnbg = "/scratch/data/tracker_test/2018_08_19_21_34_17.bin.root";
   */
+  // Aug: autoTrig,
+  TString fns  = "/scratch/data/tracker_test/2018_08_17_16_07_45.bin_0.root";
+  TString fnbg = "/scratch/data/tracker_test/2018_08_19_20_46_06.bin_0.root";
+  fns  = "/scratch/data/tracker_test/2018_11_06_15_34_41.bin.root";
+  fnbg = "/scratch/data/tracker_test/2018_11_06_15_19_35.bin.root";
+
+  TString kpixDir = "KPiX_26";
   
   TFile* fs = TFile::Open(fns.Data());
   TFile* fbg = TFile::Open(fnbg.Data());
@@ -28,7 +37,8 @@ void adcPrinter(int strip){
   TObject *obj;
   TKey *key;
 
-  fs->cd("KPiX_26/Strips_and_Channels");
+  fs->cd( kpixDir + "/Strips_and_Channels" );
+  
   TIter next1( gDirectory->GetListOfKeys());
   TString hDir;
   while ((key = (TKey *) next1())) {
@@ -43,7 +53,7 @@ void adcPrinter(int strip){
   }
   
   printf(" found it:%s\n", hDir.Data());
-  hDir = "KPiX_26/Strips_and_Channels/"+hDir+"/bucket_0/";
+  hDir = kpixDir +"/Strips_and_Channels/"+hDir+"/bucket_0/";
 
   fs->cd(hDir);
   TIter next2( gDirectory->GetListOfKeys());
@@ -51,6 +61,7 @@ void adcPrinter(int strip){
   while ((key = (TKey *) next2())) {
     // do something with obj
     hist = (TString)key->GetName();
+    //cout << "hist : " << hist << endl;
     if (hist.Contains("hist_s")){
       printf(" found object:\t%s\n",key->GetName());
       break;
@@ -61,11 +72,11 @@ void adcPrinter(int strip){
   kchan.ReplaceAll("_b0_k26","");
   kchan.ReplaceAll(Form("hist_s%d_c",strip),"");
   printf(" kpix channel:\t%s\n",kchan.Data());
-  double slope = getSlope(kchan);
+  // double slope = getSlope(kchan);
   
   hist = hDir + hist;
 
-  //  cout<< " debug: " << hist<< endl;
+  //cout<< " debug: " << hist<< endl;
   TH1F* hs = nullptr;
   TH1F* hbg = nullptr;
   
@@ -78,17 +89,20 @@ void adcPrinter(int strip){
   if (hs==nullptr && hbg==nullptr) return;
   
   hs->Scale(1/hs->Integral());
-  hbg->Scale(1/hbg->Integral());
-  
   hs->SetMarkerColor(kRed);
-  hbg->SetMarkerColor(kBlue);
-  
   hs->SetLineColor(kRed);
-  hbg->SetLineColor(kBlue);
-  hs->Draw();
-  hbg->Draw("same");
+  hs->Draw("hpe");
   
-  hs->GetXaxis()->SetRange(500,800);
+  if (hbg != nullptr) {
+    hbg->Scale(1/hbg->Integral());
+    hbg->SetMarkerColor(kBlue);
+    hbg->SetLineColor(kBlue);
+    hbg->Draw("hpesame");
+  }
+  
+  hs->GetXaxis()->SetRangeUser(400,600);
+  hs->GetYaxis()->SetRangeUser(0, 0.08);
+  hs->GetYaxis()->SetTitle("normalized to 1");
  
 }
 

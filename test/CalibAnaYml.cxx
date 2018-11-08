@@ -99,7 +99,7 @@ int main ( int argc, char **argv ) {
   
   // kpix samples
   KpixSample             *sample;
-  //uint                   range, value, kpix, channel, bucket, tstamp;
+  uint                   kpix, channel, bucket, range;
   uint                   value, tstamp;
   string                 serial;
   KpixSample::SampleType type; 
@@ -111,7 +111,7 @@ int main ( int argc, char **argv ) {
   string                 outRoot;
 
   // Root Histos init
-  TH1F                   *hist;
+  //TH1F                   *hist;
      
   // Data file is the first and only arg
   if ( argc != 2 ) {
@@ -188,10 +188,10 @@ int main ( int argc, char **argv ) {
       type    = sample->getSampleType();
 
       CalibData cdata;
-      cdata.kpix    = sample->getKpixAddress();
-      cdata.channel = sample->getKpixChannel();
-      cdata.bucket  = sample->getKpixBucket();
-      cdata.range   = sample->getSampleRange();
+      kpix    = sample->getKpixAddress();
+      channel = sample->getKpixChannel();
+      bucket  = sample->getKpixBucket();
+      range   = sample->getSampleRange();
       
       value   = sample->getSampleValue();
       tstamp  = sample->getSampleTime();
@@ -206,31 +206,36 @@ int main ( int argc, char **argv ) {
 	      << "  - trgType:" << sample->getTrigType() << "\n";
 
 
-            
+      
       // Only process real Data samples
       if ( type == KpixSample::Data ) {
 
-	// add data entry
+	cdata.kpix = kpix; cdata.channel = channel; cdata.bucket = bucket; cdata.range = range;
+	cdata.data = NULL;
+	v_ChanData.push_back(cdata);
+	// new a data entry
 	KpixCalibData data;
 
 	// Non calibration based run. Fill mean, ignore times
 	if ( calState == "Idle"){
 	  cout << "I have an idle event!"<< endl;
 	  data.addBasePoint(value);
+	  cdata.data = data;
 	}
 	
-	// // Filter for time
+	// Filter for time
 	else if ( tstamp > injectTime[bucket] && tstamp < injectTime[bucket+1] ) {
-	  //else if(true){
 	  // Baseline
-	  if ( calState == "Baseline" )
+	  if ( calState == "Baseline" ){
 	    data.addBasePoint(value);
+	  }
+	  
 	  // Injection
 	  else if ( calState == "Inject"/* && calDac != minDac */) {
 
-	    printf(" [debug] channel : %d ? calChannel : %d", cdata.channel, calChannel);
+	    printf(" [debug] channel : %d ? calChannel : %d", channel, calChannel);
 	    
-	    if ( cdata.channel == calChannel ) {
+	    if ( channel == calChannel ) {
 	      //cout<< "[dev] it is the calChannel !" << endl;
 	      data.addCalibPoint(calDac, value);
 	    }
@@ -240,20 +245,21 @@ int main ( int argc, char **argv ) {
 	    			 find_dataIndex(kpix) );
 	      if ( it! = v_ChanData.end() ){
 	    	printf( "[dev] It is neighborhit! of kpix %d : channel %d :bucket %d : range %d\n",
-	    		kpix, cdata.channel, bucket, range);
-	    	data.addNeighborPoint(cdata.channel, calDac, value);
+	    		kpix, channel, bucket, range);
+	    	data.addNeighborPoint(channel, calDac, value);
 	      }
 	      // cout<< "[dev] it is not neighbor hit!" << endl;
 	    }
 	  }
-	  
-	  else badTimes++;
-	
-	  // push to data map
-	  cdata.data = data;
-	  //v_ChanData.push_back(cdata);
-	  
 	}
+	
+	else badTimes++;
+	
+	// push to data map
+	cdata.data = data;
+
+	  
+	
       }
     }
 
