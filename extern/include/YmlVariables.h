@@ -76,6 +76,9 @@ public:
   //-- Deconstructor
   ~YmlVariables();
 
+  //-- String manuplater
+  string removeWhite(string str);
+  
   //-- X-Macro test usage
   enum YML_LEVEL test = Root;
 
