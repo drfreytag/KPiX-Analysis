@@ -426,7 +426,7 @@ int main ( int argc, char **argv )
 	
 	
 	dataRead.close();
-	double weight = 1.0;//acqProcessed;
+	double weight = 1.0/acqProcessed;
 	
 	//////////////////////////////////////////
 	// New histogram generation within subfolder structure
@@ -581,7 +581,7 @@ int main ( int argc, char **argv )
 								if (kpix == 26)
 								{
 									//timed_spacecharge[timestamp][kpix2strip_left.at(channel)] = charge_value;
-									timed_spacecharge[timestamp].position.push_back(make_pair(kpix2strip_left.at(channel), charge_value));
+									timed_spacecharge[timestamp].push_back(make_pair(kpix2strip_left.at(channel), charge_value));
 									position_vs_charge->Fill(kpix2strip_left.at(channel), charge_value, weight);
 									position_vs_corrcharge->Fill(kpix2strip_left.at(channel), corrected_charge_value, weight);
 									
@@ -605,9 +605,16 @@ int main ( int argc, char **argv )
 			//cout << " Next Event " << endl;
 			for (auto& cor_charge : timed_spacecharge )
 			{
+				std::vector<int> space;
+				std:;vector<double> charge;
 				sort(cor_charge.second.begin(), cor_charge.second.end());
-				chargecluster.construct(cor_charge.second.position, cor_charge.second.charge);
 				
+				for (auto& space_charge : cor_charge.second)
+				{
+					space.push_back(space_charge.first);
+					charge.push_back(space_charge.second);
+				}
+				//chargecluster.construct(space, charge);
 				hist_cluster_charge->Fill(chargecluster.charge, weight);
 				hist_cluster_position->Fill(chargecluster.position, weight);
 				cluster_position_vs_charge->Fill(chargecluster.position, chargecluster.charge, weight);

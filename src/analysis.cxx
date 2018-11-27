@@ -188,6 +188,7 @@ int main ( int argc, char **argv )
 	TH1F			*timed_right_strip_entries[32][5];
 	TH1F			*channel_entries_timed[32][5]; // Time distribution Total number of events differed per bucket and kpix
 	TH1F			*channel_entries_no_strip[32][5]; 
+	TH1F            *fc_response_b0[32];
 	
 	TH1D			*trigger_difference[32]; //Time difference to an external timestamp
 	TH1D			*trigger_diff_connected[32]; //Time difference to an external timestamp
@@ -572,10 +573,7 @@ int main ( int argc, char **argv )
 			timed_left_strip_entries[kpix][4] = new TH1F(tmp.str().c_str(), "Timed_Strip_Entries; Strip_address; #entries/#acq.cycles", 920,-0.5, 919.5);
 			tmp.str("");
 			tmp << "timed_right_strip_entries_k_" << kpix << "_total";
-			timed_right_strip_entries[kpix][4] = new TH1F(tmp.str().c_str(), "Timed_Strip_Entries; Strip_address; #entries/#acq.cycles", 920, 919.5, 1839.5);
-			
-			
-	
+			timed_right_strip_entries[kpix][4] = new TH1F(tmp.str().c_str(), "Timed_Strip_Entries; Strip_address; #entries/#acq.cycles", 920, 919.5, 1839.5);	
 			tmp.str("");
 			tmp << "timestamp_kpix_k_" << kpix  << "_total";
 			times_kpix[kpix][4] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
@@ -751,7 +749,24 @@ int main ( int argc, char **argv )
 								tmp_units << "_b" << dec << bucket; // add _b$bucket
 								tmp_units << "_k" << dec << kpix; // add _k$kpix to stringstream
 								tmp_units << "; Charge (fC); #entries/#acq.cycles"; // add title: x label, y label to stringstream
-								hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),5460, -0.5,545.5);	
+								hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),2000, -0.5,499.5);	
+								
+								tmp.str("");
+								tmp << "hist_timed_fc" << "_s" << dec <<  kpix2strip_left.at(channel);
+								tmp << "_c" << dec << setw(4) << setfill('0') << channel;
+								tmp << "_b" << dec << bucket;
+								tmp << "_k" << dec << kpix;
+		
+								tmp_units.str("");
+								tmp_units << "hist_timed_fc" << "_s" << dec << kpix2strip_left.at(channel);
+								tmp_units << "_c" << dec << setw(4) << setfill('0') << channel;
+								tmp_units << "_b" << dec << bucket;
+								tmp_units << "_k" << dec << kpix;
+								tmp_units << "; Charge (fC); #entries/#acq.cycles";
+							
+								hist_timed[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),2000, -0.5,499.5);
+								
+								
 							}
 							else
 							{
@@ -769,25 +784,28 @@ int main ( int argc, char **argv )
 								tmp_units << "_k" << dec << kpix; // add _k$kpix to stringstream
 								tmp_units << "; Charge (ADC); #entries/#acq.cycles"; // add title: x label, y label to stringstream
 								hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,8191.5);	
+								
+								tmp.str("");
+								tmp << "hist_timed" << "_s" << dec <<  kpix2strip_left.at(channel);
+								tmp << "_c" << dec << setw(4) << setfill('0') << channel;
+								tmp << "_b" << dec << bucket;
+								tmp << "_k" << dec << kpix;
+		
+								tmp_units.str("");
+								tmp_units << "hist_timed" << "_s" << dec << kpix2strip_left.at(channel);
+								tmp_units << "_c" << dec << setw(4) << setfill('0') << channel;
+								tmp_units << "_b" << dec << bucket;
+								tmp_units << "_k" << dec << kpix;
+								tmp_units << "; Charge (ADC); #entries/#acq.cycles";
+							
+								hist_timed[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,8191.5);
+								
+								
 							}
 													
 							
 	
-							tmp.str("");
-							tmp << "hist_timed" << "_s" << dec <<  kpix2strip_left.at(channel);
-							tmp << "_c" << dec << setw(4) << setfill('0') << channel;
-							tmp << "_b" << dec << bucket;
-							tmp << "_k" << dec << kpix;
-							tmp << "_time_cut";
-	
-							tmp_units.str("");
-							tmp_units << "hist_timed" << "_s" << dec << kpix2strip_left.at(channel);
-							tmp_units << "_c" << dec << setw(4) << setfill('0') << channel;
-							tmp_units << "_b" << dec << bucket;
-							tmp_units << "_k" << dec << kpix;
-							tmp_units << "; Charge (ADC); #entries/#acq.cycles";
-						
-							hist_timed[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),8192, -0.5,8191.5);
+							
 	
 							tmp.str("");
 							tmp << "time" << "_s" << dec << kpix2strip_left.at(channel);
@@ -977,10 +995,13 @@ int main ( int argc, char **argv )
 					if (calibration_check == 1)
 					{
 						hist[kpix][channel][bucket][0]->Fill(double(value)/calib_slope[kpix][channel]*pow(10,15) , weight);
+						
+						
 					}
 					else
 					{
 						hist[kpix][channel][bucket][0]->Fill(value, weight);
+						
 					}
 					
 					hist_buck_sum[kpix][channel]->Fill(value,weight);
@@ -1054,7 +1075,14 @@ int main ( int argc, char **argv )
 						}
 						if((trig_diff >= 0.0 )  && (trig_diff  <= 3.0) )
 						{
-							hist_timed[kpix][channel][bucket][0]->Fill(value, weight);
+							if (calibration_check == 1)
+							{
+								hist_timed[kpix][channel][bucket][0]->Fill(double(value)/calib_slope[kpix][channel]*pow(10,15), weight);
+							}
+							else
+							{
+								hist_timed[kpix][channel][bucket][0]->Fill(value, weight);
+							}
 							total_timed->Fill(value, weight);
 							channel_entries_total_timed->Fill(channel, weight);
 							channel_entries_timed[kpix][bucket]->Fill(channel, weight);
@@ -1091,14 +1119,15 @@ int main ( int argc, char **argv )
 			//if (cycle_num < 1000) AssignedNumberHist[kpix][cycle_num]->Fill(Assignment_number.at(k));
 		//}
 		ExtTrigPerCycle->Fill(time_ext.size());
-		for (int h = 0; h<32; ++h)
+		for (int kpix = 0; kpix<32; ++kpix)
 		{
-			if (kpixFound[h])
+			if (kpixFound[kpix])
 			{
-				for (int q = 0; q<4; ++q)
+				for (int bucket = 0; bucket<4; ++bucket)
 				{
-					trig_count[h][q]->Fill(num_trig_count[h][q], weight);
-					trig_count[h][4]->Fill(num_trig_count[h][q], weight);
+					trig_count[kpix][bucket]->Fill(num_trig_count[kpix][bucket], weight);
+					trig_count[kpix][4]->Fill(num_trig_count[kpix][bucket], weight);
+					
 				}
 				
 			}
@@ -1122,6 +1151,31 @@ int main ( int argc, char **argv )
 		}
 	
 	}
+	
+	for (int kpix = 0; kpix<32; ++kpix)
+		{
+			if (kpixFound[kpix])
+			{
+				for (int channel = 0; channel < 1024; ++channel)
+				{
+					if (chanFound[kpix][channel])
+					{
+						for (int bucket = 0; bucket<4; ++bucket)
+						{
+							if (bucketFound[kpix][channel][bucket])
+							{
+								 hist[kpix][channel][bucket][0]->GetMean();
+								 //hist[kpix][channel][bucket][0]->Fit("gaus","q");
+							}
+							
+						}
+					}
+				}
+				
+			}
+		}
+	
+	
 	
 	cout <<  endl << "Full coincidence of sensors with external trigger: " << full_coincidence_channel_entries->GetEntries() << endl;
 	cout << "Three coincidence of sensors: " << three_coincidence << endl;

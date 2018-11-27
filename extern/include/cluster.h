@@ -7,6 +7,8 @@
 
 using namespace std;
 
+double clustercharge;
+
 class cluster
 {
 	private:
@@ -15,6 +17,7 @@ class cluster
 		double position;
 		double charge;
 		void construct(vector<int> hit_position, vector<double> hit_charge);
+		void clustering(vector<int> hit_position, vector<double> hit_charge, int start, int step);
 };
 
 
