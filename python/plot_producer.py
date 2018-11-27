@@ -8,6 +8,7 @@ import argparse
 import argcomplete
 from operator import add
 import sys
+from decimal import Decimal
 
 ROOT.gROOT.SetBatch(True)
 
@@ -39,22 +40,20 @@ def loopdir(keys):  # loop through all subdirectories of the root file and add a
 							if (name == key_object.GetName()): 
 								graph_list.append(key_object)
 					else:	
-						for name in args.name:
-							for refuse in args.refuse:
-								for channel in args.channel:	
-									for strip in args.strip:
-										for bucket in args.bucket:
-											for kpix in args.kpix:
-												if (bucket == 4):
-													if ((name in key_object.GetName() and refuse not in key_object.GetName()) \
-													and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('_s'+str(strip)+'_' in key_object.GetName() or strip == '9999') and ('b' not in key_object.GetName()) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
-														#print 'Histogram found: ', key_object.GetName()
-														graph_list.append(key_object)
-												else:
-													if ((name in key_object.GetName() and refuse not in key_object.GetName()) \
-													and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('_s'+str(strip)+'_' in key_object.GetName() or strip == '9999') and ('b'+str(bucket) in key_object.GetName() or bucket == 9999) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
-														#print 'Histogram found: ', key_object.GetName()
-														graph_list.append(key_object)
+						for channel in args.channel:	
+							for strip in args.strip:
+								for bucket in args.bucket:
+									for kpix in args.kpix:
+										if (bucket == 4):
+											if ((all(name in key_object.GetName() for name in args.name) and all(refuse not in key_object.GetName() for refuse in args.refuse)) \
+											and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('_s'+str(strip)+'_' in key_object.GetName() or strip == '9999') and ('b' not in key_object.GetName()) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
+												#print 'Histogram found: ', key_object.GetName()
+												graph_list.append(key_object)
+										else:
+											if ((all(name in key_object.GetName() for name in args.name) and all(refuse not in key_object.GetName() for refuse in args.refuse))  \
+											and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('_s'+str(strip)+'_' in key_object.GetName() or strip == '9999') and ('b'+str(bucket) in key_object.GetName() or bucket == 9999) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
+												#print 'Histogram found: ', key_object.GetName()
+												graph_list.append(key_object)
 			else:
 				if(args.name == 'everything' and key_object.ReadObj().GetEntries() != 0):
 					#print key_object.GetName()
@@ -65,24 +64,21 @@ def loopdir(keys):  # loop through all subdirectories of the root file and add a
 							if (name == key_object.GetName()): 
 								hist_list.append(key_object)
 					else:	
-						for name in args.name:
-							for refuse in args.refuse:
-								for channel in args.channel:	
-									for strip in args.strip:
-										for bucket in args.bucket:
-											for kpix in args.kpix:
-												if (bucket == 4):
-													if ((name in key_object.GetName() and refuse not in key_object.GetName()) \
-													and (key_object.ReadObj().GetEntries() != 0) \
-													and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('_s'+str(strip)+'_' in key_object.GetName() or strip == '9999') and ('b' not in key_object.GetName()) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
-														#print 'Histogram found: ', key_object.GetName()
-														hist_list.append(key_object)
-												else:
-													if ((name in key_object.GetName() and refuse not in key_object.GetName()) \
-													and (key_object.ReadObj().GetEntries() != 0) \
-													and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('_s'+str(strip)+'_' in key_object.GetName() or strip == '9999') and ('b'+str(bucket) in key_object.GetName() or bucket == 9999) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
-														#print 'Histogram found: ', key_object.GetName()
-														hist_list.append(key_object)
+						for channel in args.channel:	
+							for strip in args.strip:
+								for bucket in args.bucket:
+									for kpix in args.kpix:
+										if (bucket == 4):
+											if ((all(name in key_object.GetName() for name in args.name) and all(refuse not in key_object.GetName() for refuse in args.refuse)) \
+											and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('_s'+str(strip)+'_' in key_object.GetName() or strip == '9999') and ('b' not in key_object.GetName()) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
+												#print 'Histogram found: ', key_object.GetName()
+												hist_list.append(key_object)
+										else:
+											if ((all(name in key_object.GetName() for name in args.name) and all(refuse not in key_object.GetName() for refuse in args.refuse)) \
+											and ('_c'+str(channel)+'_' in key_object.GetName() or channel == '9999') and ('_s'+str(strip)+'_' in key_object.GetName() or strip == '9999') and ('b'+str(bucket) in key_object.GetName() or bucket == 9999) and ('k'+str(kpix) in key_object.GetName() or 'k_'+str(kpix) in key_object.GetName() or kpix == 9999)):
+												#print 'Histogram found: ', key_object.GetName()
+												hist_list.append(key_object)
+
 
 def hist_plotter():
 	if ('same' in args.draw_option):
@@ -111,7 +107,7 @@ def hist_plotter():
 			##------------------
 			##loop through the histograms, get all parameters
 			obj = histogram.ReadObj()
-			print 'Number of entries =', obj.GetEntries()
+			print 'Number of total entries = ', '%.2E' % Decimal(obj.GetEntries())
 			x_axis = obj.GetXaxis()
 			y_axis = obj.GetYaxis()
 			##------------------
@@ -138,6 +134,8 @@ def hist_plotter():
 				x_low = args.xaxisrange[0]
 				x_high = args.xaxisrange[1]
 				x_axis.SetRangeUser(x_low, x_high)
+				print 'Number of normed Entries in range = ', obj.Integral()
+				print 'Number of unweighted Entries in range = ', '%.2E' % Decimal(obj.Integral() * obj.GetEntries())
 			if 9999 not in args.yaxisrange:
 				y_low = args.yaxisrange[0]
 				y_high = args.yaxisrange[1]
@@ -194,11 +192,13 @@ def hist_plotter():
 		#if (args.ylog is True):
 		legend.Draw()
 		if (args.output_name):
-			print 'Creating '+folder_loc+filename_list[0]+'_'+args.output_name
-			c1.SaveAs(folder_loc+filename_list[0]+'_'+args.output_name)
+			outname = folder_loc+filename_list[0]+'_'+args.output_name
+			print 'Creating '+outname
+			c1.SaveAs(outname)
 		else:
-			print 'Creating '+folder_loc+filename_list[0]+'_'+graph.GetName()+'.png'
-			c1.SaveAs(folder_loc+filename_list[0]+'_'+graph.GetName()+'.png')
+			outname = folder_loc+filename_list[0]+'_'+graph.GetName()
+			print 'Creating '+outname+'.png'
+			c1.SaveAs(outname+'.png')
 		c1.Close()
 	else:
 		counter = 0
@@ -208,7 +208,7 @@ def hist_plotter():
 			#ROOT.gROOT.SetBatch(1)
 			c1 = ROOT.TCanvas( 'test', 'Test', 1200,900 ) #
 			obj = histogram.ReadObj()
-			print 'Number of entries =', obj.GetEntries()
+			print 'Number of total entries = ', '%.2E' % Decimal(obj.GetEntries())
 			x_axis = obj.GetXaxis()
 			y_axis = obj.GetYaxis()
 			c1.cd()
@@ -225,6 +225,8 @@ def hist_plotter():
 				x_low = args.xaxisrange[0]
 				x_high = args.xaxisrange[1]
 				x_axis.SetRangeUser(x_low, x_high)
+				print 'Number of normed Entries in range = ', obj.Integral()
+				print 'Number of unweighted Entries in range = ', '%.2E' % Decimal(obj.Integral() * obj.GetEntries())
 			if 9999 not in args.yaxisrange:
 				y_low = args.yaxisrange[0]
 				y_high = args.yaxisrange[1]
@@ -250,11 +252,13 @@ def hist_plotter():
 			#raw_input('Press Enter to look at the next histogram')
 			
 			if (args.output_name):
-				print 'Creating '+folder_loc+filename_list[0]+'_'+args.output_name
-				c1.SaveAs(folder_loc+filename_list[0]+'_'+args.output_name)
+				outname = folder_loc+filename_list[0]+'_'+args.output_name
+				print 'Creating '+outname
+				c1.SaveAs(outname)
 			else:
-				print 'Creating '+folder_loc+filename_list[0]+'_'+graph.GetName()+'.png'
-				c1.SaveAs(folder_loc+filename_list[0]+'_'+graph.GetName()+'.png')
+				outname = folder_loc+filename_list[0]+'_'+graph.GetName()
+				print 'Creating '+outname+'.png'
+				c1.SaveAs(outname+'.png')
 			c1.Close()
 			counter= counter+1
 			#for i in xrange(obj.FindFirstBinAbove(0),obj.FindLastBinAbove(0),1):
@@ -339,11 +343,13 @@ def graph_plotter():
 		#if (args.ylog is True):
 		legend.Draw()
 		if (args.output_name):
-			print 'Creating '+folder_loc+filename_list[0]+'_'+args.output_name
-			c1.SaveAs(folder_loc+filename_list[0]+'_'+args.output_name)
+			outname = folder_loc+filename_list[0]+'_'+args.output_name
+			print 'Creating '+outname
+			c1.SaveAs(outname)
 		else:
-			print 'Creating '+folder_loc+filename_list[0]+'_'+graph.GetName()+'.png'
-			c1.SaveAs(folder_loc+filename_list[0]+'_'+graph.GetName()+'.png')
+			outname = folder_loc+filename_list[0]+'_'+graph.GetName()
+			print 'Creating '+outname+'.png'
+			c1.SaveAs(outname+'.png')
 		c1.Close()
 	else:
 		counter = 0
@@ -376,11 +382,13 @@ def graph_plotter():
 			#ROOT.gROOT.SetBatch(0)
 			#raw_input('Press Enter to look at the next histogram')
 			if (args.output_name):
-				print 'Creating '+folder_loc+filename_list[0]+'_'+args.output_name
-				c1.SaveAs(folder_loc+filename_list[0]+'_'+args.output_name)
+				outname = folder_loc+filename_list[0]+'_'+args.output_name
+				print 'Creating '+outname
+				c1.SaveAs(outname)
 			else:
-				print 'Creating '+folder_loc+filename_list[0]+'_'+graph.GetName()+'.png'
-				c1.SaveAs(folder_loc+filename_list[0]+'_'+graph.GetName()+'.png')
+				outname = folder_loc+filename_list[0]+'_'+graph.GetName()
+				print 'Creating '+outname+'.png'
+				c1.SaveAs(outname+'.png')
 			c1.Close()
 			counter= counter+1
 			#for i in xrange(obj.FindFirstBinAbove(0),obj.FindLastBinAbove(0),1):
@@ -458,7 +466,7 @@ mystyle.SetHistLineWidth(2)
 #mystyle.SetPadTickY(1)
 #
 ##turn off stats
-mystyle.SetOptStat(0)
+mystyle.SetOptStat(111101)
 #mystyle.SetOptFit(0)
 #
 ##marker settings
@@ -489,6 +497,8 @@ parser.add_argument('-d', '--draw', dest='draw_option', default='', help='specif
 parser.add_argument('-o', '--output', dest='output_name', help='specifies the name and type of the output file (e.g. test.png, comparison.root etc...')
 parser.add_argument('-f', '--refuse', dest='refuse', default= ['nothing'], nargs='*', help='add string that should be exluded from histogram search')
 parser.add_argument('-r', '--rebin', dest='rebin', default=1, type = int, help='add number to rebin the histograms | type=int')
+parser.add_argument('--name2', dest='name2', default=['everything'], nargs='*',  help='used to specify the name of the plot which should be used')
+parser.add_argument('--refuse2', dest='refuse2', default= ['nothing'], nargs='*', help='add string that should be exluded from histogram search')
 parser.add_argument('--exact', dest='exact', default=False, help='if set to True, only histograms with the exact name will be used')
 parser.add_argument('--xrange', dest='xaxisrange', default=[9999], nargs='*', type=float, help='set a xrange for the plot to used with xmin xmax as the two arguments | type=float')
 parser.add_argument('--yrange', dest='yaxisrange', default=[9999], nargs='*', type=float, help='set a yrange for the plot to used with ymin ymax as the two arguments | type=float')
@@ -506,9 +516,19 @@ if len(sys.argv) < 2:
 print ''
 
 
+if ('everything' in args.name2):
+	args.name2 = args.name
 
+#print args.refuse
 
-legend_location = [0.55,0.75,0.85,0.85]
+teststring = 'ab_cds'
+
+if any(name in teststring for name in args.name) and all(refuse not in teststring for refuse in args.refuse):
+	print 'accepted'
+else:
+	print teststring
+
+legend_location = [0.55,0.65,0.95,0.85] # x_left, y_bottom, x_right, y_top
 
 ##-----------------	
 ##produce empty root file and filename lists.
@@ -525,7 +545,7 @@ for x in root_file_list:
 	key_root = x.GetListOfKeys()
 	loopdir(key_root)
 
-folder_loc = '/home/uwe/kpix_analysis/plots/'
+folder_loc = '/home/lycoris-dev/Documents/testbeam_august/'
 ##-----------------	
 ##general output
 #print args.color
@@ -538,6 +558,10 @@ print 'Channel [9999 = everything] ',args.channel
 print 'Strip [9999 = everything] ',args.strip
 print 'Bucket [9999 = everything; 4 = only total] ',args.bucket
 print 'KPiX [9999 = everything] ',args.kpix
+print 'Refusing the following ', args.refuse
+if (args.name2 is not args.name):
+	print 'Name also contains ', args.name2
+
 
 print 'Number of histograms found is: ', len(hist_list)
 print hist_list	
