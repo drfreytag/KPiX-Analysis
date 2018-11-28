@@ -210,8 +210,8 @@ int main ( int argc, char **argv )
 	
 	TH1F				*fc_response_mean_subtracted[32][5];
 	TH1F				*fc_response_CM_subtracted[32][5];
-	TH1F				*fc_response_CM2_subtracted[32][5];
-	TH1F				*fc_response_CM3_subtracted[32][5];
+	TH1F				*fc_response_CMmedian_subtracted[32][5];
+	TH1F				*fc_response_CMgauss_subtracted[32][5];
 	TH1F				*fc_response_median_subtracted[32][5];
 	TH1F				*fc_response_gauss_subtracted[32][5];
 	TH1F				*fc_response_channel[32][1024];
@@ -522,7 +522,10 @@ int main ( int argc, char **argv )
 								//cout << "bucket " << bucket << endl;
 								//cout << "ADC value " << value << endl;
 								//cout << "charge value " << corrected_charge_value_mean << endl;
-								//cout << "common mode " << CM[kpix]/hitcounter[kpix] << endl;
+								//if (CM2[kpix]/hitcounter[kpix] > 2)
+								//{
+									//cout << "KPiX Number = " << kpix << "        cycle number = " << acqProcessed << "             channel = " << channel << "                  charge value = " << charge_value << "                 pedestal_gauss = " << pedestal_gauss[kpix][channel][0] <<  "            common mode = " <<  CM2[kpix]/hitcounter[kpix] << endl;
+								//}
 								
 								
 							}
@@ -539,10 +542,17 @@ int main ( int argc, char **argv )
 			{
 				//for (int b = 0; b < 4; b++)
 				//{
-				//cout << CM3[k] << endl;
-					common_modes[k].push_back(CM[k]/hitcounter[k]);
-					common_modes2[k].push_back(CM2[k]/hitcounter[k]);
-					common_modes3[k].push_back(CM3[k]/hitcounter[k]);
+				//if ( k == 26 || k ==  30)
+				//{
+					//cout << "KPiX Number = " << k << "     Cycle Number = " << acqCount << endl;
+					//cout << "CM Mean " 		<< 	CM[k]	<< endl;
+					//cout << "CM Median "	<< 	CM2[k] 	<< endl;
+					//cout << "CM Gauss " 	<< 	CM3[k]	<< endl;
+					//cout << endl;
+				//}
+				common_modes[k].push_back(CM[k]/hitcounter[k]);
+				common_modes2[k].push_back(CM2[k]/hitcounter[k]);
+				common_modes3[k].push_back(CM3[k]/hitcounter[k]);
 				//}
 			}
 		}
@@ -619,14 +629,14 @@ int main ( int argc, char **argv )
 			fc_response_mean_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-10.5, 199.5);
 			
 			tmp.str("");
-			tmp << "fc_response_CM_subtracted_k" << kpix << "_total";
+			tmp << "fc_response_CMmean_subtracted_k" << kpix << "_total";
 			fc_response_CM_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-10.5, 199.5);
 			tmp.str("");
-			tmp << "fc_response_CM2_subtracted_k" << kpix << "_total";
-			fc_response_CM2_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-10.5, 199.5);
+			tmp << "fc_response_CMmedian_subtracted_k" << kpix << "_total";
+			fc_response_CMmedian_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-10.5, 199.5);
 			tmp.str("");
-			tmp << "fc_response_CM3_subtracted_k" << kpix << "_total";
-			fc_response_CM3_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-10.5, 199.5);
+			tmp << "fc_response_CMgauss_subtracted_k" << kpix << "_total";
+			fc_response_CMgauss_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-10.5, 199.5);
 			
 			tmp.str("");
 			tmp << "fc_response_median_subtracted_k" << kpix << "_total";
@@ -756,11 +766,11 @@ int main ( int argc, char **argv )
 				tmp << "fc_response_CM_subtracted_k" << kpix << "_b" << bucket;
 				fc_response_CM_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-10.5, 199.5);
 				tmp.str("");
-				tmp << "fc_response_CM2_subtracted_k" << kpix << "_b" << bucket;
-				fc_response_CM2_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-10.5, 199.5);
+				tmp << "fc_response_CMmedian_subtracted_k" << kpix << "_b" << bucket;
+				fc_response_CMmedian_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-10.5, 199.5);
 				tmp.str("");
-				tmp << "fc_response_CM3_subtracted_k" << kpix << "_b" << bucket;
-				fc_response_CM3_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-10.5, 199.5);
+				tmp << "fc_response_CMgauss_subtracted_k" << kpix << "_b" << bucket;
+				fc_response_CMgauss_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-10.5, 199.5);
 				
 				tmp.str("");
 				tmp << "fc_response_median_subtracted_k" << kpix << "_b" << bucket;
@@ -907,7 +917,7 @@ int main ( int argc, char **argv )
 							
 							//cout << calib_slope[kpix][channel]/pow(10,15) << endl;
 							//cout << "Test2" << endl;
-							if (calib_slope[kpix][channel]/pow(10,15) > 1 && calib_slope[kpix][channel]/pow(10,15) < 30)
+							if (calib_slope[kpix][channel]/pow(10,15) > 1 && calib_slope[kpix][channel]/pow(10,15) < 15 && !(kpix == 30 && (channel == 500 || channel == 501 || channel == 490 || channel == 491 || channel == 522 || channel == 523 || channel == 532 || channel == 533 )))
 							{
 							//cout << "Slope " << calib_slope[kpix][channel]/pow(10,15) << endl;
 							//if (calib_slope[kpix][channel]/pow(10,15) > 1 && calib_slope[kpix][channel]/pow(10,15) < 15 && kpix2strip_left.at(channel) != 9999 && pedestal[kpix][channel] < 1000 && pedestal[kpix][channel] > 100) // Filter out channels with horrible calibration and non connected channels.
@@ -930,9 +940,8 @@ int main ( int argc, char **argv )
 								
 								common_mode_hist[kpix]->Fill(common_modes[kpix][datacounter], weight);
 								
-								fc_response_CM_subtracted[kpix][4]->Fill(CM_corrected_charge, weight);
-								fc_response[kpix][4]->Fill(charge_value, weight);
 								
+								//cyclical
 								
 								if (kpix == 26)
 								{
@@ -949,20 +958,26 @@ int main ( int argc, char **argv )
 									fc_response_cycle_gauss_subtracted[datacounter+acqProcessed]->Fill(corrected_charge_value_gauss, weight);
 								}
 								
+								//total
+								
+								fc_response_CM_subtracted[kpix][4]->Fill(CM_corrected_charge, weight);
+								fc_response[kpix][4]->Fill(charge_value, weight);
+								
 								fc_response_mean_subtracted[kpix][4]->Fill(corrected_charge_value_mean, weight);
 								fc_response_median_subtracted[kpix][4]->Fill(corrected_charge_value_median, weight);
 								fc_response_gauss_subtracted[kpix][4]->Fill(corrected_charge_value_gauss, weight);
 								
-								fc_response_channel[kpix][channel]->Fill(charge_value, weight);
-								fc_response_mean_subtracted_channel[kpix][channel]->Fill(corrected_charge_value_mean, weight);
-								fc_response_median_subtracted_channel[kpix][channel]->Fill(corrected_charge_value_median, weight);
+								fc_response_CM_subtracted[kpix][4]->Fill(CM_corrected_charge, weight);
+								fc_response_CMmedian_subtracted[kpix][4]->Fill(CM_corrected_charge2, weight);
+								fc_response_CMgauss_subtracted[kpix][4]->Fill(CM_corrected_charge3, weight);
+								
 								
 								position_vs_charge[kpix][4]->Fill(kpix2strip_left.at(channel), charge_value, 1.0);
 								position_vs_charge_corrected[kpix][4]->Fill(kpix2strip_left.at(channel), corrected_charge_value_median, 1.0);
 								kpix_position_vs_charge_corrected[kpix][4]->Fill(channel, corrected_charge_value_median, 1.0);
 								
 								
-								
+								//bucket seperated
 								
 								fc_response[kpix][bucket]->Fill(charge_value, weight);
 								fc_response_mean_subtracted[kpix][bucket]->Fill(corrected_charge_value_mean, weight);\
@@ -970,12 +985,15 @@ int main ( int argc, char **argv )
 								fc_response_gauss_subtracted[kpix][bucket]->Fill(corrected_charge_value_gauss, weight);
 								
 								fc_response_CM_subtracted[kpix][bucket]->Fill(CM_corrected_charge, weight);
-								fc_response_CM2_subtracted[kpix][bucket]->Fill(CM_corrected_charge2, weight);
-								fc_response_CM3_subtracted[kpix][bucket]->Fill(CM_corrected_charge3, weight);
+								fc_response_CMmedian_subtracted[kpix][bucket]->Fill(CM_corrected_charge2, weight);
+								fc_response_CMgauss_subtracted[kpix][bucket]->Fill(CM_corrected_charge3, weight);
 								
+								
+								//channel seperated
 								fc_response_channel[kpix][channel]->Fill(charge_value, weight);
 								fc_response_mean_subtracted_channel[kpix][channel]->Fill(corrected_charge_value_mean, weight);
 								fc_response_median_subtracted_channel[kpix][channel]->Fill(corrected_charge_value_median, weight);
+								
 								
 								position_vs_charge[kpix][bucket]->Fill(kpix2strip_left.at(channel), charge_value, 1.0);
 								position_vs_charge_corrected[kpix][bucket]->Fill(kpix2strip_left.at(channel), corrected_charge_value_median, 1.0);
@@ -1041,12 +1059,16 @@ int main ( int argc, char **argv )
 		{
 			for (int channel = 0; channel < 1024 ; channel++)
 			{
-				pedestals_mean[kpix][bucket]->Fill(pedestal_mean[kpix][channel][bucket], weight);
-				pedestals_median[kpix][bucket]->Fill(pedestal_median[kpix][channel][bucket], weight);
-				pedestals_gauss[kpix][bucket]->Fill(pedestal_gauss[kpix][channel][bucket], weight);
+				pedestals_mean[kpix][bucket]->Fill(pedestal_mean[kpix][channel][bucket]);
+				pedestals_median[kpix][bucket]->Fill(pedestal_median[kpix][channel][bucket]);
+				pedestals_gauss[kpix][bucket]->Fill(pedestal_gauss[kpix][channel][bucket]);
 				
-				slopes[kpix][bucket]->Fill(calib_slope[kpix][channel]/pow(10,15), weight);
+				slopes[kpix][bucket]->Fill(calib_slope[kpix][channel]/pow(10,15));
 				slopes_vs_strip[kpix][bucket]->Fill(kpix2strip_left.at(channel), calib_slope[kpix][channel]/pow(10,15), 1.0);
+				
+				slopes[kpix][4]->Fill(calib_slope[kpix][channel]/pow(10,15));
+				slopes_vs_strip[kpix][4]->Fill(kpix2strip_left.at(channel), calib_slope[kpix][channel]/pow(10,15), 1.0);
+				
 				
 				double mean = fc_response_median_subtracted_channel[kpix][channel]->GetMean();
 				Double_t median,q;

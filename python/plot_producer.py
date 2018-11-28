@@ -528,7 +528,7 @@ if any(name in teststring for name in args.name) and all(refuse not in teststrin
 else:
 	print teststring
 
-legend_location = [0.55,0.65,0.95,0.85] # x_left, y_bottom, x_right, y_top
+legend_location = [0.55,0.65,0.85,0.85] # x_left, y_bottom, x_right, y_top
 
 ##-----------------	
 ##produce empty root file and filename lists.

@@ -126,7 +126,6 @@ int main ( int argc, char **argv )
 	bool                   bucketFound[32][1024][4];  // variable that gives true if bucket has an entry (32 possible number of KPiX, 1024 channels per KPiX, 4 buckets per channel)
 	bool                   chanFound[32][1024]; // variable that gives true if a channel has entries
 	bool                   kpixFound[32]; // variable that gives true if a kpix at the index n (0<=n<32) was found
-	uint                   x;
 	uint                   range;
 	uint                   value;
 	uint                   kpix;
@@ -263,7 +262,7 @@ int main ( int argc, char **argv )
 		if (acqCount > skip_cycles_front)
 		{
 			acqProcessed++;
-			for (x=0; x < event.count(); x++)
+			for (uint x=0; x < event.count(); x++)
 			{
 		
 				//// Get sample
@@ -362,7 +361,7 @@ int main ( int argc, char **argv )
 								tmp_units << "_b" << dec << bucket; // add _b$bucket
 								tmp_units << "_k" << dec << kpix; // add _k$kpix to stringstream
 								tmp_units << "; Charge (fC); #entries/#acq.cycles"; // add title: x label, y label to stringstream
-								hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(),2000, -0.5,499.5);
+								hist[kpix][channel][bucket][0] = new TH1F(tmp.str().c_str(),tmp_units.str().c_str(), 16000, -0.5, 3999.5);
 								
 								
 							}
@@ -409,7 +408,7 @@ int main ( int argc, char **argv )
 		{
 		
 			//cout << " NEW EVENT " << endl;
-			for (x=0; x < event.count(); x++)
+			for (uint x=0; x < event.count(); x++)
 			{
 				//cout << "DEBUG: EVENT COUNT " << event.count() << endl;
 				//// Get sample
@@ -463,11 +462,20 @@ int main ( int argc, char **argv )
 						if (bucketFound[kpix][channel][bucket])
 						{
 							 //cout << "KPIX=" << kpix << "  Channel=" << channel << "  Bucket=" << bucket << "       Mean = " <<  hist[kpix][channel][bucket][0]->GetMean() << endl;
-							 double mean = hist[kpix][channel][bucket][0]->GetMean();
-							 double RMS = hist[kpix][channel][bucket][0]->GetRMS();
-							 
-							 if (mean != 0 && RMS > 0.1)
-							 {
+							double mean = hist[kpix][channel][bucket][0]->GetMean();
+							double RMS = hist[kpix][channel][bucket][0]->GetRMS();
+							
+							int firstbin = hist[kpix][channel][bucket][0]->FindFirstBinAbove(0);
+							int lastbin = hist[kpix][channel][bucket][0]->FindLastBinAbove(0);
+							
+							if (calib_slope[kpix][channel]*pow(10,15) > 1 && calib_slope[kpix][channel]*pow(10,15) < 15) hist[kpix][channel][bucket][0]->GetXaxis()->SetRangeUser(firstbin, lastbin);
+							double overflow = hist[kpix][channel][bucket][0]->GetBinContent(8001);
+							if ( hist[kpix][channel][bucket][0]->GetBinContent(8001) > 0)
+							{
+								cout << "KPiX Number = " << kpix << "    Channel Number = " << channel << "     Bucket Number = " << bucket << "     overflow content = " << overflow << endl;
+							}
+							if (mean != 0 && RMS > 0.1)
+							{
 							 
 								hist[kpix][channel][bucket][0]->Fit("gaus","Rq", "", mean-RMS, mean+RMS );
 								
@@ -475,6 +483,9 @@ int main ( int argc, char **argv )
 								//cout << "KPiX Number = " << kpix << "    Channel Number = " << channel << "     Bucket Number = " << bucket << endl;
 								//cout << "Chisquare = " << gaussfit->GetChisquare()/gaussfit->GetNDF() << endl;
 							}
+							
+							
+							
 						}
 						
 					}
