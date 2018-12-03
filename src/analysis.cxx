@@ -1055,7 +1055,7 @@ int main ( int argc, char **argv )
 						//if (trig_diff_list.size() > 0) cout << "Trig diff new method position in vector = " <<  distance(trig_diff_list.begin(), min_element(trig_diff_list.begin(), trig_diff_list.end())) << endl; //seg fault when vector is empty
 					
 						//assigned_number =  distance(trig_diff_list.begin(), min_element(trig_diff_list.begin(), trig_diff_list.end())); //position of smallest element in trigger difference vector
-						
+						//cout << "test" << endl;
 						time_diff_kpix_ext[kpix].push_back(trig_diff);
 						if (cycle_num < cycle_checking)
 						{

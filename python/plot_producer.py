@@ -24,6 +24,35 @@ class MyParser(argparse.ArgumentParser):
         sys.exit(2)
 
 
+def arrangeStats(hists, statBoxW, statBoxH, name):
+	i=0
+	for h in hists:
+		statBox = h.GetListOfFunctions().FindObject("stats")
+		statBox.SetName('statBox' + str(i))
+		
+		listOfLines = statBox.GetListOfLines()
+
+		tconst = statBox.GetLineWith(h.GetName());
+		listOfLines.Remove(tconst);
+
+
+		myt = ROOT.TLatex(0,0,name[len(hists)-i-1]);
+		myt.SetTextFont(42);
+		myt.SetTextColor(h.GetLineColor());
+		listOfLines.AddFirst(myt)
+		
+		print name[i]
+		#statBox.SetTitle(str(name[i]))
+		statBox.SetX1NDC(0.98 - statBoxW)
+		statBox.SetY1NDC(0.99 - i*(statBoxH) - statBoxH)
+		statBox.SetX2NDC(0.98)
+		statBox.SetY2NDC(0.99 - i*(statBoxH))
+		statBox.SetTextColor(h.GetLineColor()) 
+		statBox.SetBorderSize(2)
+		statBox.Draw("same")
+		i+=1
+
+
 
 def loopdir(keys):  # loop through all subdirectories of the root file and add all plots+histograms that contain the same string as given by the name, channel and bucket arguments to the global list of all chosen histograms hist_list
 	for key_object in keys:
@@ -87,7 +116,7 @@ def hist_plotter():
 		drawing_option = args.draw_option.replace('same', 'NOSTACK') #exchange the same with a NOSTACK as I am using THStack
 		c1 = ROOT.TCanvas( args.output_name, 'Test', 1200, 900 )
 		c1.cd()
-		c1.SetFillColor(0)
+		#c1.SetFillColor(0)
 		legend = ROOT.TLegend(legend_location[0], legend_location[1], legend_location[2], legend_location[3])
 		hist_comp = ROOT.THStack()
 		counter = 1
@@ -98,6 +127,7 @@ def hist_plotter():
 		y_low = None
 		y_high = None
 		new_hist_list = []
+		legendname = []
 		if args.order:
 			for i in args.order:
 				new_hist_list.append(hist_list[i]) 
@@ -145,11 +175,13 @@ def hist_plotter():
 			#x_axis.SetRangeUser(x_low, x_high)
 			obj.SetLineColor(args.color[counter-1])
 			obj.SetMarkerColor(args.color[counter-1])
-
 			
+
 			##------------------
 			##draw histograms into the same canvas (equivalent to option same)
-			hist_comp.Add(obj)
+			hist_comp.Add(obj, "sames")
+			
+			
 			##------------------
 			##adjust legend and the x and y title name if chosen
 			if (not args.legend):
@@ -159,6 +191,7 @@ def hist_plotter():
 					legend.AddEntry(obj, '_'+histogram.GetName())
 			else:
 				legend.AddEntry(obj, args.legend[counter-1])
+				legendname.append(args.legend[counter-1])
 			counter +=1
 			if (args.xtitle):
 				x_title = args.xtitle
@@ -168,6 +201,9 @@ def hist_plotter():
 				y_title = args.ytitle
 			else:
 				y_title = y_axis.GetTitle()
+			
+			
+			
 		##------------------
 		##set y axis to log
 		if args.ylog:
@@ -175,7 +211,10 @@ def hist_plotter():
 			ROOT.gPad.SetLogy()
 		##------------------
 		##draw histogram + components and save the file
+	
 		hist_comp.Draw(drawing_option)
+		c1.Update()
+	
 		xaxis = hist_comp.GetXaxis()
 		xaxis.SetTitle(x_title)
 		print x_low
@@ -189,8 +228,14 @@ def hist_plotter():
 			yaxis.SetRangeUser(y_low, y_high) 
 			print 'test'
 		yaxis.SetTitle(y_title)
-		#if (args.ylog is True):
-		legend.Draw()
+		statBoxW = 0.2
+		statBoxH = 0.14
+		histListForStats = []
+		for j in range(len(new_hist_list)-1, -1, -1): 
+			histListForStats.append(hist_comp.GetStack().At(j) )
+		arrangeStats(histListForStats, statBoxW, statBoxH, legendname)
+		c1.Modified()
+		c1.Update()
 		if (args.output_name):
 			outname = folder_loc+filename_list[0]+'_'+args.output_name
 			print 'Creating '+outname
@@ -247,10 +292,7 @@ def hist_plotter():
 				x_axis.SetTitle(args.xtitle)
 			if (args.ytitle):
 				y_axis.SetTitle(args.ytitle)
-			obj.Draw(args.draw_option)
-			#ROOT.gROOT.SetBatch(0)
-			#raw_input('Press Enter to look at the next histogram')
-			
+			obj.Draw(args.draw_option)			
 			if (args.output_name):
 				outname = folder_loc+filename_list[0]+'_'+args.output_name
 				print 'Creating '+outname
@@ -440,10 +482,10 @@ mystyle.SetLegendBorderSize(0)
 mystyle.SetTitleSize(0.04,"xyz")
 mystyle.SetTitleOffset(1.2,"yz")
 #mystyle.SetTitleOffset(1.0,"x")
-#mystyle.SetStatFont(42)
-#mystyle.SetStatFontSize(0.07)
-#mystyle.SetTitleBorderSize(0)
-#mystyle.SetStatBorderSize(0)
+mystyle.SetStatFont(42)
+mystyle.SetStatFontSize(0.00)
+mystyle.SetTitleBorderSize(0)
+mystyle.SetStatBorderSize(0)
 #mystyle.SetTextFont(42)
 
 ##set legend text size etc.
