@@ -27,9 +27,9 @@
 #include <stdint.h>
 using namespace std;
 
-#ifdef RTEMS
-#define O_LARGEFILE 0
-#endif
+//#ifdef RTEMS
+//#define O_LARGEFILE 0
+//#endif
 
 // Constructor
 DataRead::DataRead ( ) {
@@ -167,7 +167,8 @@ bool DataRead::open ( string file, bool compressed ) {
 
    // Attempt to open file
    //   else {
-      if ( (fd_ = ::open (file.c_str(),O_RDONLY | O_LARGEFILE)) < 0 ) {
+   //   if ( (fd_ = ::open (file.c_str(),O_RDONLY | O_LARGEFILE)) < 0 ) {
+   if ( (fd_ = ::open (file.c_str(),O_RDONLY)) < 0 ){
          cout << "DataRead::open -> Failed to open file: " << file << endl;
          return(false);
       }
@@ -280,16 +281,16 @@ bool DataRead::next (Data *data) {
 			// Yml
 		case Data::YmlConfig :
 
-			cout << " [DataRead::next] YmlConfig Data-type -> 0x" 
-			     << hex << setw(8) << setfill('0') << ((size >> 28) & 0xF) << " skipping." << endl;
-			cout << " \tType-Size is: "<< size << ", where size = "<< (size & 0x0FFFFFFF) << endl;
-			
-			ymlParse(size, shBuff);
-			
-			//return(lseek(fd_, ((size) & 0x0FFFFFFF), SEEK_CUR));
-			break;
-			
-			// Unknown
+		  /*cout << " [DataRead::next] YmlConfig Data-type -> 0x" 
+		       << hex << setw(8) << setfill('0') << ((size >> 28) & 0xF) << " skipping." << endl;
+		  cout << " \tType-Size is: "<< size << ", where size = "<< (size & 0x0FFFFFFF) << endl;
+		  */
+		  ymlParse(size, shBuff);
+		  
+		  //return(lseek(fd_, ((size) & 0x0FFFFFFF), SEEK_CUR));
+		  break;
+		  
+		  // Unknown
 		default: 
             cout << "DataRead::next -> Unknown data type 0x" 
                  << hex << setw(8) << setfill('0') << ((size >> 28) & 0xF) << " skipping." << endl;

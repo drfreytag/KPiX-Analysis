@@ -356,7 +356,8 @@ int main ( int argc, char **argv ) {
 	  // Style histogram
 	  hist->GetXaxis()->SetRangeUser(chanData[kpix][channel][bucket][range]->baseMin,
 					 chanData[kpix][channel][bucket][range]->baseMax);
-	  //hist->Fit("gaus","q");
+	  if ( hist->GetSumOfWeights() != 0 )
+	    hist->Fit("gaus","q");
 	  hist->Write();
 	  
 	}// loop over range
@@ -418,26 +419,30 @@ int main ( int argc, char **argv ) {
 	      grCount++;
 	    }//--- working point
 
-	    // Create graph
-	    if( grCount > 0 ) {
-	      grCalib = new TGraphErrors(grCount,grX,grY,grXErr,grYErr);
-	      grCalib->Draw("Ap");
-	      grCalib->Fit("pol1","eq","",fitMin[range],fitMax[range]);
-	      grCalib->GetFunction("pol1")->SetLineWidth(1);
-
-	      // Create name and write
-	      tmp.str("");
-	      tmp << "calib_k" << kpix << "_c" << dec << setw(4) << setfill('0') << channel;
-	      tmp << "_b" << dec << bucket;
-	      tmp << "_r" << dec << range;
-	      grCalib->SetTitle(tmp.str().c_str());
-	      grCalib->Write(tmp.str().c_str());
-
-	      // TBD: add residual plot
-	      
-	    }
-	    
 	  }// loop over DAC value
+
+	  // Create graph
+	  if( grCount > 0 ) {
+	    grCalib = new TGraphErrors(grCount,grX,grY,grXErr,grYErr);
+	    grCalib->Draw("Ap");
+	    grCalib->GetXaxis()->SetTitle("Charge [C]");
+	    grCalib->GetYaxis()->SetTitle("ADC");
+	    grCalib->Fit("pol1","eq","",fitMin[range],fitMax[range]);
+	    grCalib->GetFunction("pol1")->SetLineWidth(1);
+	    
+	    // Create name and write
+	    tmp.str("");
+	    tmp << "calib_k" << kpix << "_c" << dec << setw(4) << setfill('0') << channel;
+	    tmp << "_b" << dec << bucket;
+	    tmp << "_r" << dec << range;
+	    grCalib->SetTitle(tmp.str().c_str());
+	    grCalib->Write(tmp.str().c_str());
+	    
+	    // TBD: add residual plot
+	    
+	  }
+	    
+
 	}// loop over range
       }// loop over bucket
     }// loop over channel
