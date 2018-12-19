@@ -243,7 +243,11 @@ int main ( int argc, char **argv )
 	
 	TH1F				*fc_response_subgroup[32][5];
 	TH1F				*fc_response_cuts[32][5];
+	TH1F				*fc_response_cuts_singlestrip[32][5];
+	TH1F				*fc_response_cuts_doublestrip[32][5];
 	//TH1F				*fc_response_subtracted_subgroup[32][5];
+	
+	TH1F 				*hit_position[32][5][3];
 	
 	TH2F 				*position_vs_charge_corrected[32][5];
 	TH2F 				*position_vs_charge_CM_corrected[32][5];
@@ -717,6 +721,24 @@ int main ( int argc, char **argv )
 			tmp << "fc_response_cuts_k" << kpix << "_total";
 			fc_response_cuts[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
 			
+			tmp.str("");
+			tmp << "fc_response_cuts_singlestrip_k" << kpix << "_total";
+			fc_response_cuts_singlestrip[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+			
+			tmp.str("");
+			tmp << "fc_response_cuts_doublestrip_k" << kpix << "_total";
+			fc_response_cuts_doublestrip[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+			
+			tmp.str("");
+			tmp << "hit_position_singlestrip_k" << kpix << "_total";
+			hit_position[kpix][4][0] = new TH1F(tmp.str().c_str(), "singlestrip hit position; Strip Position; #entries/#acq.cycles", 921, -0.5, 919.5);
+			tmp.str("");
+			tmp << "hit_position_doublestrip_k" << kpix << "_total";
+			hit_position[kpix][4][1] = new TH1F(tmp.str().c_str(), "doublestrip hit position; Strip Position; #entries/#acq.cycles", 921, -0.5, 919.5);
+			tmp.str("");
+			tmp << "hit_position_single+double_strip_k" << kpix << "_total";
+			hit_position[kpix][4][2] = new TH1F(tmp.str().c_str(), "total strip hit position; Strip Position; #entries/#acq.cycles", 921, -0.5, 919.5);
+			
 			
 			//tmp.str("");
 			//tmp << "fc_response_subtracted_subgroup_k" << kpix << "_total";
@@ -865,6 +887,26 @@ int main ( int argc, char **argv )
 				tmp << "fc_response_cuts_k" << kpix << "_b" << bucket;
 				fc_response_cuts[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
 				
+				tmp.str("");
+				tmp << "fc_response_cuts_singlestrip_k" << kpix << "_b" << bucket;
+				fc_response_cuts_singlestrip[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+				tmp.str("");
+				tmp << "fc_response_cuts_doublestrip_k" << kpix << "_b" << bucket;
+				fc_response_cuts_doublestrip[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+				
+				
+				
+				tmp.str("");
+				tmp << "hit_position_singlestrip_k" << kpix << "_b" << bucket;
+				hit_position[kpix][bucket][0] = new TH1F(tmp.str().c_str(), "singlestrip hit position; Strip Position; #entries/#acq.cycles", 921, -0.5, 919.5);
+				tmp.str("");
+				tmp << "hit_position_doublestrip_k" << kpix << "_b" << bucket;
+				hit_position[kpix][bucket][1] = new TH1F(tmp.str().c_str(), "doublestrip hit position; Strip Position; #entries/#acq.cycles", 921, -0.5, 919.5);
+				tmp.str("");
+				tmp << "hit_position_single+double_strip_k" << kpix << "_b" << bucket;
+				hit_position[kpix][bucket][2] = new TH1F(tmp.str().c_str(), "total strip hit position; Strip Position; #entries/#acq.cycles", 921, -0.5, 919.5);
+				
+				
 				//tmp.str("");
 				//tmp << "fc_response_subtracted_subgroup_k" << kpix << "_b" << bucket;
 				//fc_response_subtracted_subgroup[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-50.5, 199.5);
@@ -949,8 +991,8 @@ int main ( int argc, char **argv )
 			std::map<int, vector<pair<int, double>>> timed_spacecharge;
 			
 			std::vector<double> corrected_charge_vec[32][5];
-			std::vector<double> singlestrip_events_after_cut[32][4];
-			std::vector<double> doublestrip_events_after_cut[32][4];
+			std::vector<pair<int, double>> singlestrip_events_after_cut[32][4];
+			std::vector<pair<int, double>> doublestrip_events_after_cut[32][4];
 			//cout << "Beginning a new EVENT" << endl;
 			//cout << " NEW EVENT " << endl;
 			for (x=0; x < event.count(); x++)
@@ -1022,12 +1064,11 @@ int main ( int argc, char **argv )
 
 								if ( charge_CM_corrected > 1.2 )
 								{
-									singlestrip_events_after_cut[kpix][bucket].push_back(charge_CM_corrected);
+									singlestrip_events_after_cut[kpix][bucket].push_back(make_pair(kpix2strip_left.at(channel), charge_CM_corrected));
 								}
 								if (charge_CM_corrected > 0.5)
 								{
-									doublestrip_events_after_cut[kpix][bucket].push_back(charge_CM_corrected);
-									doublestrip_events_after_cut[kpix][bucket].push_back(charge_CM_corrected);
+									doublestrip_events_after_cut[kpix][bucket].push_back(make_pair(kpix2strip_left.at(channel), charge_CM_corrected));
 								}
 								
 
@@ -1154,8 +1195,40 @@ int main ( int argc, char **argv )
 
 			}	
 			
-			cout << singlestrip_events_after_cut[26][0].size() << endl;
-			cout << doublestrip_events_after_cut[26][0].size() << endl;
+			//cout << singlestrip_events_after_cut[26][0].size() << endl;
+			//cout << doublestrip_events_after_cut[26][0].size() << endl;
+			
+			
+			if (singlestrip_events_after_cut[26][0].size() == 1)
+			{
+				fc_response_cuts_singlestrip[26][0]->Fill(singlestrip_events_after_cut[26][0].at(0).second, weight);
+				fc_response_cuts_singlestrip[26][4]->Fill(singlestrip_events_after_cut[26][0].at(0).second, weight);
+				hit_position[26][0][0]->Fill(singlestrip_events_after_cut[26][0].at(0).first, weight);
+				hit_position[26][0][2]->Fill(singlestrip_events_after_cut[26][0].at(0).first, weight);
+				
+			}
+			sort(doublestrip_events_after_cut[26][0].begin(), doublestrip_events_after_cut[26][0].end()); 
+			int oldchannel = -9999;
+			int doublestrip_count = 0;
+			double doublestrip_charge = 0;
+			double doublestrip_channel = 0;
+			for (int v = 0; v< doublestrip_events_after_cut[26][0].size(); ++v)
+			{
+				//cout << "channel number = " << doublestrip_events_after_cut[26][0].at(v).first << endl;
+				if (oldchannel+1 == doublestrip_events_after_cut[26][0].at(v).first)
+				{
+					doublestrip_charge = ( doublestrip_events_after_cut[26][0].at(v).second + doublestrip_events_after_cut[26][0].at(v-1).second);
+					doublestrip_channel = double( doublestrip_events_after_cut[26][0].at(v).first + doublestrip_events_after_cut[26][0].at(v-1).first)/2;
+					doublestrip_count++;
+				}
+				oldchannel = doublestrip_events_after_cut[26][0].at(v).first;
+			}
+			if (doublestrip_count == 1)
+			{
+				fc_response_cuts_doublestrip[26][0]->Fill(doublestrip_charge, weight);
+				hit_position[26][0][1]->Fill(doublestrip_channel, weight);
+				hit_position[26][0][2]->Fill(doublestrip_channel, weight);
+			}
 			//for (int i = 0; i < doublestrip_events_after_cut[26][0]; ++i)
 			//{
 				
@@ -1227,6 +1300,7 @@ int main ( int argc, char **argv )
 				RMS = fc_response_median_subtracted[kpix][bucket]->GetRMS();
 				fc_response_median_subtracted[kpix][bucket]->Fit("gaus","Rq", "", mean-0.8, mean+0.8);
 				fc_response_cuts[kpix][bucket]->Fit("landau","Rq", "", -0.14, 17);
+				fc_response_cuts_singlestrip[26][0]->Fit("landau","Rq", "", -0.14, 17);
 			}
 		}
 	}

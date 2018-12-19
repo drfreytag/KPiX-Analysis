@@ -200,6 +200,8 @@ int main ( int argc, char **argv )
 	TH1F			*trig_count[32][5];
 	TH1F                    *hist_buck_sum[32][1024];
 	
+	TH1F 			*unique_times[32];
+	
 	TH2F			*kpix_entries_left[32][5];
 	TH2F			*kpix_entries_right[32][5];
 	
@@ -551,37 +553,37 @@ int main ( int argc, char **argv )
 			TDirectory *kpix_folder = rFile->GetDirectory(FolderName.str().c_str());
 			kpix_folder->cd();
 			tmp.str("");
-			tmp << "Channel_entries_k_" << kpix << "_total";
+			tmp << "Channel_entries_k" << kpix << "_total";
 			channel_entries[kpix][4] = new TH1F(tmp.str().c_str(), "Channel_Entries; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
 			tmp.str("");
-			tmp << "Channel_entries_k_" << kpix << "_total_no_monster";
+			tmp << "Channel_entries_k" << kpix << "_total_no_monster";
 			channel_entries_no_monster[kpix][4] = new TH1F(tmp.str().c_str(), "Channel_Entries; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
 			tmp.str("");
-			tmp << "Channel_entries_k_" << kpix << "_total_timed";
+			tmp << "Channel_entries_k" << kpix << "_total_timed";
 			channel_entries_timed[kpix][4] = new TH1F(tmp.str().c_str(), "Channel_Entries_timed; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
 			tmp.str("");
-			tmp << "Channel_entries_k_" << kpix << "_total_no_strip";
+			tmp << "Channel_entries_k" << kpix << "_total_no_strip";
 			channel_entries_no_strip[kpix][4] = new TH1F(tmp.str().c_str(), "Channel_Entries_no_strip; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
 			tmp.str("");
-			tmp << "Left_Strip_entries_k_" << kpix << "_total";
+			tmp << "Left_Strip_entries_k" << kpix << "_total";
 			left_strip_entries[kpix][4] = new TH1F(tmp.str().c_str(), "Strip_Entries; Strip_address; #entries/#acq.cycles", 920,-0.5, 919.5);
 			tmp.str("");
-			tmp << "Right_Strip_entries_k_" << kpix << "_total";
+			tmp << "Right_Strip_entries_k" << kpix << "_total";
 			right_strip_entries[kpix][4] = new TH1F(tmp.str().c_str(), "Strip_Entries; Strip_address; #entries/#acq.cycles", 920, 919.5, 1839.5);
 			tmp.str("");
-			tmp << "timed_left_strip_entries_k_" << kpix << "_total";
+			tmp << "timed_left_strip_entries_k" << kpix << "_total";
 			timed_left_strip_entries[kpix][4] = new TH1F(tmp.str().c_str(), "Timed_Strip_Entries; Strip_address; #entries/#acq.cycles", 920,-0.5, 919.5);
 			tmp.str("");
-			tmp << "timed_right_strip_entries_k_" << kpix << "_total";
+			tmp << "timed_right_strip_entries_k" << kpix << "_total";
 			timed_right_strip_entries[kpix][4] = new TH1F(tmp.str().c_str(), "Timed_Strip_Entries; Strip_address; #entries/#acq.cycles", 920, 919.5, 1839.5);	
 			tmp.str("");
-			tmp << "timestamp_kpix_k_" << kpix  << "_total";
+			tmp << "timestamp_kpix_k" << kpix  << "_total";
 			times_kpix[kpix][4] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
 			tmp.str("");
-			tmp << "timestamp_kpix_k_" << kpix  << "_monster_total";
+			tmp << "timestamp_kpix_k" << kpix  << "_monster_total";
 			times_kpix_monster[kpix][4] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
 			tmp.str("");
-			tmp << "timestamp_kpix_k_" << kpix  << "_no_monster_total";
+			tmp << "timestamp_kpix_k" << kpix  << "_no_monster_total";
 			times_kpix_no_monster[kpix][4] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
 			tmp.str("");
 			tmp << "trig_count_k" << kpix << "_total";
@@ -600,16 +602,20 @@ int main ( int argc, char **argv )
 			AssignedChannelHist_Total[kpix] = new TH1F (tmp.str().c_str(), "assigned_channels_per_ext_trig;   #assigned_channels; #entries/#acq.cycles",40, -0.5, 39.5);
 	
 			tmp.str("");
-			tmp << "acq_num_ext_k_" << kpix;
+			tmp << "acq_num_ext_k" << kpix;
 			acq_num_ext[kpix] = new TH1F(tmp.str().c_str(), "acq_num_ext; #triggers/acq._cycle; #entries/#acq.cycles",5, -0.5, 4.5);
 			
 			tmp.str("");
-			tmp << "kpix_entries_left_k_" << kpix << "_total";
+			tmp << "kpix_entries_left_k" << kpix << "_total";
 			kpix_entries_left[kpix][4] = new TH2F ("kpix_entries_left", "kpix_entries_left; column;  row", 32,-0.5,31.5, 32,-0.5,31.5);
 			
 			tmp.str("");
-			tmp << "kpix_entries_right_k_" << kpix << "_total";
+			tmp << "kpix_entries_right_k" << kpix << "_total";
 			kpix_entries_right[kpix][4] = new TH2F ("kpix_entries_right", "kpix_entries_right; column;  row", 32,-0.5,31.5, 32,-0.5,31.5);
+			
+			tmp.str("");
+			tmp << "unique_times_k" << kpix;
+			unique_times[kpix] = new TH1F(tmp.str().c_str(), "unique_times; #triggers; #entries/#acq.cycles", 101,-0.5, 99.5);
 			
 			
 			for (bucket = 0; bucket< 4; bucket++)
@@ -620,51 +626,51 @@ int main ( int argc, char **argv )
 				TDirectory *gen_buckets_folder = kpix_folder->GetDirectory(FolderName.str().c_str());
 				rFile->cd(gen_buckets_folder->GetPath());
 				tmp.str("");
-				tmp << "Channel_entries_k_" << kpix << "_b" << bucket;
+				tmp << "Channel_entries_k" << kpix << "_b" << bucket;
 				channel_entries[kpix][bucket] = new TH1F(tmp.str().c_str(), "Channel_Entries; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
 				tmp.str("");
-				tmp << "Channel_entries_k_" << kpix << "_b" << bucket << "_no_strip";
+				tmp << "Channel_entries_k" << kpix << "_b" << bucket << "_no_strip";
 				channel_entries_no_strip[kpix][bucket] = new TH1F(tmp.str().c_str(), "Channel_Entries_no_strip; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
 				tmp.str("");
-				tmp << "left_strip_entries_k_" << kpix << "_b" << bucket;
+				tmp << "left_strip_entries_k" << kpix << "_b" << bucket;
 				left_strip_entries[kpix][bucket] = new TH1F(tmp.str().c_str(), "Strip_Entries; Strip_address; #entries/#acq.cycles", 920,-0.5, 919.5);
 				tmp.str("");
-				tmp << "timed_left_strip_entries_k_" << kpix << "_b" << bucket;
+				tmp << "timed_left_strip_entries_k" << kpix << "_b" << bucket;
 				timed_left_strip_entries[kpix][bucket] = new TH1F(tmp.str().c_str(), "Timed_Strip_Entries; Strip_address; #entries/#acq.cycles", 920,-0.5, 919.5);
 				tmp.str("");
-				tmp << "timed_right_strip_entries_k_" << kpix << "_b" << bucket;
+				tmp << "timed_right_strip_entries_k" << kpix << "_b" << bucket;
 				timed_right_strip_entries[kpix][bucket] = new TH1F(tmp.str().c_str(), "Timed_Strip_Entries; Strip_address; #entries/#acq.cycles", 920, 919.5, 1839.5);
 				tmp.str("");
-				tmp << "right_strip_entries_k_" << kpix << "_b" << bucket;
+				tmp << "right_strip_entries_k" << kpix << "_b" << bucket;
 				right_strip_entries[kpix][bucket] = new TH1F(tmp.str().c_str(), "Strip_Entries; Strip_address; #entries/#acq.cycles", 920, 919.5, 1839.5);
 				
 				
 				
 				tmp.str("");
-				tmp << "Channel_entries_k_" << kpix <<  "_b" << bucket << "_timed";
+				tmp << "Channel_entries_k" << kpix <<  "_b" << bucket << "_timed";
 				channel_entries_timed[kpix][bucket] = new TH1F(tmp.str().c_str(), "Channel_Entries_timed; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
 				tmp.str("");
-				tmp << "Channel_entries_k_" << kpix << "_b" << bucket << "_no_monster";
+				tmp << "Channel_entries_k" << kpix << "_b" << bucket << "_no_monster";
 				channel_entries_no_monster[kpix][bucket] = new TH1F(tmp.str().c_str(), "Channel Entries; KPiX_channel_address; #entries/#acq.cycles", 1024,-0.5, 1023.5);
 				tmp.str("");
-				tmp << "timestamp_kpix_k_" << kpix << "_b" << bucket;
+				tmp << "timestamp_kpix_k" << kpix << "_b" << bucket;
 				times_kpix[kpix][bucket] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
 				tmp.str("");
-				tmp << "timestamp_kpix_monster_k_" << kpix << "_b" << bucket;
+				tmp << "timestamp_kpix_monster_k" << kpix << "_b" << bucket;
 				times_kpix_monster[kpix][bucket] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
 				tmp.str("");
 				tmp << "trig_count_k" << kpix << "_b" << bucket ;
 				trig_count[kpix][bucket]  = new TH1F(tmp.str().c_str(), "trig_count;  #triggered channels; #entries/#acq.cycles",1024, -0.5,1023.5);
 				tmp.str("");
-				tmp << "timestamp_kpix_k_" << kpix << "_b" << bucket << "_no_monster";
+				tmp << "timestamp_kpix_k" << kpix << "_b" << bucket << "_no_monster";
 				times_kpix_no_monster[kpix][bucket] = new TH1F(tmp.str().c_str(), "timestamp_kpix; time [#bunch_clk_count]; #entries/#acq.cycles", 8192,-0.5, 8191.5);
 				
 				tmp.str("");
-				tmp << "kpix_entries_left_k_" << kpix << "_bucket_" << bucket;
+				tmp << "kpix_entries_left_k" << kpix << "_bucket_" << bucket;
 				kpix_entries_left[kpix][bucket] = new TH2F ("kpix_entries_left", "kpix_entries_left; column;  row", 32,-0.5,31.5, 32,-0.5,31.5);
 				
 				tmp.str("");
-				tmp << "kpix_entries_right_k_" << kpix << "_bucket_" << bucket;
+				tmp << "kpix_entries_right_k" << kpix << "_bucket_" << bucket;
 				kpix_entries_right[kpix][bucket] = new TH2F ("kpix_entries_right", "kpix_entries_right; column;  row", 32,-0.5,31.5, 32,-0.5,31.5);
 				
 				
@@ -682,7 +688,7 @@ int main ( int argc, char **argv )
 				TDirectory *cycles_folder = cycle_folder->GetDirectory(FolderName.str().c_str());
 				cycles_folder->cd();
 				tmp.str("");
-				tmp << "time_distribution_k_" << kpix << "_evt_" << cycles;
+				tmp << "time_distribution_k" << kpix << "_evt_" << cycles;
 				cycle_time[kpix][cycles] = new TH1F(tmp.str().c_str(), "time_distribution; time [#bunch_clk_count]; #entries", 8192, -0.5, 8191.5);
 				tmp.str("");
 				tmp << "assigned_channels_k" << kpix << "_evt_" << cycles;
@@ -846,6 +852,7 @@ int main ( int argc, char **argv )
 		if ( cycle_num > skip_cycles_front)
 		{
 			double 	trigger_counter[32] = {0}; // fill the entire list of trigger_counter with 0
+			vector<int> trigger_times[32];
 			
 			for (x=0; x < event.count(); x++)  //within the binary file go through each event
 			{
@@ -913,6 +920,15 @@ int main ( int argc, char **argv )
 					{
 						cycle_time[kpix][cycle_num]->Fill(tstamp);
 					}
+					
+					//cout << find(trigger_times[kpix].begin(), trigger_times[kpix].end(), tstamp) << endl;
+					if (find(trigger_times[kpix].begin(), trigger_times[kpix].end(), tstamp) == trigger_times[kpix].end() || trigger_times[kpix].empty())
+					{
+						//cout <<"test"<< endl;
+						trigger_times[kpix].push_back(tstamp);
+						
+					}
+					
 				}	
 			}
 	
@@ -921,6 +937,20 @@ int main ( int argc, char **argv )
 			if (kpixFound[26]) acq_num_ext[26]->Fill(trigger_counter[26]); // trigger counting for monster check
 			if (kpixFound[28]) acq_num_ext[28]->Fill(trigger_counter[28]);
 			if (kpixFound[30]) acq_num_ext[30]->Fill(trigger_counter[30]);
+			//cout << trigger_times[26].size() << endl;
+			for (int i = 0; i<32; ++i)
+			{
+				if (kpixFound[i])
+				{
+					 unique_times[i]->Fill(trigger_times[i].size());
+					 //for (int j =0; j< trigger_times[i].size(); ++j)
+					 //{
+						 //cout << "Timestamp = " << trigger_times[i].at(j) << endl;
+					 //}
+					 //cout << endl;
+				}
+			}
+			
 		}
 	}
 	
