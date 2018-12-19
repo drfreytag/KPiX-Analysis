@@ -1,6 +1,6 @@
 #!/bin/bash
 
-data_files_normal_gain_320ns=(/scratch/data/tracker_test/2018_08_19_21_34_17.bin_external.root /scratch/data/tracker_test/2018_08_17_15_31_33.bin_external.root)
+data_files_normal_gain_320ns=(/scratch/data/tracker_test/2018_08_19_21_34_17.bin_2018_08_19_21_34_17.pedestal.external.root /scratch/data/tracker_test/2018_08_17_15_31_33.bin_2018_08_19_21_34_17.pedestal.external.root /scratch/data/tracker_test/2018_08_17_15_31_33.bin_2018_08_17_15_31_33.pedestal.external.root)
 
 for i in ${data_files_normal_gain_320ns[*]}
 do
@@ -33,6 +33,9 @@ do
 	python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_nonCM.png" --xrange -10 15 --legend mean median gauss --refuse _c CM --ylog true
 	python python/plot_producer.py $i -n fc_response_ subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_nonCM_nonylog.png" --xrange -10 15 --legend mean median gauss --refuse _c CM
 	python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_nonCM_nonylog.png" --xrange -10 15 --legend mean median gauss --refuse _c CM
+	
+	python python/plot_producer.py $i -n fc_response_ median made subtracted CM -k 30 -b 0 -d "h e" -o "fc_subtraction_ECAL_CM_median_calculated_08.png" --xrange -5 8 --legend median_calculated --refuse _c --ylog true
+
 done
 
 #python python/plot_producer.py /scratch/data/tracker_test/2018_06_01_15_00_35.bin.root /scratch/data/tracker_test/2018_06_01_15_18_30.bin.root -n Channel_entries_k_ -d 'hist e same' -b 4 -o 'block_comparison_zoom.png' -f no --xrange 750 850 --legend all_enabled_2018_06_01_15_00_35 304_disabled_2018_06_01_15_18_30 --yrange 0 1.5

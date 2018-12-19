@@ -44,11 +44,12 @@ def arrangeStats(hists, statBoxW, statBoxH, name):
 		print name[i]
 		#statBox.SetTitle(str(name[i]))
 		statBox.SetX1NDC(0.98 - statBoxW)
-		statBox.SetY1NDC(0.99 - i*(statBoxH) - statBoxH)
+		statBox.SetY1NDC(0.99 - i*(statBoxH+0.01) - statBoxH)
 		statBox.SetX2NDC(0.98)
-		statBox.SetY2NDC(0.99 - i*(statBoxH))
+		statBox.SetY2NDC(0.99 - i*(statBoxH+0.01))
 		statBox.SetTextColor(h.GetLineColor()) 
-		statBox.SetBorderSize(2)
+		#statBox.SetBorderColor(h.GetLineColor())
+		#statBox.SetBorderSize(2)
 		statBox.Draw("same")
 		i+=1
 
@@ -234,6 +235,8 @@ def hist_plotter():
 		for j in range(len(new_hist_list)-1, -1, -1): 
 			histListForStats.append(hist_comp.GetStack().At(j) )
 		arrangeStats(histListForStats, statBoxW, statBoxH, legendname)
+		ROOT.gStyle.SetOptStat(0)
+		ROOT.gStyle.SetOptFit(0)
 		c1.Modified()
 		c1.Update()
 		if (args.output_name):
@@ -258,6 +261,11 @@ def hist_plotter():
 			y_axis = obj.GetYaxis()
 			c1.cd()
 			#print obj.GetEntries()
+			##------------------
+			##rebin the histogram
+			if (args.rebin is not 1):
+				obj.Rebin(args.rebin)
+			
 			if 9999 in args.xaxisrange:
 				x_high = obj.FindLastBinAbove(0)+10
 				if (x_high > obj.GetNbinsX()):  #avoids overflow bin
@@ -277,10 +285,7 @@ def hist_plotter():
 				y_high = args.yaxisrange[1]
 				y_axis.SetRangeUser(y_low, y_high)
 			obj.SetLineColor(4) #Blue
-			##------------------
-			##rebin the histogram
-			if (args.rebin is not 1):
-				obj.Rebin(args.rebin)
+			
 			##------------------
 			##set y axis to log
 			if args.ylog:
@@ -298,7 +303,7 @@ def hist_plotter():
 				print 'Creating '+outname
 				c1.SaveAs(outname)
 			else:
-				outname = folder_loc+filename_list[0]+'_'+graph.GetName()
+				outname = folder_loc+filename_list[0]+'_'+histogram.GetName()
 				print 'Creating '+outname+'.png'
 				c1.SaveAs(outname+'.png')
 			c1.Close()
@@ -483,9 +488,9 @@ mystyle.SetTitleSize(0.04,"xyz")
 mystyle.SetTitleOffset(1.2,"yz")
 #mystyle.SetTitleOffset(1.0,"x")
 mystyle.SetStatFont(42)
-mystyle.SetStatFontSize(0.00)
-mystyle.SetTitleBorderSize(0)
-mystyle.SetStatBorderSize(0)
+mystyle.SetStatFontSize(0.03)
+#mystyle.SetTitleBorderSize(0)
+#mystyle.SetStatBorderSize(0)
 #mystyle.SetTextFont(42)
 
 ##set legend text size etc.
@@ -508,8 +513,8 @@ mystyle.SetHistLineWidth(2)
 #mystyle.SetPadTickY(1)
 #
 ##turn off stats
-mystyle.SetOptStat(111101)
-#mystyle.SetOptFit(0)
+mystyle.SetOptStat(111111)
+mystyle.SetOptFit(111)
 #
 ##marker settings
 mystyle.SetMarkerStyle(20)
@@ -546,7 +551,7 @@ parser.add_argument('--xrange', dest='xaxisrange', default=[9999], nargs='*', ty
 parser.add_argument('--yrange', dest='yaxisrange', default=[9999], nargs='*', type=float, help='set a yrange for the plot to used with ymin ymax as the two arguments | type=float')
 parser.add_argument('--legend', dest='legend', nargs='*', help='list of names to be used as legend titles instead of the default filename+histogram name')
 parser.add_argument('--ylog', dest='ylog', help='if given as an option, set y axis to logarithmic. Remember to set the yrange to start above 0!')
-parser.add_argument('--color', dest='color', default=[60, 632, 416, 1, 432, 402, 880, 860, 900, 800, 840], nargs='*', type=int, help='list of colors to be used | type=int')
+parser.add_argument('--color', dest='color', default=[60, 1, 416,  432, 402, 880, 860, 900, 800, 632, 840], nargs='*', type=int, help='list of colors to be used | type=int')
 parser.add_argument('--xtitle', dest='xtitle', help='choose the name of the x axis title')
 parser.add_argument('--ytitle', dest='ytitle', help='choose the name of the y axis title')
 parser.add_argument('--order', dest='order', nargs='+', type=int,  help='choose the order of plotting with same (to ensure no histograms overlap)')
@@ -581,7 +586,7 @@ filename_list = []
 ##loop through all given files and add them to the list. then loop through the keys for every file..
 for root_file in args.file_in:
 	root_file_list.append(ROOT.TFile(root_file))
-	filename_list.append(root_file[root_file.find('/20')+1:root_file.rfind('.bin')])
+	filename_list.append(root_file[root_file.find('/20')+1:root_file.rfind('.external')])
 
 for x in root_file_list:
 	key_root = x.GetListOfKeys()
