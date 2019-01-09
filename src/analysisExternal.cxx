@@ -975,7 +975,8 @@ int main ( int argc, char **argv )
 	
 	int cycle_num = 0;
 	int datacounter = 0;
-	
+	double sstrip_cut = 2.5;
+	double dstrip_cut = 1.2;
 	
 	cout << common_modes[26].size() << endl;
 	cout << common_modes[30].size() << endl;
@@ -1062,11 +1063,11 @@ int main ( int argc, char **argv )
 								
 								//// ========= Event cut ============
 
-								if ( charge_CM_corrected > 1.2 )
+								if ( charge_CM_corrected > sstrip_cut )
 								{
 									singlestrip_events_after_cut[kpix][bucket].push_back(make_pair(kpix2strip_left.at(channel), charge_CM_corrected));
 								}
-								if (charge_CM_corrected > 0.5)
+								if (charge_CM_corrected > dstrip_cut)
 								{
 									doublestrip_events_after_cut[kpix][bucket].push_back(make_pair(kpix2strip_left.at(channel), charge_CM_corrected));
 								}
@@ -1199,7 +1200,7 @@ int main ( int argc, char **argv )
 			//cout << doublestrip_events_after_cut[26][0].size() << endl;
 			
 			
-			if (singlestrip_events_after_cut[26][0].size() == 1)
+			if (singlestrip_events_after_cut[26][0].size() == 1)  // if there is exactly 1 strip with charge above sstrip_cut, this is classified as a signal event and therefore filled into our histogram
 			{
 				fc_response_cuts_singlestrip[26][0]->Fill(singlestrip_events_after_cut[26][0].at(0).second, weight);
 				fc_response_cuts_singlestrip[26][4]->Fill(singlestrip_events_after_cut[26][0].at(0).second, weight);
@@ -1207,18 +1208,21 @@ int main ( int argc, char **argv )
 				hit_position[26][0][2]->Fill(singlestrip_events_after_cut[26][0].at(0).first, weight);
 				
 			}
-			sort(doublestrip_events_after_cut[26][0].begin(), doublestrip_events_after_cut[26][0].end()); 
+			
+			// doublestrip signal is more complicated
+			sort(doublestrip_events_after_cut[26][0].begin(), doublestrip_events_after_cut[26][0].end()); // sort the vector after their strip number to ensure that [strip n < strip n+1]
 			int oldchannel = -9999;
 			int doublestrip_count = 0;
 			double doublestrip_charge = 0;
 			double doublestrip_channel = 0;
-			for (int v = 0; v< doublestrip_events_after_cut[26][0].size(); ++v)
+			for (int v = 0; v< doublestrip_events_after_cut[26][0].size(); ++v) // loop over all doublestrip candidate events (charge above dstrip_cut)
 			{
 				//cout << "channel number = " << doublestrip_events_after_cut[26][0].at(v).first << endl;
-				if (oldchannel+1 == doublestrip_events_after_cut[26][0].at(v).first)
+				if (oldchannel+1 == doublestrip_events_after_cut[26][0].at(v).first) // check if the channel in the last loop is adjacent to the channel in the current loop.
 				{
-					doublestrip_charge = ( doublestrip_events_after_cut[26][0].at(v).second + doublestrip_events_after_cut[26][0].at(v-1).second);
-					doublestrip_channel = double( doublestrip_events_after_cut[26][0].at(v).first + doublestrip_events_after_cut[26][0].at(v-1).first)/2;
+					doublestrip_charge = ( doublestrip_events_after_cut[26][0].at(v).second + doublestrip_events_after_cut[26][0].at(v-1).second); // add charge of this channel and the previous one
+					//doublestrip_channel = double(doublestrip_events_after_cut[26][0].at(v).first + doublestrip_events_after_cut[26][0].at(v-1).first)/2; // calculate channel position (no charge weight)
+					doublestrip_channel = double(doublestrip_events_after_cut[26][0].at(v).second * doublestrip_events_after_cut[26][0].at(v).first + doublestrip_events_after_cut[26][0].at(v-1).second * doublestrip_events_after_cut[26][0].at(v-1).first)/doublestrip_charge; // calculate charge weighted channel position (charge1*pos1 + charge2*pos2)/(charge1+charge2)
 					doublestrip_count++;
 				}
 				oldchannel = doublestrip_events_after_cut[26][0].at(v).first;
