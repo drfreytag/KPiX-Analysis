@@ -975,8 +975,14 @@ int main ( int argc, char **argv )
 	
 	int cycle_num = 0;
 	int datacounter = 0;
-	double sstrip_cut = 2.5;
-	double dstrip_cut = 1.2;
+	double sstrip_cut = 3.0;
+	double dstrip_cut = 1.3;
+	
+	int ssignal = 0;
+	int dsignal = 0;
+	
+	int sbkgrnd = 0;
+	int dbkgrnd = 0;
 	
 	cout << common_modes[26].size() << endl;
 	cout << common_modes[30].size() << endl;
@@ -1066,6 +1072,7 @@ int main ( int argc, char **argv )
 								if ( charge_CM_corrected > sstrip_cut )
 								{
 									singlestrip_events_after_cut[kpix][bucket].push_back(make_pair(kpix2strip_left.at(channel), charge_CM_corrected));
+									//cout << "singlestrip charge = " << charge_CM_corrected << endl;
 								}
 								if (charge_CM_corrected > dstrip_cut)
 								{
@@ -1196,8 +1203,8 @@ int main ( int argc, char **argv )
 
 			}	
 			
-			//cout << singlestrip_events_after_cut[26][0].size() << endl;
-			//cout << doublestrip_events_after_cut[26][0].size() << endl;
+			//cout << "Singlestrip events" << singlestrip_events_after_cut[26][0].size() << endl;
+			//cout << "Doublestrip events" << doublestrip_events_after_cut[26][0].size() << endl;
 			
 			
 			if (singlestrip_events_after_cut[26][0].size() == 1)  // if there is exactly 1 strip with charge above sstrip_cut, this is classified as a signal event and therefore filled into our histogram
@@ -1206,6 +1213,10 @@ int main ( int argc, char **argv )
 				fc_response_cuts_singlestrip[26][4]->Fill(singlestrip_events_after_cut[26][0].at(0).second, weight);
 				hit_position[26][0][0]->Fill(singlestrip_events_after_cut[26][0].at(0).first, weight);
 				hit_position[26][0][2]->Fill(singlestrip_events_after_cut[26][0].at(0).first, weight);
+				
+				if ( singlestrip_events_after_cut[26][0].at(0).first > 400 && singlestrip_events_after_cut[26][0].at(0).first < 700) ssignal++;
+				else sbkgrnd++;
+				
 				
 			}
 			
@@ -1232,6 +1243,11 @@ int main ( int argc, char **argv )
 				fc_response_cuts_doublestrip[26][0]->Fill(doublestrip_charge, weight);
 				hit_position[26][0][1]->Fill(doublestrip_channel, weight);
 				hit_position[26][0][2]->Fill(doublestrip_channel, weight);
+				
+				if ( doublestrip_channel > 400 && doublestrip_channel < 700) dsignal++;
+				else dbkgrnd++;
+				
+				
 			}
 			//for (int i = 0; i < doublestrip_events_after_cut[26][0]; ++i)
 			//{
@@ -1317,6 +1333,9 @@ int main ( int argc, char **argv )
 	//cout << "_______________________________________________________________" << endl;
 	
 
+	
+	cout << "Singlestrip Signal/Background = " << ssignal << "/" << sbkgrnd << endl;
+	cout << "Singlestrip Signal/Background = " << dsignal << "/" << dbkgrnd << endl;
 	
 	cout << endl;
 	cout << "Writing root plots to " << outRoot << endl;

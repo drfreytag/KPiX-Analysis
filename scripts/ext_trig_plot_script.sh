@@ -1,40 +1,49 @@
 #!/bin/bash
 
-data_files_normal_gain_320ns=(/scratch/data/tracker_test/2018_08_19_21_34_17.bin_2018_08_19_21_34_17.pedestal.external.root /scratch/data/tracker_test/2018_08_17_15_31_33.bin_2018_08_19_21_34_17.pedestal.external.root /scratch/data/tracker_test/2018_08_17_15_31_33.bin_2018_08_17_15_31_33.pedestal.external.root)
+data_files_normal_gain_320ns=(/scratch/data/tracker_test/2018_08_19_21_34_17.bin_2018_08_19_21_34_17.pedestal.external.root /scratch/data/tracker_test/2018_08_17_15_31_33.bin_2018_08_19_21_34_17.pedestal.external.root /scratch/data/tracker_test/2018_08_17_15_31_33.bin_2018_08_17_15_31_33.pedestal.external.root /scratch/data/tracker_test/eudaq/testbeam_201808/2018_08_17_20_30_20.bin_2018_08_17_20_30_20.pedestal.external.root)
 
 for i in ${data_files_normal_gain_320ns[*]}
 do
-	python python/plot_producer.py $i -n fc_response_ subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_new2_all.png" --xrange -10 15 --ylog true --legend mean CM_mean CM_median CM_gauss median gauss --refuse _c
-	python python/plot_producer.py $i -n fc_response_ subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_new2_all_noylog.png" --xrange -10 15 --legend mean CM_mean CM_median CM_gauss median gauss --refuse _c
-	python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_new2_all.png" --xrange -10 15 --ylog true --legend mean CM_mean CM_median CM_gauss median gauss --refuse _c
-	python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_new2_all_noylog.png" --xrange -10 15 --legend mean CM_mean CM_median CM_gauss median gauss --refuse _c
-	python python/plot_producer.py $i -n fc_response_ gauss subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_gauss_new2.png" --xrange -10 15 --legend CM_gauss gauss --refuse _c --ylog true
-	python python/plot_producer.py $i -n fc_response_ gauss subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_gauss_new2.png" --xrange -10 15 --legend CM_gauss gauss --refuse _c --ylog true
-	python python/plot_producer.py $i -n fc_response_ median subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_median_new2.png" --xrange -10 15 --legend CM_median median --refuse _c --ylog true
-	python python/plot_producer.py $i -n fc_response_ median subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_median_new2.png" --xrange -10 15 --legend CM_median median --refuse _c --ylog true
-	python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_mean_new2.png" --xrange -10 15 --legend mean CM_mean --refuse _c median gauss --ylog true
-	python python/plot_producer.py $i -n fc_response_ subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_mean_new2.png" --xrange -10 15 --legend mean CM_mean --refuse _c median gauss --ylog true
+	#python python/plot_producer.py $i -n fc_response_ subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_new2_all.png" --xrange -10 15 --ylog true --legend mean CM_mean CM_median CM_gauss median gauss --refuse _c
+	#python python/plot_producer.py $i -n fc_response_ subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_new2_all_noylog.png" --xrange -10 15 --legend mean CM_mean CM_median CM_gauss median gauss --refuse _c
+	#python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_new2_all.png" --xrange -10 15 --ylog true --legend mean CM_mean CM_median CM_gauss median gauss --refuse _c
+	#python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_new2_all_noylog.png" --xrange -10 15 --legend mean CM_mean CM_median CM_gauss median gauss --refuse _c
+	#python python/plot_producer.py $i -n fc_response_ gauss subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_gauss_new2.png" --xrange -10 15 --legend CM_gauss gauss --refuse _c --ylog true
+	#python python/plot_producer.py $i -n fc_response_ gauss subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_gauss_new2.png" --xrange -10 15 --legend CM_gauss gauss --refuse _c --ylog true
+	#python python/plot_producer.py $i -n fc_response_ median subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_median_new2.png" --xrange -10 15 --legend CM_median median --refuse _c --ylog true
+	#python python/plot_producer.py $i -n fc_response_ median subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_median_new2.png" --xrange -10 15 --legend CM_median median --refuse _c --ylog true
+	#python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_mean_new2.png" --xrange -10 15 --legend mean CM_mean --refuse _c median gauss --ylog true
+	#python python/plot_producer.py $i -n fc_response_ subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_mean_new2.png" --xrange -10 15 --legend mean CM_mean --refuse _c median gauss --ylog true
 	
-	python python/plot_producer.py $i -n fc_response_ gauss subtracted -k 30 -b 0 -d "h e same" 	-o "fc_subtraction_ECAL_gauss_new2_nonylog.png" --xrange -10 15 --legend CM_gauss gauss --refuse _c 
-	python python/plot_producer.py $i -n fc_response_ gauss subtracted -k 26 -b 0 -d "h e same" 	-o "fc_subtraction_tracker_gauss_new2_nonylog.png" --xrange -10 15 --legend CM_gauss gauss --refuse _c 
-	python python/plot_producer.py $i -n fc_response_ median subtracted -k 30 -b 0 -d "h e same" 	-o "fc_subtraction_ECAL_median_new2_nonylog.png" --xrange -10 15 --legend CM_median median --refuse _c 
-	python python/plot_producer.py $i -n fc_response_ median subtracted -k 26 -b 0 -d "h e same" 	-o "fc_subtraction_tracker_median_new2_nonylog.png" --xrange -10 15 --legend CM_median median --refuse _c
-	python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" 			-o "fc_subtraction_ECAL_mean_new2_nonylog.png" --xrange -10 15 --legend mean CM_mean --refuse _c median gauss 
-	python python/plot_producer.py $i -n fc_response_ subtracted -k 26 -b 0 -d "h e same" 			-o "fc_subtraction_tracker_mean_new2_nonylog.png" --xrange -10 15 --legend mean CM_mean --refuse _c median gauss
+	#python python/plot_producer.py $i -n fc_response_ gauss subtracted -k 30 -b 0 -d "h e same" 	-o "fc_subtraction_ECAL_gauss_new2_nonylog.png" --xrange -10 15 --legend CM_gauss gauss --refuse _c 
+	#python python/plot_producer.py $i -n fc_response_ gauss subtracted -k 26 -b 0 -d "h e same" 	-o "fc_subtraction_tracker_gauss_new2_nonylog.png" --xrange -10 15 --legend CM_gauss gauss --refuse _c 
+	#python python/plot_producer.py $i -n fc_response_ median subtracted -k 30 -b 0 -d "h e same" 	-o "fc_subtraction_ECAL_median_new2_nonylog.png" --xrange -10 15 --legend CM_median median --refuse _c 
+	#python python/plot_producer.py $i -n fc_response_ median subtracted -k 26 -b 0 -d "h e same" 	-o "fc_subtraction_tracker_median_new2_nonylog.png" --xrange -10 15 --legend CM_median median --refuse _c
+	#python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" 			-o "fc_subtraction_ECAL_mean_new2_nonylog.png" --xrange -10 15 --legend mean CM_mean --refuse _c median gauss 
+	#python python/plot_producer.py $i -n fc_response_ subtracted -k 26 -b 0 -d "h e same" 			-o "fc_subtraction_tracker_mean_new2_nonylog.png" --xrange -10 15 --legend mean CM_mean --refuse _c median gauss
 	
-	python python/plot_producer.py $i -n fc_response_ median subtracted CM -k 30 -b 0 -d "h e same" 	-o "fc_subtraction_ECAL_CM_median_calculated_nonylog.png" --xrange -10 15 --legend mean_calculated_CM median_calculated --refuse _c0 _c1 _c2 _c3 _c4 _c5 _c6 _c7 _c8 _c9 _cy 
-	python python/plot_producer.py $i -n fc_response_ median subtracted CM -k 26 -b 0 -d "h e same" 	-o "fc_subtraction_tracker_CM_median_calculated_nonylog.png" --xrange -10 15 --legend mean_calculated_CM median_calculated --refuse _c0 _c1 _c2 _c3 _c4 _c5 _c6 _c7 _c8 _c9 _cy
+	#python python/plot_producer.py $i -n fc_response_ median subtracted CM -k 30 -b 0 -d "h e same" 	-o "fc_subtraction_ECAL_CM_median_calculated_nonylog.png" --xrange -10 15 --legend mean_calculated_CM median_calculated --refuse _c0 _c1 _c2 _c3 _c4 _c5 _c6 _c7 _c8 _c9 _cy 
+	#python python/plot_producer.py $i -n fc_response_ median subtracted CM -k 26 -b 0 -d "h e same" 	-o "fc_subtraction_tracker_CM_median_calculated_nonylog.png" --xrange -10 15 --legend mean_calculated_CM median_calculated --refuse _c0 _c1 _c2 _c3 _c4 _c5 _c6 _c7 _c8 _c9 _cy
 	
-	python python/plot_producer.py $i -n fc_response_ median subtracted CM -k 30 -b 0 -d "h e same" 	-o "fc_subtraction_ECAL_CM_median_calculated.png" --xrange -10 15 --legend mean_calculated_CM median_calculated --refuse _c0 _c1 _c2 _c3 _c4 _c5 _c6 _c7 _c8 _c9 _cy --ylog true
-	python python/plot_producer.py $i -n fc_response_ median subtracted CM -k 26 -b 0 -d "h e same" 	-o "fc_subtraction_tracker_CM_median_calculated.png" --xrange -10 15 --legend mean_calculated_CM median_calculated --refuse _c0 _c1 _c2 _c3 _c4 _c5 _c6 _c7 _c8 _c9 _cy --ylog true
+	#python python/plot_producer.py $i -n fc_response_ median subtracted CM -k 30 -b 0 -d "h e same" 	-o "fc_subtraction_ECAL_CM_median_calculated.png" --xrange -10 15 --legend mean_calculated_CM median_calculated --refuse _c0 _c1 _c2 _c3 _c4 _c5 _c6 _c7 _c8 _c9 _cy --ylog true
+	#python python/plot_producer.py $i -n fc_response_ median subtracted CM -k 26 -b 0 -d "h e same" 	-o "fc_subtraction_tracker_CM_median_calculated.png" --xrange -10 15 --legend mean_calculated_CM median_calculated --refuse _c0 _c1 _c2 _c3 _c4 _c5 _c6 _c7 _c8 _c9 _cy --ylog true
 
 	
-	python python/plot_producer.py $i -n fc_response_ subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_nonCM.png" --xrange -10 15 --legend mean median gauss --refuse _c CM --ylog true
-	python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_nonCM.png" --xrange -10 15 --legend mean median gauss --refuse _c CM --ylog true
-	python python/plot_producer.py $i -n fc_response_ subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_nonCM_nonylog.png" --xrange -10 15 --legend mean median gauss --refuse _c CM
-	python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_nonCM_nonylog.png" --xrange -10 15 --legend mean median gauss --refuse _c CM
+	#python python/plot_producer.py $i -n fc_response_ subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_nonCM.png" --xrange -10 15 --legend mean median gauss --refuse _c CM --ylog true
+	#python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_nonCM.png" --xrange -10 15 --legend mean median gauss --refuse _c CM --ylog true
+	#python python/plot_producer.py $i -n fc_response_ subtracted -k 26 -b 0 -d "h e same" -o "fc_subtraction_tracker_nonCM_nonylog.png" --xrange -10 15 --legend mean median gauss --refuse _c CM
+	#python python/plot_producer.py $i -n fc_response_ subtracted -k 30 -b 0 -d "h e same" -o "fc_subtraction_ECAL_nonCM_nonylog.png" --xrange -10 15 --legend mean median gauss --refuse _c CM
 	
-	python python/plot_producer.py $i -n fc_response_ median made subtracted CM -k 30 -b 0 -d "h e" -o "fc_subtraction_ECAL_CM_median_calculated_08.png" --xrange -5 8 --legend median_calculated --refuse _c --ylog true
+	#python python/plot_producer.py $i -n fc_response_ median made subtracted CM -k 30 -b 0 -d "h e" -o "fc_subtraction_ECAL_CM_median_calculated_08.png" --xrange -5 8 --legend median_calculated --refuse _c --ylog true
+	#python python/plot_producer.py $i -n fc_response_ median made subtracted CM -k 26 -b 0 -d "h e" -o "fc_subtraction_TRACKER_CM_median_calculated_08.png" --xrange -5 8 --legend median_calculated --refuse _c --ylog true
+	
+	
+	python python/plot_producer.py $i -n fc_response_subgroup -k 26 -b 0 -d "h e" -o "fc_subtraction_subgroup_TRACKER_weightless_-5to8.png" --xrange -5 8 --legend preselected_channels --ylog true
+	python python/plot_producer.py $i -n fc_response_subgroup -k 30 -b 0 -d "h e" -o "fc_subtraction_subgroup_ECAL_weightless_-5to8.png" --xrange -5 8 --legend preselected_channels --ylog true
+
+	python python/plot_producer.py $i -n median_made -b0 -k 26  -d "h e" --xrange -3 3
+
+	python python/plot_producer.py /scratch/data/tracker_test/2019_01_18_15_09_25.bin_2019_01_18_15_09_25.pedestal.external.root /scratch/data/tracker_test/2019_01_18_15_01_45.bin_2019_01_18_15_01_45.pedestal.external.root -n median_made -b0 -k 26  -d "h e same" --xrange -3 3 --legend TDD_280 TDD_0 -o "TDD_signal_comparison.png"
 
 done
 
