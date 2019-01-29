@@ -129,15 +129,15 @@ class ChannelDisabler:
             if self.slope_hist: #level2
 	        if (slope_obj.GetBinContent(chan+1) <= 1.0):
                     #GetBinContent(0) is the underflow bin, here the bin counting starts at 1 therefore chan+1
-		    dead_channels_slope.append(chan)
+				dead_channels_slope.append(chan)
             if self.RMS_hist: #level2
 	        if (RMS_obj.GetBinContent(chan+1) <= 0.05):
-		    dead_channels_RMS.append(chan)
+				dead_channels_RMS.append(chan)
 	        if (RMS_obj.GetBinContent(chan+1) >= 4):
-		    noisy_channels.append(chan)
+				noisy_channels.append(chan)
             if self.acquire_hist: #level2
                 if (acquire_obj.GetBinContent(chan+1) >= 0.02):
-	            noisy_channels_acquire.append(chan)
+					noisy_channels_acquire.append(chan)
 
         if (not self.ecal):
 	    for line in self.mapping_file: #level1: check channel map for disconnected ones

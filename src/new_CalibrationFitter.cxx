@@ -311,6 +311,7 @@ int main ( int argc, char **argv ) {
 	TH1F				*pedestalsRMS_fc_conn800[32][4];
 	TH1F				*slopeRMS[32][4];
 	TH1F				*slope_vs_channel[32][4];
+	TH1F				*RMSfC_vs_channel[32][4];
   
   
   
@@ -724,7 +725,9 @@ int main ( int argc, char **argv ) {
 				tmp << "slope_vs_channel_k" << kpix << "_b" << bucket;
 				slope_vs_channel[kpix][bucket] = new TH1F(tmp.str().c_str(), "Slope [ADC/fC]; Channel ID; Slope [ADC/fC]", 1024, -0.5, 1023.5);
 				
-				
+				tmp.str("");
+				tmp << "RMSfC_vs_channel_k" << kpix << "_b" << bucket;
+				RMSfC_vs_channel[kpix][bucket] = new TH1F(tmp.str().c_str(), "Pedestal RMS [fC]; Channel ID; Pedestal RMS [fC]", 1024, -0.5, 1023.5);
 				
 				
 			}
@@ -1103,6 +1106,8 @@ for (kpix=0; kpix<32; kpix++)
 										slope_hist[kpix][bucket]->Fill( slope / pow(10,15) );
 				
 										slope_vs_channel[kpix][bucket]->SetBinContent( channel+1, slope / pow(10,15));
+										RMSfC_vs_channel[kpix][bucket]->SetBinContent( channel+1, ped_charge_err * pow(10,15));
+										
 										//if (abs(ped_charge_err * pow(10,15)) < 20) 
 										//{
 											//RMSfc_v_channel->SetBinContent(channel, ped_charge_err * pow(10,15));

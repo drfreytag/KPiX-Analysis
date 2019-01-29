@@ -1,6 +1,16 @@
 // WORKS IN PRACTICE NEEDS TO BE REWRITTEN AS EXTERNAL FUNCTIOn
 
 
+  // ,##.                   ,==.
+ //,#    #.                 \ o ',
+//#        #     _     _     \    \
+//#        #    (_)   (_)    /    ; 
+ //`#    #'                 /   .'  
+   //`##'                   "=="
+
+
+
+
 
 #include <iostream>
 #include <string>

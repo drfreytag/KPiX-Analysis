@@ -1320,7 +1320,7 @@ int main ( int argc, char **argv )
 				RMS = fc_response_median_subtracted[kpix][bucket]->GetRMS();
 				fc_response_median_subtracted[kpix][bucket]->Fit("gaus","Rq", "", mean-0.8, mean+0.8);
 				fc_response_cuts[kpix][bucket]->Fit("landau","Rq", "", -0.14, 17);
-				fc_response_cuts_singlestrip[26][0]->Fit("landau","Rq", "", -0.14, 17);
+				fc_response_cuts_singlestrip[kpix][0]->Fit("landau","Rq", "", -0.14, 17);
 			}
 		}
 	}
