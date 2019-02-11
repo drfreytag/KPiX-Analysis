@@ -47,7 +47,13 @@ ADD_DEFINITIONS("-Wunused-value -Wall -pedantic -Wshadow -fdiagnostics-color=aut
 
 ##-- Flags
 find_package(LibXml2 REQUIRED)
+if (LibXml2_FOUND)
+   message(" [debug] libxml2 found!")
+endif (LibXml2_FOUND)
 find_package(ROOT REQUIRED)
+if (ROOT_FOUND)
+   message(" [debug] ROOT found!")
+endif(ROOT_FOUND)
 #find_package(ROOT COMPONENTS RooStats)
 
 ##-- everything needed for YAML: 'libyaml-dev' used
@@ -70,7 +76,8 @@ endif(USE_YAML)
 include_directories( ${PROJECT_SOURCE_DIR}/include )
 include_directories( ${ROOT_INCLUDE_DIR} )
 include_directories( ${LIBXML2_INCLUDE_DIR} )
-
+message(" [debug] LIBXML2_INC_DIR = ${LIBXML2_INCLUDE_DIR}")
+message(" [debug] LIBXML2_LIBs = ${LIBXML2_LIBRARIES}")
 
 ##-- Extern Packages to install prior
 if (USE_KPIX)
@@ -80,7 +87,8 @@ if (USE_KPIX)
   
   aux_source_directory( ${PROJECT_SOURCE_DIR}/extern/src LIB_SRC)
   add_library(${KPIX_LOCAL_LIB} SHARED ${LIB_SRC})
-  
+  target_link_libraries(${KPIX_LOCAL_LIB} ${LIBXML2_LIBRARIES}) # this is necessary for MAC!
+
   install(TARGETS ${KPIX_LOCAL_LIB} LIBRARY DESTINATION lib)
   # file(GLOB INC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/eudaq/*.hh")
   
@@ -107,13 +115,13 @@ endif()
 ##-- LinkDef.h
 include(${ROOT_USE_FILE})
 message("\tDebug: ${ROOT_USE_FILE}")
-ROOT_GENERATE_DICTIONARY(G__Dict ${PROJECT_SOURCE_DIR}/include/ntupleMaker.h LINKDEF  ${PROJECT_SOURCE_DIR}/include/LinkDef.h)
+#ROOT_GENERATE_DICTIONARY(G__Dict ${PROJECT_SOURCE_DIR}/include/ntupleMaker.h LINKDEF  ${PROJECT_SOURCE_DIR}/include/LinkDef.h)
 
-add_library(Dict SHARED G__Dict.cxx)
-target_link_libraries(Dict ${ROOT_LIBRARIES})
+#add_library(Dict SHARED G__Dict.cxx)
+#target_link_libraries(Dict ${ROOT_LIBRARIES})
 
-install( TARGETS Dict LIBRARY DESTINATION lib )
-install( FILES ${CMAKE_CURRENT_BINARY_DIR}/libDict_rdict.pcm ${CMAKE_CURRENT_BINARY_DIR}/libDict.rootmap DESTINATION lib )
+#install( TARGETS Dict LIBRARY DESTINATION lib )
+#install( FILES ${CMAKE_CURRENT_BINARY_DIR}/libDict_rdict.pcm ${CMAKE_CURRENT_BINARY_DIR}/libDict.rootmap DESTINATION lib )
 
 ##-- add exe: # maybe cmake can be scripted with a loop using aux_source_directory func?
 
@@ -136,37 +144,37 @@ endif(ADD_EXE_SIMPLE)
 # calibration ana:
 
 add_executable(new_CalibrationFitter ${PROJECT_SOURCE_DIR}/src/new_CalibrationFitter.cxx)
-target_link_libraries(new_CalibrationFitter ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
+target_link_libraries(new_CalibrationFitter ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} )
 list(APPEND INSTALL_EXE_TARGETS new_CalibrationFitter)
 
 add_executable(DuoKpix_CalibFitter ${PROJECT_SOURCE_DIR}/src/DuoKpix_CalibFitter.cxx)
-target_link_libraries(DuoKpix_CalibFitter ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
+target_link_libraries(DuoKpix_CalibFitter ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} )
 list(APPEND INSTALL_EXE_TARGETS DuoKpix_CalibFitter)
 
 ##-- new for analyzing yml data:
 add_executable(CalibAnaYml ${PROJECT_SOURCE_DIR}/src/CalibAnaYml.cxx)
-target_link_libraries(CalibAnaYml ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
+target_link_libraries(CalibAnaYml ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} )
 list(APPEND INSTALL_EXE_TARGETS CalibAnaYml)
 
 # full ana:
 
 add_executable(analysisLite ${PROJECT_SOURCE_DIR}/src/analysisLite.cxx)
-target_link_libraries(analysisLite ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
+target_link_libraries(analysisLite ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} )
 list(APPEND INSTALL_EXE_TARGETS analysisLite)
 
 add_executable(analysis ${PROJECT_SOURCE_DIR}/src/analysis.cxx)
-target_link_libraries(analysis ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
+target_link_libraries(analysis ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} )
 list(APPEND INSTALL_EXE_TARGETS analysis)
 
 add_executable(cluster_analysis ${PROJECT_SOURCE_DIR}/src/cluster_analysis.cxx)
-target_link_libraries(cluster_analysis ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
+target_link_libraries(cluster_analysis ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} )
 list(APPEND INSTALL_EXE_TARGETS cluster_analysis)
 
 # tree builders:
 
-add_executable(TreeMaker ${PROJECT_SOURCE_DIR}/src/TreeMaker.cxx)
-target_link_libraries(TreeMaker ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
-list(APPEND INSTALL_EXE_TARGETS TreeMaker)
+#add_executable(TreeMaker ${PROJECT_SOURCE_DIR}/src/TreeMaker.cxx)
+#target_link_libraries(TreeMaker ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
+#list(APPEND INSTALL_EXE_TARGETS TreeMaker)
 
 
 

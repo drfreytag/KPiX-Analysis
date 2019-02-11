@@ -53,6 +53,21 @@ YmlVariables::YmlVariables(){
 
 YmlVariables::~YmlVariables(){}  // empty template
 
+// Remove whitespace and newlines -- copy from Ryan's XmlVariable.cpp
+string YmlVariables::removeWhite ( string str ) {
+   string temp;
+   uint32_t   i;
+
+   temp = "";
+
+   for (i=0; i < str.length(); i++) {
+      if ( str[i] != ' ' && str[i] != '\n' ) 
+         temp += str[i];
+   }
+   return(temp);
+}
+
+
 uint32_t YmlVariables::getInt ( std::string var ) {
   uint32_t     ret;
   string       value;
@@ -78,8 +93,8 @@ std::string YmlVariables::getStr( std::string var ) {
     return ("");
   
   if (_debug)
-
     printf(" Find your key : value -> %s : %s\n", (iter->first).c_str(), (iter->second).c_str() );
+  
   return iter->second;
 
 }
@@ -149,6 +164,8 @@ bool YmlVariables::YmlVarReader( std::string ymlline ){
     cout << "map.first  -> " << variable << endl;;
     cout << "map.second -> " << value << endl;
   }
+
+  if ( removeWhite(value) != "" )  value = removeWhite(value);
   _vars[variable] = value;
 
   return true;
