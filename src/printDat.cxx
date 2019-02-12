@@ -51,7 +51,7 @@ int main ( int argc, char **argv ) {
   
   // Data file is the first and only arg
   if ( argc != 2  ) {
-    cout << "\nUsage: ./count data_file\n";
+    cout << "\nUsage: ./printDat data_file\n";
     return(1);
   }
   
@@ -60,12 +60,12 @@ int main ( int argc, char **argv ) {
     cout << "Error opening data file " << argv[1] << endl;
     return(1);
   }
+  //cout << " [exe] dataRead.debug_ == "<< dataRead.debug_ << endl;
 
   cout << "Opened data file: " << argv[1] << endl;
   //fileSize = dataRead.size();
   //filePos  = dataRead.pos();
-  kpixeventcount = 0;
-  cout << "\rReading File: 0 %" << flush;
+  //cout << "\rReading File: 0 %" << flush;
   // Open root file
   tmp.str("");
   tmp<<"printDat.root";
@@ -77,7 +77,10 @@ int main ( int argc, char **argv ) {
   // Read Data - init
   /////////////////////////////////////////
   // check over how many kpixes w/ how many channels connected  
-  printalot = false, print10evts=true, print10Sam=false;
+  printalot = false, print10evts=true, print10Sam=true;
+  kpixeventcount = 0;
+  int DataSampleCount=0, TempSampleCount=0, TsSampleCount=0;
+  int tendtSamples=0, tentpSamples=0, tentsSamples=0;
   
   while ( dataRead.next(&event) ) {
     kpixeventcount++;
@@ -88,16 +91,13 @@ int main ( int argc, char **argv ) {
       cout << "\tTimeStamp = " << event.timestamp() <<endl;
       cout << "\tCount = " << event.count() <<endl;
       }*/
-    
-    int DataSampleCount=0, TempSampleCount=0;
-    int tenSamples=0;
-    
+        
     for (uint x1=0; x1 < event.count(); x1++) {
       //// Get sample
       sample  = event.sample(x1);
       if (sample->getEmpty()) {
-	cout<<" [info] empty sample, jump over!"<<endl;
-	continue;
+	      cout<<" [info] empty sample, jump over!"<<endl;
+	      continue;
       }
       
       kpix    = sample->getKpixAddress();
@@ -106,47 +106,58 @@ int main ( int argc, char **argv ) {
       type    = sample->getSampleType();
       
       if ( type == KpixSample::Data ){
-	DataSampleCount++;
-	
-	kpixFound[kpix]          = true;
-	chanFound[kpix][channel] = true;
-	bucketFound[kpix][channel][bucket] = true;
-	
-	if ( print10Sam &&  tenSamples < 11 ){
-	  //cout << kpixeventcount << endl;
-	  cout<<"[dev] kpix = "<<kpix<<", channel = " <<channel <<", bucket = " <<bucket <<"\n";
-	  tenSamples++;
-	}
+	      DataSampleCount++;
+	      
+	      kpixFound[kpix]          = true;
+	      chanFound[kpix][channel] = true;
+	      bucketFound[kpix][channel][bucket] = true;
+	      
+	      if ( print10Sam &&  tendtSamples < 11 ){
+		      //cout << kpixeventcount << endl;
+		      cout<<"[dev] kpix = "<<kpix<<", channel = " <<channel <<", bucket = " <<bucket <<"\n";
+		      tendtSamples++;
+	      }
+      }
+      
+      if ( type == KpixSample::Temperature){
+	      TempSampleCount++;
+	      if ( print10Sam &&  tentpSamples < 11 ){
+		      cout<<"[*]   This is Temperature!" << endl;
+		      tentpSamples++;
+	      }
       }
 
-      if ( type == KpixSample::Temperature){
-	TempSampleCount++;
-	if ( print10Sam &&  tenSamples < 11 ){
-	  cout<<"[*]   This is Temperature!" << endl;
-	  tenSamples++;
-	}
+       if ( type == KpixSample::Timestamp){
+	      TsSampleCount++;
+	      if ( print10Sam &&  tentsSamples < 11 ){
+		      cout<<"[*]   This is Timestamp!" << endl;
+		      tentsSamples++;
+	      }
       }
       
       kpixFound[0] = false; // in any case, kpix=0 is a virtual index
     }
     
-
-    if (kpixeventcount < 10 && print10evts){
-      cout << "\tDataSampleCount = " << DataSampleCount <<endl;
-      cout << "\tTempSampleCount = " << TempSampleCount <<endl;
-    }
+    
+    // if (kpixeventcount < 10 && print10evts){
+	//     cout << "\tDataSampleCount = " << DataSampleCount <<endl;
+	//     cout << "\tTempSampleCount = " << TempSampleCount <<endl;
+    // }
 
   }
   
   dataRead.close();
 
-  cout<< "In total, we have #"
-      << dec << kpixeventcount
-      << " events :)\n"<<endl;
+  cout<< "In total, we have\n\t#" << dec
+      << kpixeventcount << " Data events :)\n"
+      << "\t"<< TsSampleCount  << " Ts events.\n"
+      << "\t"<< TempSampleCount  << " Temp events."
+      <<endl;
 
   if (kpixeventcount>0) weight = 1.0/kpixeventcount;
   else {
     cout << "Error: kpix acq. cycles = "<< kpixeventcount<<endl;
+    rFile->Close();
     return 0;
   }
 

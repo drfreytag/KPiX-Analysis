@@ -72,7 +72,7 @@ void DataRead::ymlParse ( uint32_t size, char *data ){
 	// need a flag to iterate to status, or config at least.
 	yaml_.buffParser( yml_level[Root], buff);
 	if (debug_)  yaml_.print();
-
+	
 	free(buff);
 	return;
 }
