@@ -399,11 +399,14 @@ int main ( int argc, char **argv )
 	
 	
 	cycle_num = 0;
+	ofstream myfile;
+	myfile.open("/scratch/data/dieter.txt");
 	
 	
 	while ( dataRead.next(&event) )
 	{
 		cycle_num++;
+		cout << "KPiX event Number: " << event.eventNumber() << endl;
 		if ( cycle_num > skip_cycles_front)
 		{
 		
@@ -434,6 +437,13 @@ int main ( int argc, char **argv )
 						hist[kpix][channel][bucket][0]->Fill(value, weight);
 						
 					}
+					if (bucket == 0 && kpix == 19)
+					{
+						if (cycle_num == 1)
+						{
+							myfile << "Itrn = " << event.eventNumber() << " j = " << setw(4) << channel << " k = " << bucket << "  ida=" << kpix << "  x= " << setw(4) << value << " z=" << tstamp << endl; 
+						}
+					}
 					
 				}
 				//cout << "DEBUG time size" << time_ext.size() << endl;
@@ -448,7 +458,7 @@ int main ( int argc, char **argv )
 			}
 		}
 	}
-	
+	myfile.close();
 	for (int kpix = 0; kpix<32; ++kpix)
 	{
 		if (kpixFound[kpix])

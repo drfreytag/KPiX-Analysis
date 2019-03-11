@@ -116,7 +116,7 @@ def map_plot_ecal(channel_kpix, mapping, sensor_row, sensor_column, color, list_
 		plt.ylim(-24, 16)
 		plt.axis('off')
 		if ('log' in color_type):
-			plsctr = plt.scatter(sensor_row, sensor_column, c=list_of_channel_values[bucket_nr], s = 100, marker='H', cmap='viridis', norm=mpl.colors.SymLogNorm(linthresh = color_values[1], vmin=color_values[0], vmax=color_values[-1]))
+			plsctr = plt.scatter(sensor_row, sensor_column, c=list_of_channel_values[bucket_nr], s = 100, marker='H', norm=mpl.colors.SymLogNorm(linthresh = color_values[1], vmin=color_values[0], vmax=color_values[-1]))
 		elif ('log' not in color_type):
 			plsctr = plt.scatter(sensor_row, sensor_column,  c=list_of_channel_values[bucket_nr], s = 100, marker='H', cmap='viridis', vmin=color_values[0], vmax=color_values[-1])
 		if args.file_out:

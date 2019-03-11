@@ -301,16 +301,21 @@ int main ( int argc, char **argv ) {
   stringstream			 FolderName;
   
 	TH1F				*pedestals[32][4];
+	TH1F				*pedestals_fc_0_127[32][4];
 	TH1F				*slope_hist[32][4];
+	TH1F				*slope_hist_conn[32][4];
+	TH1F				*slope_hist_disc[32][4];
+	TH1F				*slope_hist_0_127[32][4];
 	TH1F				*slope_residual[32][4];
 	TH1F				*pedestals_fc[32][4];
 	TH1F				*pedestalsRMS_fc[32][4];
+	TH1F				*pedestalsRMS_fc_0_127[32][4];
 	TH1F				*pedestalsRMS_fc_disc[32][4];
 	TH1F				*pedestalsRMS_fc_conn[32][4];
-	TH1F				*pedestalsRMS_fc_conn120[32][4];
-	TH1F				*pedestalsRMS_fc_conn800[32][4];
 	TH1F				*slopeRMS[32][4];
 	TH1F				*slope_vs_channel[32][4];
+	TH1F				*slope_vs_right_strip[32][4];
+	TH1F				*slope_vs_left_strip[32][4];
 	TH1F				*RMSfC_vs_channel[32][4];
   
   
@@ -688,8 +693,16 @@ int main ( int argc, char **argv ) {
 				pedestals_fc[kpix][bucket] = new TH1F(tmp.str().c_str(), "Pedestals distribution; Charge [fC]; #entries", 1000, -100, 100);
 				
 				tmp.str("");
+				tmp << "pedestals_fc_0_127_k" << kpix << "_b" << bucket;
+				pedestals_fc_0_127[kpix][bucket] = new TH1F(tmp.str().c_str(), "Pedestals distribution channels 0 to 127; Charge [fC]; #entries", 1000, -100, 100);
+				
+				tmp.str("");
 				tmp << "pedestalsRMS_fc_k" << kpix << "_b" << bucket;
 				pedestalsRMS_fc[kpix][bucket] = new TH1F(tmp.str().c_str(), "Pedestals RMS, All Chn; [fC]; a.u.", 1000, 0, 4);
+				
+				tmp.str("");
+				tmp << "pedestalsRMS_fc_0_127_k" << kpix << "_b" << bucket;
+				pedestalsRMS_fc_0_127[kpix][bucket] = new TH1F(tmp.str().c_str(), "Pedestals RMS channels 0 to 127, All Chn; [fC]; a.u.", 1000, 0, 4);
 				
 				tmp.str("");
 				tmp << "pedestalsRMS_fc_disc_k" << kpix << "_b" << bucket;
@@ -699,19 +712,24 @@ int main ( int argc, char **argv ) {
 				tmp << "pedestalsRMS_fc_conn_k" << kpix << "_b" << bucket;
 				pedestalsRMS_fc_conn[kpix][bucket] = new TH1F(tmp.str().c_str(), "Pedestals RMS, conn. Chn; [fC]; a.u.", 1000, 0, 4);
 				
-				tmp.str("");
-				tmp << "pedestalsRMS_fc_conn120_k" << kpix << "_b" << bucket;
-				pedestalsRMS_fc_conn120[kpix][bucket] = new TH1F(tmp.str().c_str(), "Pedestals RMS, conn. Chn in 0-128; [fC]; a.u.", 1000, 0, 4);
-				
-				tmp.str("");
-				tmp << "pedestalsRMS_fc_conn800_k" << kpix << "_b" << bucket;
-				pedestalsRMS_fc_conn800[kpix][bucket] = new TH1F(tmp.str().c_str(), "Pedestals RMS, conn. Chn after 128; [fC]; a.u.", 1000, 0, 4);
 				
 				
 				
 				tmp.str("");
 				tmp << "slope_k" << kpix << "_b" << bucket;
 				slope_hist[kpix][bucket] = new TH1F(tmp.str().c_str(), "Slope distribution; Slope [ADC/fC]; #entries", 200, -20, 20);
+				
+				tmp.str("");
+				tmp << "slope_conn_k" << kpix << "_b" << bucket;
+				slope_hist_conn[kpix][bucket] = new TH1F(tmp.str().c_str(), "Slope distribution connected to sensor; Slope [ADC/fC]; #entries", 200, -20, 20);
+				
+				tmp.str("");
+				tmp << "slope_disc_k" << kpix << "_b" << bucket;
+				slope_hist_disc[kpix][bucket] = new TH1F(tmp.str().c_str(), "Slope distribution disconnected from sensor; Slope [ADC/fC]; #entries", 200, -20, 20);
+				
+				tmp.str("");
+				tmp << "slope_0_127_k" << kpix << "_b" << bucket;
+				slope_hist_0_127[kpix][bucket] = new TH1F(tmp.str().c_str(), "Slope distribution channels 0 to 127; Slope [ADC/fC]; #entries", 200, -20, 20);
 				
 				tmp.str("");
 				tmp << "slope_residual_k" << kpix << "_b" << bucket;
@@ -724,6 +742,14 @@ int main ( int argc, char **argv ) {
 				tmp.str("");
 				tmp << "slope_vs_channel_k" << kpix << "_b" << bucket;
 				slope_vs_channel[kpix][bucket] = new TH1F(tmp.str().c_str(), "Slope [ADC/fC]; Channel ID; Slope [ADC/fC]", 1024, -0.5, 1023.5);
+				
+				tmp.str("");
+				tmp << "slope_vs_right_strip_k" << kpix << "_b" << bucket;
+				slope_vs_right_strip[kpix][bucket] = new TH1F(tmp.str().c_str(), "Slope [ADC/fC]; Strip ID; Slope [ADC/fC]", 920, 919.5, 1839.5);
+				
+				tmp.str("");
+				tmp << "slope_vs_left_strip_k" << kpix << "_b" << bucket;
+				slope_vs_left_strip[kpix][bucket] = new TH1F(tmp.str().c_str(), "Slope [ADC/fC]; Strip ID; Slope [ADC/fC]", 920, -0.5, 919.5);
 				
 				tmp.str("");
 				tmp << "RMSfC_vs_channel_k" << kpix << "_b" << bucket;
@@ -1052,7 +1078,7 @@ for (kpix=0; kpix<32; kpix++)
 									tmp << "_b" << dec << bucket;
 									tmp << "_r" << dec << range;
 									tmp << "_k" << dec << kpix;
-									//grCalib->SetTitle(tmp.str().c_str());
+									grCalib->SetTitle(tmp.str().c_str());
 									grCalib->Write(tmp.str().c_str());
 				
 									// Create and store residual plot
@@ -1081,20 +1107,22 @@ for (kpix=0; kpix<32; kpix++)
 										long double ped_charge = ( chanData[kpix][channel][bucket][range]->baseFitMean ) / slope;
 										long double ped_charge_err = (chanData[kpix][channel][bucket][range]->baseHistRMS) / slope ; // simple err
 										
-										//cout << "RMS in ADC " << chanData[kpix][channel][bucket][range]->baseHistRMS << endl;
-										//cout << "Slope " << slope << endl;
-										//cout << "RMS in fc " << ped_charge_err << endl;
 										
 										pedestals_fc[kpix][bucket]->Fill( ped_charge * pow(10,15) );
+										if (channel >= 0 && channel <= 127) pedestals_fc_0_127[kpix][bucket]->Fill( ped_charge * pow(10,15) );
+										
 										
 										pedestalsRMS_fc[kpix][bucket]->Fill( ped_charge_err * pow(10,15) );
-										//cout << ped_charge_err * pow(10,15) << endl;
-										if ( kpix2strip_left.at(channel) == 9999 ) pedestalsRMS_fc_disc[kpix][bucket]->Fill( ped_charge_err * pow(10,15) );
+										if (channel >= 0 && channel <= 127) pedestalsRMS_fc_0_127[kpix][bucket]->Fill( ped_charge_err * pow(10,15) );
+
+										if ( kpix2strip_left.at(channel) == 9999 ) 
+										{
+											pedestalsRMS_fc_disc[kpix][bucket]->Fill( ped_charge_err * pow(10,15) );
+											slope_hist_disc[kpix][bucket]->Fill( slope / pow(10,15) );
+										}
 										else
 										{
-											if (channel < 128) pedestalsRMS_fc_conn120[kpix][bucket] -> Fill(ped_charge_err * pow(10,15));
-											else pedestalsRMS_fc_conn800[kpix][bucket] -> Fill(ped_charge_err * pow(10,15));
-				
+											slope_hist_conn[kpix][bucket]->Fill( slope / pow(10,15) );
 											pedestalsRMS_fc_conn[kpix][bucket]->Fill( ped_charge_err * pow(10,15) );
 										}
 				
@@ -1104,25 +1132,17 @@ for (kpix=0; kpix<32; kpix++)
 										}
 				
 										slope_hist[kpix][bucket]->Fill( slope / pow(10,15) );
+										if (channel >= 0 && channel <= 127) slope_hist_0_127[kpix][bucket]->Fill( slope / pow(10,15) );
 				
 										slope_vs_channel[kpix][bucket]->SetBinContent( channel+1, slope / pow(10,15));
+										slope_vs_right_strip[kpix][bucket]->SetBinContent(kpix2strip_right.at(channel)-919, slope / pow(10,15));
+										slope_vs_left_strip[kpix][bucket]->SetBinContent(kpix2strip_left.at(channel)+1, slope / pow(10,15));
+										
 										RMSfC_vs_channel[kpix][bucket]->SetBinContent( channel+1, ped_charge_err * pow(10,15));
 										
-										//if (abs(ped_charge_err * pow(10,15)) < 20) 
-										//{
-											//RMSfc_v_channel->SetBinContent(channel, ped_charge_err * pow(10,15));
-											//if (kpix2strip_left.at(channel) != 9999) RMSfc_v_channel_connected->SetBinContent(channel, ped_charge_err * pow(10,15));
-											//RMSfc_v_strip_left->SetBinContent(kpix2strip_left.at(channel), ped_charge_err * pow(10,15));
-											//RMSfc_v_strip_right->SetBinContent(kpix2strip_right.at(channel)-920, ped_charge_err * pow(10,15)); //as we set bin content need to move everything to the left by as channel 920 is bin 0
-				
-											//cout << kpix2strip_right.at(channel) << endl;
-										//}
-										//summary2_1->Fill( channel, slope / pow(10,15) );
 				
 										slope_residual[kpix][bucket]->Fill( offset);
-										
-										//summary12->Fill( grCalib->GetFunction("pol1")->GetParError(1) / pow(10,15) );
-										//summary13->Fill( grCalib->GetFunction("pol1")->GetParError(0));
+									
 										
 										addDoubleToXml(&xml,15,"CalibGain",grCalib->GetFunction("pol1")->GetParameter(1));
 										addDoubleToXml(&xml,15,"CalibIntercept",grCalib->GetFunction("pol1")->GetParameter(0));
