@@ -242,10 +242,12 @@ def hist_plotter():
 		if (args.output_name):
 			outname = folder_loc+filename_list[0]+'_'+args.output_name
 			print 'Creating '+outname
-			c1.SaveAs(outname)
+			c1.SaveAs(outname+'.svg')
+			c1.SaveAs(outname+'.png')
 		else:
 			outname = folder_loc+filename_list[0]+'_'+graph.GetName()
-			print 'Creating '+outname+'.png'
+			print 'Creating '+outname+'.svg'
+			c1.SaveAs(outname+'.svg')
 			c1.SaveAs(outname+'.png')
 		c1.Close()
 	else:
@@ -301,10 +303,12 @@ def hist_plotter():
 			if (args.output_name):
 				outname = folder_loc+filename_list[0]+'_'+args.output_name
 				print 'Creating '+outname
-				c1.SaveAs(outname)
+				c1.SaveAs(outname+'.svg')
+				c1.SaveAs(outname+'.png')
 			else:
 				outname = folder_loc+filename_list[0]+'_'+histogram.GetName()
-				print 'Creating '+outname+'.png'
+				print 'Creating '+outname+'.svg'
+				c1.SaveAs(outname+'.svg')
 				c1.SaveAs(outname+'.png')
 			c1.Close()
 			counter= counter+1
@@ -392,10 +396,12 @@ def graph_plotter():
 		if (args.output_name):
 			outname = folder_loc+filename_list[0]+'_'+args.output_name
 			print 'Creating '+outname
-			c1.SaveAs(outname)
+			c1.SaveAs(outname+'.svg')
+			c1.SaveAs(outname+'.png')
 		else:
 			outname = folder_loc+filename_list[0]+'_'+graph.GetName()
-			print 'Creating '+outname+'.png'
+			print 'Creating '+outname+'.svg'
+			c1.SaveAs(outname+'.svg')
 			c1.SaveAs(outname+'.png')
 		c1.Close()
 	else:
@@ -431,10 +437,12 @@ def graph_plotter():
 			if (args.output_name):
 				outname = folder_loc+filename_list[0]+'_'+args.output_name
 				print 'Creating '+outname
-				c1.SaveAs(outname)
+				c1.SaveAs(outname+'.svg')
+				c1.SaveAs(outname+'.png')
 			else:
 				outname = folder_loc+filename_list[0]+'_'+graph.GetName()
-				print 'Creating '+outname+'.png'
+				print 'Creating '+outname+'.svg'
+				c1.SaveAs(outname+'.svg')
 				c1.SaveAs(outname+'.png')
 			c1.Close()
 			counter= counter+1
@@ -472,6 +480,7 @@ mystyle.SetLegendBorderSize(0)
 #
 ##set the default title color to be black
 #mystyle.SetTitleColor(1)
+mystyle.SetOptTitle(0)
 #
 ##set the margins
 ##mystyle.SetPadBottomMargin(0.18)
@@ -480,13 +489,14 @@ mystyle.SetLegendBorderSize(0)
 ##mystyle.SetPadLeftMargin(0.17)
 #
 ##set axis label and title text sizes
-#mystyle.SetLabelFont(42,"xyz")
-#mystyle.SetLabelSize(0.06,"xyz")
-#mystyle.SetLabelOffset(0.015,"xyz")
-#mystyle.SetTitleFont(42,"xyz")
-mystyle.SetTitleSize(0.04,"xyz")
-mystyle.SetTitleOffset(1.2,"yz")
-#mystyle.SetTitleOffset(1.0,"x")
+mystyle.SetLabelFont(42,"xyz")
+mystyle.SetLabelSize(0.055,"xyz")
+mystyle.SetLabelOffset(0.003,"yz")
+mystyle.SetLabelOffset(0.00,"x")
+mystyle.SetTitleFont(42,"xyz")
+mystyle.SetTitleSize(0.06,"xyz")
+mystyle.SetTitleOffset(0.87,"yz")
+mystyle.SetTitleOffset(0.75,"x")
 mystyle.SetStatFont(42)
 mystyle.SetStatFontSize(0.03)
 #mystyle.SetTitleBorderSize(0)
@@ -513,7 +523,7 @@ mystyle.SetHistLineWidth(2)
 #mystyle.SetPadTickY(1)
 #
 ##turn off stats
-mystyle.SetOptStat(111111)
+mystyle.SetOptStat(1111)
 mystyle.SetOptFit(111)
 #
 ##marker settings

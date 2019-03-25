@@ -692,116 +692,116 @@ int main ( int argc, char **argv )
 			
 			tmp.str("");
 			tmp << "fc_response_k" << kpix << "_total";
-			fc_response[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5);
+			fc_response[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", 800,-0.5, 399.5);
 			
 			//tmp.str("");
 			//tmp << "fc_response_mean_subtracted_k" << kpix << "_total";
-			//fc_response_mean_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+			//fc_response_mean_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 			
 			//tmp.str("");
 			//tmp << "fc_response_CMmean_subtracted_k" << kpix << "_total";
-			//fc_response_CM_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+			//fc_response_CM_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 			//tmp.str("");
 			//tmp << "fc_response_CMmedian_subtracted_k" << kpix << "_total";
-			//fc_response_CMmedian_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+			//fc_response_CMmedian_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 			//tmp.str("");
 			//tmp << "fc_response_CMgauss_subtracted_k" << kpix << "_total";
-			//fc_response_CMgauss_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+			//fc_response_CMgauss_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 			
 			tmp.str("");
 			tmp << "fc_response_median_subtracted_k" << kpix << "_total";
-			fc_response_median_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+			fc_response_median_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 			
 			tmp.str("");
 			tmp << "fc_response_median_made_CMmedian_subtracted_k" << kpix << "_total";
-			fc_response_medCM_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+			fc_response_medCM_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 			
 			//tmp.str("");
 			//tmp << "fc_response_gauss_subtracted_k" << kpix << "_total";
-			//fc_response_gauss_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+			//fc_response_gauss_subtracted[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 			
 			
 			//tmp.str("");
 			//tmp << "fc_response_timed_" << kpix << "_total";
-			//fc_response_timed[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response_timed; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5);
+			//fc_response_timed[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response_timed; Charge (fC); #Entries", 800,-0.5, 399.5);
 			
 			//tmp.str("");
 			//tmp << "fc_response_subtracted_timed_" << kpix << "_total";
-			//fc_response_subtracted_timed[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response_timed; Charge (fC); #entries/#acq.cycles", 700,-50.5, 299.5);
+			//fc_response_subtracted_timed[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response_timed; Charge (fC); #Entries", 700,-50.5, 299.5);
 			
 			tmp.str("");
 			tmp << "fc_response_subgroup_k" << kpix << "_total";
-			fc_response_subgroup[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+			fc_response_subgroup[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 			
 			tmp.str("");
 			tmp << "fc_response_cuts_k" << kpix << "_total";
-			fc_response_cuts[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+			fc_response_cuts[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 			
 			tmp.str("");
 			tmp << "fc_response_cuts_singlestrip_k" << kpix << "_total";
-			fc_response_cuts_singlestrip[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+			fc_response_cuts_singlestrip[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 			
 			tmp.str("");
 			tmp << "fc_response_cuts_doublestrip_k" << kpix << "_total";
-			fc_response_cuts_doublestrip[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+			fc_response_cuts_doublestrip[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 			
 			
 			
 			
 			tmp.str("");
 			tmp << "hit_position_singlestrip_l_k" << kpix << "_total";
-			hit_position_l[kpix][4][0] = new TH1F(tmp.str().c_str(), "singlestrip hit position; Strip Position; #entries/#acq.cycles", 920, -0.5, 919.5);
+			hit_position_l[kpix][4][0] = new TH1F(tmp.str().c_str(), "singlestrip hit position; Strip Position; #Entries", 920, -0.5, 919.5);
 			tmp.str("");
 			tmp << "hit_position_doublestrip_l_k" << kpix << "_total";
-			hit_position_l[kpix][4][1] = new TH1F(tmp.str().c_str(), "doublestrip hit position; Strip Position; #entries/#acq.cycles", 920, -0.5, 919.5);
+			hit_position_l[kpix][4][1] = new TH1F(tmp.str().c_str(), "doublestrip hit position; Strip Position; #Entries", 920, -0.5, 919.5);
 			tmp.str("");
 			tmp << "hit_position_single+double_strip_l_k" << kpix << "_total";
-			hit_position_l[kpix][4][2] = new TH1F(tmp.str().c_str(), "total strip hit position; Strip Position; #entries/#acq.cycles", 920, -0.5, 919.5);
+			hit_position_l[kpix][4][2] = new TH1F(tmp.str().c_str(), "total strip hit position; Strip Position; #Entries", 920, -0.5, 919.5);
 			
 			tmp.str("");
 			tmp << "hit_position_singlestrip_r_k" << kpix << "_total";
-			hit_position_r[kpix][4][0] = new TH1F(tmp.str().c_str(), "singlestrip hit position; Strip Position; #entries/#acq.cycles", 920, 919.5, 1839.5);
+			hit_position_r[kpix][4][0] = new TH1F(tmp.str().c_str(), "singlestrip hit position; Strip Position; #Entries", 920, 919.5, 1839.5);
 			tmp.str("");
 			tmp << "hit_position_doublestrip_r_k" << kpix << "_total";
-			hit_position_r[kpix][4][1] = new TH1F(tmp.str().c_str(), "doublestrip hit position; Strip Position; #entries/#acq.cycles", 920, 919.5, 1839.5);
+			hit_position_r[kpix][4][1] = new TH1F(tmp.str().c_str(), "doublestrip hit position; Strip Position; #Entries", 920, 919.5, 1839.5);
 			tmp.str("");
 			tmp << "hit_position_single+double_strip_r_k" << kpix << "_total";
-			hit_position_r[kpix][4][2] = new TH1F(tmp.str().c_str(), "total strip hit position; Strip Position; #entries/#acq.cycles", 920, 919.5, 1839.5);
+			hit_position_r[kpix][4][2] = new TH1F(tmp.str().c_str(), "total strip hit position; Strip Position; #Entries", 920, 919.5, 1839.5);
 			
 			tmp.str("");
 			tmp << "cluster_position_r_k" << kpix << "_total";
-			cluster_position_r[kpix][4] = new TH1F(tmp.str().c_str(), "cluster position; Strip Position; #entries/#acq.cycles", 920, 919.5, 1839.5);
+			cluster_position_r[kpix][4] = new TH1F(tmp.str().c_str(), "cluster position; Strip Position; #Entries", 920, 919.5, 1839.5);
 			
 			tmp.str("");
 			tmp << "cluster_charge_k" << kpix << "_total";
-			cluster_charge[kpix][4] = new TH1F(tmp.str().c_str(), "cluster charge; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5);
+			cluster_charge[kpix][4] = new TH1F(tmp.str().c_str(), "cluster charge; Charge (fC); #Entries", 800,-0.5, 399.5);
 			
 			
 			//tmp.str("");
 			//tmp << "fc_response_subtracted_subgroup_k" << kpix << "_total";
-			//fc_response_subtracted_subgroup[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-50.5, 199.5);
+			//fc_response_subtracted_subgroup[kpix][4] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", 1500,-50.5, 199.5);
 			
 			
 			tmp.str("");
 			tmp << "common_mode_hist_k" << kpix << "_b0";
-			common_mode_hist[kpix] = new TH1F(tmp.str().c_str(), "common_mode; Charge (fC);   #entries/#acq.cycles", 28,-2.5, 11.5);
+			common_mode_hist[kpix] = new TH1F(tmp.str().c_str(), "common_mode; Charge (fC);   #Entries", 28,-2.5, 11.5);
 			
 			
 			tmp.str("");
 			tmp << "pedestals_mean_" << kpix << "_total";
-			pedestals_mean[kpix][4] = new TH1F(tmp.str().c_str(), "pedestals; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5);
+			pedestals_mean[kpix][4] = new TH1F(tmp.str().c_str(), "pedestals; Charge (fC); #Entries", 800,-0.5, 399.5);
 			
 			tmp.str("");
 			tmp << "pedestals_median_" << kpix << "_total";
-			pedestals_median[kpix][4] = new TH1F(tmp.str().c_str(), "pedestals; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5);
+			pedestals_median[kpix][4] = new TH1F(tmp.str().c_str(), "pedestals; Charge (fC); #Entries", 800,-0.5, 399.5);
 			
 			tmp.str("");
 			tmp << "pedestals_gauss_" << kpix << "_total";
-			pedestals_gauss[kpix][4] = new TH1F(tmp.str().c_str(), "pedestals; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5);
+			pedestals_gauss[kpix][4] = new TH1F(tmp.str().c_str(), "pedestals; Charge (fC); #Entries", 800,-0.5, 399.5);
 			
 			tmp.str("");
 			tmp << "slopes_" << kpix << "_total";
-			slopes[kpix][4] = new TH1F(tmp.str().c_str(), "slopes; Charge (fC); #entries/#acq.cycles", 250,-0.5, 50);
+			slopes[kpix][4] = new TH1F(tmp.str().c_str(), "slopes; Charge (fC); #Entries", 250,-0.5, 50);
 			
 			
 			tmp.str("");
@@ -831,19 +831,19 @@ int main ( int argc, char **argv )
 				
 				tmp.str("");
 				tmp << "fc_response_k" << kpix << "_cycle_" << cycles << "_b0";
-				fc_response_cycle.push_back(new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5));
+				fc_response_cycle.push_back(new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", 800,-0.5, 399.5));
 				
 				//tmp.str("");
 				//tmp << "fc_response_mean_subtracted_k" << kpix << "_cycle_" << cycles << "_b0";
-				//fc_response_cycle_mean_subtracted.push_back(new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 500,-50.5, 199.5));
+				//fc_response_cycle_mean_subtracted.push_back(new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", 500,-50.5, 199.5));
 				
 				tmp.str("");
 				tmp << "fc_response_median_subtracted_k" << kpix << "_cycle_" << cycles << "_b0";
-				fc_response_cycle_median_subtracted.push_back(new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 500,-50.5, 199.5));
+				fc_response_cycle_median_subtracted.push_back(new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", 500,-50.5, 199.5));
 				
 				//tmp.str("");
 				//tmp << "fc_response_gauss_subtracted_k" << kpix << "_cycle_" << cycles << "_b0";
-				//fc_response_cycle_gauss_subtracted.push_back(new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 500,-50.5, 199.5));
+				//fc_response_cycle_gauss_subtracted.push_back(new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", 500,-50.5, 199.5));
 				
 			}
 			
@@ -888,110 +888,110 @@ int main ( int argc, char **argv )
 				
 				tmp.str("");
 				tmp << "fc_response_k" << kpix << "_b" << bucket;
-				fc_response[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5);
+				fc_response[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", 800,-0.5, 399.5);
 				
 				
 				tmp.str("");
 				tmp << "cluster_position_r_k" << kpix << "_b" << bucket;
-				cluster_position_r[kpix][bucket] = new TH1F(tmp.str().c_str(), "cluster position; Strip Position; #entries/#acq.cycles", 920, 919.5, 1839.5);
+				cluster_position_r[kpix][bucket] = new TH1F(tmp.str().c_str(), "cluster position; Strip Position; #Entries", 920, 919.5, 1839.5);
 				
 				tmp.str("");
 				tmp << "cluster_charge_k" << kpix << "_b" << bucket;
-				cluster_charge[kpix][bucket] = new TH1F(tmp.str().c_str(), "cluster charge; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5);
+				cluster_charge[kpix][bucket] = new TH1F(tmp.str().c_str(), "cluster charge; Charge (fC); #Entries", 800,-0.5, 399.5);
 				
 				//tmp.str("");
 				//tmp << "fc_response_mean_subtracted_k" << kpix << "_b" << bucket;
-				//fc_response_mean_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+				//fc_response_mean_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 				
 				//tmp.str("");
 				//tmp << "fc_response_CM_subtracted_k" << kpix << "_b" << bucket;
-				//fc_response_CM_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+				//fc_response_CM_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 				//tmp.str("");
 				//tmp << "fc_response_CMmedian_subtracted_k" << kpix << "_b" << bucket;
-				//fc_response_CMmedian_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+				//fc_response_CMmedian_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 				//tmp.str("");
 				//tmp << "fc_response_CMgauss_subtracted_k" << kpix << "_b" << bucket;
-				//fc_response_CMgauss_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+				//fc_response_CMgauss_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 				
 				tmp.str("");
 				tmp << "fc_response_median_made_CMmedian_subtracted_k" << kpix << "_b" << bucket;
-				fc_response_medCM_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+				fc_response_medCM_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 				
 				
 				tmp.str("");
 				tmp << "fc_response_median_subtracted_k" << kpix << "_b" << bucket;
-				fc_response_median_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+				fc_response_median_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 				
 				//tmp.str("");
 				//tmp << "fc_response_gauss_subtracted_k" << kpix << "_b" << bucket;
-				//fc_response_gauss_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+				//fc_response_gauss_subtracted[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 				
 				//tmp.str("");
 				//tmp << "fc_response_timed_" << kpix << "_b" << bucket;
-				//fc_response_timed[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response_timed; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5);
+				//fc_response_timed[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response_timed; Charge (fC); #Entries", 800,-0.5, 399.5);
 				
 				//tmp.str("");
 				//tmp << "fc_response_subtracted_timed_" << kpix << "_b" << bucket;
-				//fc_response_subtracted_timed[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response_timed; Charge (fC); #entries/#acq.cycles", 700,-50.5, 299.5);
+				//fc_response_subtracted_timed[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response_timed; Charge (fC); #Entries", 700,-50.5, 299.5);
 				
 				tmp.str("");
 				tmp << "fc_response_subgroup_k" << kpix << "_b" << bucket;
-				fc_response_subgroup[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+				fc_response_subgroup[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 				
 				tmp.str("");
 				tmp << "fc_response_cuts_k" << kpix << "_b" << bucket;
-				fc_response_cuts[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+				fc_response_cuts[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 				
 				tmp.str("");
 				tmp << "fc_response_cuts_singlestrip_k" << kpix << "_b" << bucket;
-				fc_response_cuts_singlestrip[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+				fc_response_cuts_singlestrip[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 				tmp.str("");
 				tmp << "fc_response_cuts_doublestrip_k" << kpix << "_b" << bucket;
-				fc_response_cuts_doublestrip[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", response_bins, response_xmin, response_xmax);
+				fc_response_cuts_doublestrip[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
 				
 				
 				
 				tmp.str("");
 				tmp << "hit_position_singlestrip_l_k" << kpix << "_b" << bucket;
-				hit_position_l[kpix][bucket][0] = new TH1F(tmp.str().c_str(), "singlestrip hit position; Strip Position; #entries/#acq.cycles", 920, -0.5, 919.5);
+				hit_position_l[kpix][bucket][0] = new TH1F(tmp.str().c_str(), "singlestrip hit position; Strip Position; #Entries", 920, -0.5, 919.5);
 				tmp.str("");
 				tmp << "hit_position_doublestrip_l_k" << kpix << "_b" << bucket;
-				hit_position_l[kpix][bucket][1] = new TH1F(tmp.str().c_str(), "doublestrip hit position; Strip Position; #entries/#acq.cycles", 920, -0.5, 919.5);
+				hit_position_l[kpix][bucket][1] = new TH1F(tmp.str().c_str(), "doublestrip hit position; Strip Position; #Entries", 920, -0.5, 919.5);
 				tmp.str("");
 				tmp << "hit_position_single+double_strip_l_k" << kpix << "_b" << bucket;
-				hit_position_l[kpix][bucket][2] = new TH1F(tmp.str().c_str(), "total strip hit position; Strip Position; #entries/#acq.cycles", 920, -0.5, 919.5);
+				hit_position_l[kpix][bucket][2] = new TH1F(tmp.str().c_str(), "total strip hit position; Strip Position; #Entries", 920, -0.5, 919.5);
 				
 				tmp.str("");
 				tmp << "hit_position_singlestrip_r_k" << kpix << "_b" << bucket;
-				hit_position_r[kpix][bucket][0] = new TH1F(tmp.str().c_str(), "singlestrip hit position; Strip Position; #entries/#acq.cycles", 920, 919.5, 1839.5);
+				hit_position_r[kpix][bucket][0] = new TH1F(tmp.str().c_str(), "singlestrip hit position; Strip Position; #Entries", 920, 919.5, 1839.5);
 				tmp.str("");
 				tmp << "hit_position_doublestrip_r_k" << kpix << "_b" << bucket;
-				hit_position_r[kpix][bucket][1] = new TH1F(tmp.str().c_str(), "doublestrip hit position; Strip Position; #entries/#acq.cycles", 920, 919.5, 1839.5);
+				hit_position_r[kpix][bucket][1] = new TH1F(tmp.str().c_str(), "doublestrip hit position; Strip Position; #Entries", 920, 919.5, 1839.5);
 				tmp.str("");
 				tmp << "hit_position_single+double_strip_r_k" << kpix << "_b" << bucket;
-				hit_position_r[kpix][bucket][2] = new TH1F(tmp.str().c_str(), "total strip hit position; Strip Position; #entries/#acq.cycles", 920, 919.5, 1839.5);
+				hit_position_r[kpix][bucket][2] = new TH1F(tmp.str().c_str(), "total strip hit position; Strip Position; #Entries", 920, 919.5, 1839.5);
 				
 				
 				//tmp.str("");
 				//tmp << "fc_response_subtracted_subgroup_k" << kpix << "_b" << bucket;
-				//fc_response_subtracted_subgroup[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 1500,-50.5, 199.5);
+				//fc_response_subtracted_subgroup[kpix][bucket] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", 1500,-50.5, 199.5);
 				
 				
 				tmp.str("");
 				tmp << "pedestals_mean_" << kpix << "_b" << bucket;
-				pedestals_mean[kpix][bucket] = new TH1F(tmp.str().c_str(), "pedestals; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5);
+				pedestals_mean[kpix][bucket] = new TH1F(tmp.str().c_str(), "pedestals; Charge (fC); #Entries", 800,-0.5, 399.5);
 				
 				tmp.str("");
 				tmp << "pedestals_median_" << kpix << "_b" << bucket;
-				pedestals_median[kpix][bucket] = new TH1F(tmp.str().c_str(), "pedestals; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5);
+				pedestals_median[kpix][bucket] = new TH1F(tmp.str().c_str(), "pedestals; Charge (fC); #Entries", 800,-0.5, 399.5);
 				
 				tmp.str("");
 				tmp << "pedestals_gauss_" << kpix << "_b" << bucket;
-				pedestals_gauss[kpix][bucket] = new TH1F(tmp.str().c_str(), "pedestals; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5);
+				pedestals_gauss[kpix][bucket] = new TH1F(tmp.str().c_str(), "pedestals; Charge (fC); #Entries", 800,-0.5, 399.5);
 				
 				tmp.str("");
 				tmp << "slopes_" << kpix << "_b" << bucket;
-				slopes[kpix][bucket] = new TH1F(tmp.str().c_str(), "slopes; Charge (fC); #entries/#acq.cycles", 250,-0.5, 50);
+				slopes[kpix][bucket] = new TH1F(tmp.str().c_str(), "slopes; Charge (fC); #Entries", 250,-0.5, 50);
 				
 				
 				tmp.str("");
@@ -1026,15 +1026,15 @@ int main ( int argc, char **argv )
 					
 					tmp.str("");
 					tmp << "fc_response_c" << channel << setw(4) << "_k" << kpix << "_b0";
-					fc_response_channel[kpix][channel] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 800,-0.5, 399.5);
+					fc_response_channel[kpix][channel] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", 800,-0.5, 399.5);
 					
 					//tmp.str("");
 					//tmp << "fc_response_mean_subtracted_c" << channel << setw(4) << "_k" << kpix << "_b0";
-					//fc_response_mean_subtracted_channel[kpix][channel] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 500,-50.5, 199.5);
+					//fc_response_mean_subtracted_channel[kpix][channel] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", 500,-50.5, 199.5);
 					
 					tmp.str("");
 					tmp << "fc_response_median_subtracted_c" << channel << setw(4) << "_k" << kpix << "_b0";
-					fc_response_median_subtracted_channel[kpix][channel] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #entries/#acq.cycles", 500,-50.5, 199.5);
+					fc_response_median_subtracted_channel[kpix][channel] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", 500,-50.5, 199.5);
 					
 				}
 			}
@@ -1050,7 +1050,7 @@ int main ( int argc, char **argv )
 	int cycle_num = 0;
 	int datacounter = 0;
 	double sstrip_cut = 1.4;
-	double dstrip_cut = 0.5;
+	double dstrip_cut = 1.0;
 	double strip_cut = 1.5;
 	
 	int ssignal = 0;
