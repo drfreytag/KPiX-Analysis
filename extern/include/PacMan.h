@@ -15,6 +15,7 @@ class PacMan
 		
 		double getClusterCoG();
 		double getClusterCharge();
+		double getClusterSize();
 		
 		void setEventList(vector<pair<int, double>>);
 		
