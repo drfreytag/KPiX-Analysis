@@ -253,6 +253,7 @@ int main ( int argc, char **argv )
 	TH1F 				*hit_position_r[32][5][3];
 	TH1F 				*cluster_position_r[32][5];
 	TH1F 				*cluster_charge[32][5];
+	TH1F 				*cluster_size[32][5];
 	
 	TH2F 				*position_vs_charge_corrected[32][5];
 	TH2F 				*position_vs_charge_CM_corrected[32][5];
@@ -774,8 +775,11 @@ int main ( int argc, char **argv )
 			
 			tmp.str("");
 			tmp << "cluster_charge_k" << kpix << "_total";
-			cluster_charge[kpix][4] = new TH1F(tmp.str().c_str(), "cluster charge; Charge (fC); #Entries", 800,-0.5, 399.5);
+			cluster_charge[kpix][4] = new TH1F(tmp.str().c_str(), "cluster charge; Charge (fC); #Entries", 200,-0.5, 49.5);
 			
+			tmp.str("");
+			tmp << "cluster_size_k" << kpix << "_total";
+			cluster_size[kpix][4] = new TH1F(tmp.str().c_str(), "cluster size; #Strips in cluster; #Entries", 10,-0.5, 9.5);
 			
 			//tmp.str("");
 			//tmp << "fc_response_subtracted_subgroup_k" << kpix << "_total";
@@ -897,7 +901,11 @@ int main ( int argc, char **argv )
 				
 				tmp.str("");
 				tmp << "cluster_charge_k" << kpix << "_b" << bucket;
-				cluster_charge[kpix][bucket] = new TH1F(tmp.str().c_str(), "cluster charge; Charge (fC); #Entries", 800,-0.5, 399.5);
+				cluster_charge[kpix][bucket] = new TH1F(tmp.str().c_str(), "cluster charge; Charge (fC); #Entries", 200,-0.5, 49.5);
+				
+				tmp.str("");
+				tmp << "cluster_size_k" << kpix << "_b" << bucket;
+				cluster_size[kpix][bucket] = new TH1F(tmp.str().c_str(), "cluster size; #Strips in cluster; #Entries", 10,-0.5, 9.5);
 				
 				//tmp.str("");
 				//tmp << "fc_response_mean_subtracted_k" << kpix << "_b" << bucket;
@@ -1051,7 +1059,7 @@ int main ( int argc, char **argv )
 	int datacounter = 0;
 	double sstrip_cut = 1.4;
 	double dstrip_cut = 1.0;
-	double strip_cut = 1.5;
+	double strip_cut = 0.6;
 	
 	int ssignal = 0;
 	int dsignal = 0;
@@ -1288,6 +1296,7 @@ int main ( int argc, char **argv )
 						
 						cluster_position_r[KPIX][0]->Fill(Cluster[KPIX].CoG);
 						cluster_charge[KPIX][0]->Fill(Cluster[KPIX].Charge);
+						cluster_size[KPIX][0]->Fill(Cluster[KPIX].Size);
 						//cout << "Charge weighted Cluster Position = " << Cluster.CoG << endl;
 						//cout << "Cluster Charge = " << Cluster.Charge << endl;
 					}
@@ -1471,6 +1480,7 @@ int main ( int argc, char **argv )
 				RMS = fc_response_median_subtracted[kpix][bucket]->GetRMS();
 				fc_response_median_subtracted[kpix][bucket]->Fit("gaus","Rq", "", mean-0.8, mean+0.8);
 				fc_response_cuts[kpix][bucket]->Fit("landau","Rq", "", -0.14, 17);
+				cluster_charge[kpix][bucket]->Fit("landau","RqW", "", -0.14, 17);
 				fc_response_cuts_singlestrip[kpix][0]->Fit("landau","RqW", "", -0.14, 17);
 				fc_response_cuts_doublestrip[kpix][0]->Fit("landau","RqW", "", -0.14, 17);
 			}

@@ -11,8 +11,9 @@ using namespace std;
 
 clustr::clustr()
 {
-	CoG = 0;
-	Charge = 0;
+	CoG = 0.0;
+	Charge = 0.0;
+	Size = 0;
 }
 
 clustr::~clustr() { }

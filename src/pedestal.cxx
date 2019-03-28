@@ -406,7 +406,7 @@ int main ( int argc, char **argv )
 	while ( dataRead.next(&event) )
 	{
 		cycle_num++;
-		cout << "KPiX event Number: " << event.eventNumber() << endl;
+		//cout << "KPiX event Number: " << event.eventNumber() << endl;
 		if ( cycle_num > skip_cycles_front)
 		{
 		
