@@ -1059,7 +1059,7 @@ int main ( int argc, char **argv )
 	int datacounter = 0;
 	double sstrip_cut = 1.4;
 	double dstrip_cut = 1.0;
-	double cluster_cut = 0.6;
+	double cluster_cut = 0.5;
 	
 	int ssignal = 0;
 	int dsignal = 0;

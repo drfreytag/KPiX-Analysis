@@ -26,6 +26,7 @@ class clustr
 		double CoG ;
 		double Charge;
 		int Size;
+		double test;
 		vector<pair<int, double> > EventList;
 		
 		
