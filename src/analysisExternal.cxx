@@ -1059,7 +1059,7 @@ int main ( int argc, char **argv )
 	int datacounter = 0;
 	double sstrip_cut = 1.4;
 	double dstrip_cut = 1.0;
-	double strip_cut = 0.6;
+	double cluster_cut = 0.6;
 	
 	int ssignal = 0;
 	int dsignal = 0;
@@ -1165,7 +1165,7 @@ int main ( int argc, char **argv )
 									doublestrip_events_after_cut[kpix][bucket].push_back(make_pair(kpix2strip_right.at(channel), charge_CM_corrected));
 								}
 								
-								if ( charge_CM_corrected > strip_cut) 
+								if ( charge_CM_corrected > cluster_cut) 
 								{
 									if (kpix == 17 && (kpix2strip_right.at(channel) != 1468  && kpix2strip_right.at(channel) != 1183 && kpix2strip_right.at(channel) != 1609 && kpix2strip_right.at(channel) != 1563 && kpix2strip_right.at(channel) != 1179))
 									{
