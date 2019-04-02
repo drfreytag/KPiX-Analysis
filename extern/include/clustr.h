@@ -25,11 +25,10 @@ class clustr
 	
 		double CoG ;
 		double Charge;
-		int Size;
-		double test;
-		vector<pair<int, double> > EventList;
-		
-		
+		double SigmaCoG;
+		vector<pair<int, double> > Elements;
+
+		void SetParameters();
 		//void setEventList(vector<pair<double, double>>);
 } ;
 

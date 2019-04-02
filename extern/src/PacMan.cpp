@@ -33,196 +33,64 @@ double PacMan::getClusterCharge()
 	return Cluster.Charge;
 }
 
-double PacMan::getClusterSize()
+int PacMan::getElementssize()
 {
-	return Cluster.Size;
+	return Cluster.Elements.size();
 }
 
-void PacMan::setEventList(vector<pair<int, double>> events)
+clustr PacMan::getCluster()
 {
-	Cluster.EventList = events;
+	return Cluster;
 }
 
-int PacMan::getEventListSize()
+void PacMan::Eater(clustr PACMAN, int element, int oldelement) //it works under the assumption that the clustr paired vector is sorted beforehand!
 {
-	return Cluster.EventList.size();
-}
-
-clustr PacMan::Eater(clustr PACMAN, int element, int oldelement)
-{
-	//cout << element << endl;
-	PACMAN.Size++;
-	double Chargesum = PACMAN.Charge + PACMAN.EventList.at(element).second;
-	PACMAN.CoG = (PACMAN.CoG*PACMAN.Charge + PACMAN.EventList.at(element).first*PACMAN.EventList.at(element).second)/Chargesum;
-	PACMAN.Charge = Chargesum;
-	if (element == 0 && PACMAN.EventList.size() != 1)
+	double Chargesum = PACMAN.Charge + PACMAN.Elements.at(element).second;
+	Cluster.CoG = (Cluster.CoG*PACMAN.Charge + PACMAN.Elements.at(element).first*PACMAN.Elements.at(element).second)/Chargesum;
+	Cluster.Charge = Chargesum;
+	Cluster.Elements.push_back(PACMAN.Elements.at(element));
+	
+	//cout << "Position is currently " << PACMAN.Elements.at(element).first << endl;
+	
+	if (element == 0 && PACMAN.Elements.size() != 1)  // if we are at element 0 of the list but the size is larger than 1
 	{
-		
-		if (oldelement - 1 == element)
+		if (oldelement - 1 != element) // if we did not come to this point by moving down
 		{ 
-			//cout << "A" << endl;
-			return PACMAN;
-		}
-		else
-		{
-			//cout << "B" << endl;
-			PACMAN = PacMan::Eater(PACMAN, element+1, element);
-			return PACMAN;
+			PacMan::Eater(PACMAN, element+1, element); //start moving up
 		}
 	}
-	if (element == PACMAN.EventList.size() -1 && PACMAN.EventList.size() != 1 )
+	if (element != 0 && element != PACMAN.Elements.size() - 1)  // if we are neither at the first nor at the last element of the list (list starts at 0, size does not)
 	{
-		if (oldelement + 1 == element)
-		{ 
-			//cout << "C" << endl;
-			return PACMAN;
-		}
-		else
+		if (oldelement - 1 == element) // if we came here by moving down
 		{
-			//cout << "D" << endl;
-			//cout << "No upper strip numbers with charge above threshold" << endl;
-			PACMAN = PacMan::Eater(PACMAN, element-1, element);
-			return PACMAN;
-		}
-	}
-	if (PACMAN.EventList.size() == 1)
-	{
-		//cout << "O" << endl;
-		return PACMAN;
-	}
-	else if (element != 0 && element != PACMAN.EventList.size() -1)
-	{
-		//PACMAN = PacMan::Eater(PACMAN, element+1, element);		
-		if (oldelement - 1 == element)
-		{
-			if (PACMAN.EventList.at(oldelement).first -1 == PACMAN.EventList.at(element).first)
+			if (PACMAN.Elements.at(oldelement).first - 2 >= PACMAN.Elements.at(element).first) // demanding that the next strip has to be within a distance of -2 from the previous strip
 			{
-				//cout << "E" << endl;
-				PACMAN = PacMan::Eater(PACMAN, element-1, element);
-				
+					PacMan::Eater(PACMAN, element-1, element); // keep moving down
 			}
-			//cout << "No lower strip numbers with charge above threshold" << endl;
-			return PACMAN;
 		}
-		if (oldelement + 1 == element)
+		if (oldelement + 1 == element) // if we came here by moving down
 		{
-			if (PACMAN.EventList.at(oldelement).first +1 == PACMAN.EventList.at(element).first)
+			if (PACMAN.Elements.at(oldelement).first + 2 <= PACMAN.Elements.at(element).first) // demanding that the next strip has to be within a distance of +2 from the previous strip
 			{
 				//cout << "F" << endl;
-				PACMAN = PacMan::Eater(PACMAN, element+1, element);
-				
+					PacMan::Eater(PACMAN, element+1, element); // keep moving up
 			}
-			//cout << "No upper strip numbers with charge above threshold" << endl;
-			return PACMAN;
 		}
-		else if (oldelement == 9999)
+		else if (oldelement == 9999)  // starting point for program
 		{
 			
 			
 			//cout << "X" << endl;
-			PACMAN = PacMan::Eater(PACMAN, element-1, element);
-			PACMAN = PacMan::Eater(PACMAN, element+1, element);
-			return PACMAN;
+			PacMan::Eater(PACMAN, element-1, element); // move down
+			PacMan::Eater(PACMAN, element+1, element); // move up
+			//return PACMAN;
+		}
+	}
+	if (element == PACMAN.Elements.size() -1 && PACMAN.Elements.size() != 1 ) // if we are not at the last element of the list (list starts at 0, size does not) with the size being larger than 1.
+	{
+		if (oldelement + 1 != element) // if we did not come to this point by moving up
+		{ 
+			PacMan::Eater(PACMAN, element-1, element); //start moving down
 		}
 	}
 };
-
-//clustr PacMan::Eater(clustr PACMAN, int element, int oldelement)
-//{
-	////cout << element << endl;
-	//PACMAN.Size++;
-	//if (element == 0 && PACMAN.EventList.size() != 1)
-	//{
-		
-		//if (oldelement - 1 == element)
-		//{ 
-			////cout << "A" << endl;
-			//double Chargesum = PACMAN.Charge + PACMAN.EventList.at(element).second;
-			//PACMAN.CoG = (PACMAN.CoG*PACMAN.Charge + PACMAN.EventList.at(element).first*PACMAN.EventList.at(element).second)/Chargesum;
-			//PACMAN.Charge = Chargesum;
-			//return PACMAN;
-		//}
-		//else
-		//{
-			////cout << "B" << endl;
-			//PACMAN = PacMan::Eater(PACMAN, element+1, element);
-			//double Chargesum = PACMAN.Charge + PACMAN.EventList.at(element).second;
-			//PACMAN.CoG = (PACMAN.CoG*PACMAN.Charge + PACMAN.EventList.at(element).first*PACMAN.EventList.at(element).second)/Chargesum;
-			//PACMAN.Charge = Chargesum;
-			//return PACMAN;
-		//}
-	//}
-	//if (element == PACMAN.EventList.size() -1 && PACMAN.EventList.size() != 1 )
-	//{
-		//if (oldelement + 1 == element)
-		//{ 
-			////cout << "C" << endl;
-			//double Chargesum = PACMAN.Charge + PACMAN.EventList.at(element).second;
-			//PACMAN.CoG = (PACMAN.CoG*PACMAN.Charge + PACMAN.EventList.at(element).first*PACMAN.EventList.at(element).second)/Chargesum;
-			//PACMAN.Charge = Chargesum;
-			//return PACMAN;
-		//}
-		//else
-		//{
-			////cout << "D" << endl;
-			////cout << "No upper strip numbers with charge above threshold" << endl;
-			//PACMAN = PacMan::Eater(PACMAN, element-1, element);
-			//double Chargesum = PACMAN.Charge + PACMAN.EventList.at(element).second;
-			//PACMAN.CoG = (PACMAN.CoG*PACMAN.Charge + PACMAN.EventList.at(element).first*PACMAN.EventList.at(element).second)/Chargesum;
-			//PACMAN.Charge = Chargesum;
-			//return PACMAN;
-		//}
-	//}
-	//if (PACMAN.EventList.size() == 1)
-	//{
-		////cout << "O" << endl;
-		//double Chargesum = PACMAN.Charge + PACMAN.EventList.at(element).second;
-		//PACMAN.CoG = (PACMAN.CoG*PACMAN.Charge + PACMAN.EventList.at(element).first*PACMAN.EventList.at(element).second)/Chargesum;
-		//PACMAN.Charge = Chargesum;
-		//return PACMAN;
-	//}
-	//else if (element != 0 && element != PACMAN.EventList.size() -1)
-	//{
-		////PACMAN = PacMan::Eater(PACMAN, element+1, element);		
-		//if (oldelement - 1 == element)
-		//{
-			//if (PACMAN.EventList.at(oldelement).first -1 == PACMAN.EventList.at(element).first)
-			//{
-				////cout << "E" << endl;
-				//PACMAN = PacMan::Eater(PACMAN, element-1, element);
-				//double Chargesum = PACMAN.Charge + PACMAN.EventList.at(element).second;
-				//PACMAN.CoG = (PACMAN.CoG*PACMAN.Charge + PACMAN.EventList.at(element).first*PACMAN.EventList.at(element).second)/Chargesum;
-				//PACMAN.Charge = Chargesum;
-				
-			//}
-			////cout << "No lower strip numbers with charge above threshold" << endl;
-			//return PACMAN;
-		//}
-		//if (oldelement + 1 == element)
-		//{
-			//if (PACMAN.EventList.at(oldelement).first +1 == PACMAN.EventList.at(element).first)
-			//{
-				////cout << "F" << endl;
-				//PACMAN = PacMan::Eater(PACMAN, element+1, element);
-				//double Chargesum = PACMAN.Charge + PACMAN.EventList.at(element).second;
-				//PACMAN.CoG = (PACMAN.CoG*PACMAN.Charge + PACMAN.EventList.at(element).first*PACMAN.EventList.at(element).second)/Chargesum;
-				//PACMAN.Charge = Chargesum;
-				
-			//}
-			////cout << "No upper strip numbers with charge above threshold" << endl;
-			//return PACMAN;
-		//}
-		//else if (oldelement == 9999)
-		//{
-			
-			
-			////cout << "X" << endl;
-			//PACMAN = PacMan::Eater(PACMAN, element-1, element);
-			//PACMAN = PacMan::Eater(PACMAN, element+1, element);
-			//double Chargesum = PACMAN.Charge + PACMAN.EventList.at(element).second;
-			//PACMAN.CoG = (PACMAN.CoG*PACMAN.Charge + PACMAN.EventList.at(element).first*PACMAN.EventList.at(element).second)/Chargesum;
-			//PACMAN.Charge = Chargesum;
-			//return PACMAN;
-		//}
-	//}
-//};

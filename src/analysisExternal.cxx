@@ -1059,7 +1059,11 @@ int main ( int argc, char **argv )
 	int datacounter = 0;
 	double sstrip_cut = 1.4;
 	double dstrip_cut = 1.0;
-	double cluster_cut = 0.5;
+	//double cluster_cut[32];
+	//cluster_cut[17]  = 0.5;
+	//cluster_cut[19]= 1.4;
+	
+	double cluster_cut = 0.75;
 	
 	int ssignal = 0;
 	int dsignal = 0;
@@ -1165,7 +1169,7 @@ int main ( int argc, char **argv )
 									doublestrip_events_after_cut[kpix][bucket].push_back(make_pair(kpix2strip_right.at(channel), charge_CM_corrected));
 								}
 								
-								if ( charge_CM_corrected > cluster_cut) 
+								if ( charge_CM_corrected > cluster_cut && charge_CM_corrected < 5) 
 								{
 									if (kpix == 17 && (kpix2strip_right.at(channel) != 1468  && kpix2strip_right.at(channel) != 1183 && kpix2strip_right.at(channel) != 1609 && kpix2strip_right.at(channel) != 1563 && kpix2strip_right.at(channel) != 1179))
 									{
@@ -1281,31 +1285,48 @@ int main ( int argc, char **argv )
 			
 			
 			//cout << "New Event" << endl;
-			clustr Cluster[32];  // Cluster class variable
-			for (int KPIX = 0; KPIX < 32; KPIX++)
-			{
-				if (kpixFound[KPIX] == true)
-				{
-					if ( strip_events_after_cut[KPIX][0].size() != 0)
-					{
-						//cout << "Bla?" << endl;
+			//clustr Cluster[32];  // Another Cluster class variable
+			//for (int KPIX = 0; KPIX < 32; KPIX++)
+			//{
+				//if (kpixFound[KPIX] == true)
+				//{
+					//if ( strip_events_after_cut[KPIX][0].size() != 0)
+					//{
+						//clustr Input;
 						
-						PacMan NomNom; // PacMan class variable
-						Cluster[KPIX].EventList = strip_events_after_cut[KPIX][0];
-						Cluster[KPIX] = NomNom.Eater(Cluster[KPIX], max_position[KPIX], 9999);
+						//sort(strip_events_after_cut[KPIX][0].begin(), strip_events_after_cut[KPIX][0].end());
 						
-						cluster_position_r[KPIX][0]->Fill(Cluster[KPIX].CoG);
-						cluster_charge[KPIX][0]->Fill(Cluster[KPIX].Charge);
-						cluster_size[KPIX][0]->Fill(Cluster[KPIX].Size);
-						//cout << "Charge weighted Cluster Position = " << Cluster.CoG << endl;
-						//cout << "Cluster Charge = " << Cluster.Charge << endl;
-					}
+						//PacMan NomNom; // PacMan class variable
+						//Input.Elements = strip_events_after_cut[KPIX][0];
+						//NomNom.Eater(Input, max_position[KPIX], 9999);
+						
+						//Cluster[KPIX] = NomNom.getCluster();
+						////cout << "1 Charge weighted Cluster Position = " << Cluster[KPIX].CoG << endl;
+						////cout << "1 Cluster Charge = " << Cluster[KPIX].Charge << endl;
+						////cout << "1 Cluster sigma = " << Cluster[KPIX].SigmaCoG << endl;
+						
+						////cout << "Test2 " << Cluster[KPIX].Elements.size() << endl;
+						////cout << "Test3 " << NomNom.getElementssize() << endl;
+						////cout << "Test4 " << test.Elements.size() << endl;
+						
+						//Cluster[KPIX].SetParameters();
+						
+						//cluster_position_r[KPIX][0]->Fill(Cluster[KPIX].CoG);
+						//cluster_charge[KPIX][0]->Fill(Cluster[KPIX].Charge);
+						//cluster_size[KPIX][0]->Fill(Cluster[KPIX].Elements.size());
+						
+						
+						////cout << "2 Charge weighted Cluster Position = " << Cluster[KPIX].CoG << endl;
+						////cout << "2 Cluster Charge = " << Cluster[KPIX].Charge << endl;
+						////cout << "2 Cluster sigma = " << Cluster[KPIX].SigmaCoG << endl;
+						////cout << "2 Cluster size = " << Cluster[KPIX].Elements.size() << endl;
+					//}
 					
-				}
-			}
-			double strip_offset_cluster = Cluster[19].CoG - Cluster[17].CoG;
-			offset_hist_cluster->Fill(strip_offset_cluster);
-			strip_correlation_cluster->Fill(Cluster[19].CoG, Cluster[17].CoG, 1);
+				//}
+			//}
+			//double strip_offset_cluster = Cluster[19].CoG - Cluster[17].CoG;
+			//offset_hist_cluster->Fill(strip_offset_cluster);
+			//strip_correlation_cluster->Fill(Cluster[19].CoG, Cluster[17].CoG, 1);
 			 //////////////////////////////////////////////////////////////////////////////////////////////////////
 			// CURRENTLY STATIC PROGRAMMING OF EXT TRIG TRACK FINDING AS A FIRST TEST NEED TO MAKE MORE GENERAL //
 			/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1486,7 +1507,6 @@ int main ( int argc, char **argv )
 			}
 		}
 	}
-	
 	//cout <<  endl << "Full coincidence of sensors with external trigger: " << full_coincidence_channel_entries->GetEntries() << endl;
 	//cout << "Three coincidence of sensors: " << three_coincidence << endl;
 	//cout << "Two coincidence of sensors: " << two_coincidence << endl;

@@ -15,13 +15,10 @@ class PacMan
 		
 		double getClusterCoG();
 		double getClusterCharge();
-		double getClusterSize();
+		int getElementssize();
 		
-		void setEventList(vector<pair<int, double>>);
-		
-		int getEventListSize();
-		
-		clustr Eater(clustr, int, int);
+		clustr getCluster();
+		void Eater(clustr, int, int);
 		
 		
 		
