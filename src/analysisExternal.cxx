@@ -255,10 +255,13 @@ int main ( int argc, char **argv )
 	TH1F 				*cluster_charge[32][5];
 	TH1F 				*cluster_size[32][5];
 	
-	TH2F 				*position_vs_charge_corrected[32][5];
-	TH2F 				*position_vs_charge_CM_corrected[32][5];
+	TH2F 				*position_vs_charge_corrected_r[32][5];
+	TH2F 				*position_vs_charge_CM_corrected_r[32][5];
+	TH2F 				*position_vs_charge_corrected_l[32][5];
+	TH2F 				*position_vs_charge_CM_corrected_l[32][5];
 	TH2F 				*kpix_position_vs_charge_corrected[32][5];
-	TH2F 				*position_vs_charge[32][5];
+	TH2F 				*position_vs_charge_r[32][5];
+	TH2F 				*position_vs_charge_l[32][5];
 	
 	//TH1F				*fc_response_timed[32][5];
 	//TH1F				*fc_response_subtracted_timed[32][5];
@@ -676,20 +679,33 @@ int main ( int argc, char **argv )
 			median_charge[kpix][4] = new TH1F(tmp.str().c_str(), "median_charge; Charge (fC);   #channels", 800,-50.5, 199.5);
 			
 			tmp.str("");
-			tmp << "position_vs_charge_corrected_k" << kpix << "_total";
-			position_vs_charge_corrected[kpix][4] = new TH2F(tmp.str().c_str(), "position vs corrected_charge; Strip position;  Charge (fC)", 230,-0.5,919.5, 20,-0.5,19.5);
+			tmp << "right_strip_position_vs_charge_corrected_k" << kpix << "_total";
+			position_vs_charge_corrected_r[kpix][4] = new TH2F(tmp.str().c_str(), "position vs corrected_charge; Strip position;  Charge (fC)", 230, 919.5, 1839.5, 20,-0.5,19.5);
 			
 			tmp.str("");
-			tmp << "position_vs_charge_CM_corrected_k" << kpix << "_total";
-			position_vs_charge_CM_corrected[kpix][4] = new TH2F(tmp.str().c_str(), "position vs CM corrected charge; Strip position;  Charge (fC)", 230,-0.5,919.5, 440,-20.5,19.5);
+			tmp << "right_strip_position_vs_charge_CM_corrected_k" << kpix << "_total";
+			position_vs_charge_CM_corrected_r[kpix][4] = new TH2F(tmp.str().c_str(), "position vs CM corrected charge; Strip position;  Charge (fC)", 230, 919.5, 1839.5, 440,-20.5,19.5);
+			
+			tmp.str("");
+			tmp << "left_strip_position_vs_charge_corrected_k" << kpix << "_total";
+			position_vs_charge_corrected_l[kpix][4] = new TH2F(tmp.str().c_str(), "position vs corrected_charge; Strip position;  Charge (fC)", 230, -0.5, 919.5, 20,-0.5,19.5);
+			
+			tmp.str("");
+			tmp << "left_strip_position_vs_charge_CM_corrected_k" << kpix << "_total";
+			position_vs_charge_CM_corrected_l[kpix][4] = new TH2F(tmp.str().c_str(), "position vs CM corrected charge; Strip position;  Charge (fC)", 230, -0.5, 919.5, 440,-20.5,19.5);
 			
 			tmp.str("");
 			tmp << "kpix_position_vs_charge_corrected_k" << kpix << "_total";
 			kpix_position_vs_charge_corrected[kpix][4] = new TH2F(tmp.str().c_str(), "kpix position vs corrected_charge; KPiX position;  Charge (fC)", 256,-0.5,1023.5, 20,-0.5,19.5);
 			
 			tmp.str("");
-			tmp << "position_vs_charge_k" << kpix << "_total";
-			position_vs_charge[kpix][4] = new TH2F(tmp.str().c_str(), "position vs charge; Strip position;  Charge (fC)", 230,-0.5,919.5, 200,-0.5,199.5);
+			tmp << "right_strip_position_vs_charge_k" << kpix << "_total";
+			position_vs_charge_r[kpix][4] = new TH2F(tmp.str().c_str(), "position vs charge; Strip position;  Charge (fC)", 230, 919.5, 1839.5, 200,-0.5,199.5);
+			
+			tmp.str("");
+			tmp << "left_strip_position_vs_charge_k" << kpix << "_total";
+			position_vs_charge_l[kpix][4] = new TH2F(tmp.str().c_str(), "position vs charge; Strip position;  Charge (fC)", 230,-0.5,919.5, 200,-0.5,199.5);
+			
 			
 			tmp.str("");
 			tmp << "fc_response_k" << kpix << "_total";
@@ -874,21 +890,38 @@ int main ( int argc, char **argv )
 				median_charge[kpix][bucket] = new TH1F(tmp.str().c_str(), "median_charge; Charge (fC);   #channels", 800,-50.5, 199.5);
 				
 				tmp.str("");
-				tmp << "position_vs_charge_corrected_k" << kpix << "_b" << bucket;
-				position_vs_charge_corrected[kpix][bucket] = new TH2F(tmp.str().c_str(), "position vs corrected_charge; Strip position;  Charge (fC)", 230,-0.5,919.5, 20,-0.5,19.5);
+				tmp << "right_strip_position_vs_charge_corrected_k" << kpix << "_b" << bucket;
+				position_vs_charge_corrected_r[kpix][bucket] = new TH2F(tmp.str().c_str(), "position vs corrected_charge; Strip position;  Charge (fC)", 230,919.5,1839.5, 20,-0.5,19.5);
 				
 				
 				tmp.str("");
-				tmp << "position_vs_charge_CM_corrected_k" << kpix << "_b" << bucket;
-				position_vs_charge_CM_corrected[kpix][bucket] = new TH2F(tmp.str().c_str(), "position vs CM corrected charge; Strip position;  Charge (fC)", 230,-0.5,919.5, 440,-20.5,19.5);
+				tmp << "right_strip_position_vs_charge_CM_corrected_k" << kpix << "_b" << bucket;
+				position_vs_charge_CM_corrected_r[kpix][bucket] = new TH2F(tmp.str().c_str(), "position vs CM corrected charge; Strip position;  Charge (fC)", 230,919.5,1839.5, 440,-20.5,19.5);
+				
+				
+				tmp.str("");
+				tmp << "left_strip_position_vs_charge_corrected_k" << kpix << "_b" << bucket;
+				position_vs_charge_corrected_l[kpix][bucket] = new TH2F(tmp.str().c_str(), "position vs corrected_charge; Strip position;  Charge (fC)", 230,-0.5,919.5, 20,-0.5,19.5);
+				
+				
+				tmp.str("");
+				tmp << "left_strip_position_vs_charge_CM_corrected_k" << kpix << "_b" << bucket;
+				position_vs_charge_CM_corrected_l[kpix][bucket] = new TH2F(tmp.str().c_str(), "position vs CM corrected charge; Strip position;  Charge (fC)", 230,-0.5,919.5, 440,-20.5,19.5);
+				
+				
+				
 				
 				tmp.str("");
 				tmp << "kpix_position_vs_charge_corrected_k" << kpix << "_b" << bucket;
 				kpix_position_vs_charge_corrected[kpix][bucket] = new TH2F(tmp.str().c_str(), "kpix position vs corrected_charge; KPiX position;  Charge (fC)", 256,-0.5,1023.5, 20,-0.5,19.5);
 				
 				tmp.str("");
-				tmp << "position_vs_charge_k" << kpix << "_b" << bucket;
-				position_vs_charge[kpix][bucket] = new TH2F(tmp.str().c_str(), "position vs charge; Strip position;  Charge (fC)", 230,-0.5,919.5, 200,-0.5,199.5);
+				tmp << "right_strip_position_vs_charge_k" << kpix << "_b" << bucket;
+				position_vs_charge_r[kpix][bucket] = new TH2F(tmp.str().c_str(), "position vs charge; Strip position;  Charge (fC)", 230,919.5, 1839.5, 200,-0.5,199.5);
+				
+				tmp.str("");
+				tmp << "left_strip_position_vs_charge_k" << kpix << "_b" << bucket;
+				position_vs_charge_l[kpix][bucket] = new TH2F(tmp.str().c_str(), "position vs charge; Strip position;  Charge (fC)", 230,-0.5,919.5, 200,-0.5,199.5);
 				
 				tmp.str("");
 				tmp << "fc_response_k" << kpix << "_b" << bucket;
@@ -1116,7 +1149,10 @@ int main ( int argc, char **argv )
 					//cout << "DEBUG: channel in timestmap = " << channel << endl;
 					//cout << "DEBUG: bucket in timestmap = " << bucket << endl;
 				}
-		
+				if (type == 1)
+				{
+					cout << "Temperature... apparently: " << value << endl;
+				}
 		
 				if ( type == KpixSample::Data ) // If event is of type KPiX data
 				{
@@ -1235,10 +1271,25 @@ int main ( int argc, char **argv )
 								fc_response_medCM_subtracted[kpix][4]->Fill(charge_CM_corrected, weight);
 								
 								
-								position_vs_charge[kpix][4]->Fill(kpix2strip_left.at(channel), charge_value, 1.0);
-								position_vs_charge_corrected[kpix][4]->Fill(kpix2strip_left.at(channel), corrected_charge_value_median, 1.0);
-								position_vs_charge_CM_corrected[kpix][4]->Fill(kpix2strip_left.at(channel), charge_CM_corrected, 1.0);
+								position_vs_charge_l[kpix][4]->Fill(kpix2strip_left.at(channel), charge_value, 1.0);
+								position_vs_charge_corrected_l[kpix][4]->Fill(kpix2strip_left.at(channel), corrected_charge_value_median, 1.0);
+								position_vs_charge_CM_corrected_l[kpix][4]->Fill(kpix2strip_left.at(channel), charge_CM_corrected, 1.0);
+								
+								position_vs_charge_r[kpix][4]->Fill(kpix2strip_right.at(channel), charge_value, 1.0);
+								position_vs_charge_corrected_r[kpix][4]->Fill(kpix2strip_right.at(channel), corrected_charge_value_median, 1.0);
+								position_vs_charge_CM_corrected_r[kpix][4]->Fill(kpix2strip_right.at(channel), charge_CM_corrected, 1.0);
+								
 								kpix_position_vs_charge_corrected[kpix][4]->Fill(channel, corrected_charge_value_median, 1.0);
+								
+								position_vs_charge_l[kpix][bucket]->Fill(kpix2strip_left.at(channel), charge_value, 1.0);
+								position_vs_charge_corrected_l[kpix][bucket]->Fill(kpix2strip_left.at(channel), corrected_charge_value_median, 1.0);
+								position_vs_charge_CM_corrected_l[kpix][bucket]->Fill(kpix2strip_left.at(channel), charge_CM_corrected, 1.0);
+								
+								position_vs_charge_r[kpix][bucket]->Fill(kpix2strip_right.at(channel), charge_value, 1.0);
+								position_vs_charge_corrected_r[kpix][bucket]->Fill(kpix2strip_right.at(channel), corrected_charge_value_median, 1.0);
+								position_vs_charge_CM_corrected_r[kpix][bucket]->Fill(kpix2strip_right.at(channel), charge_CM_corrected, 1.0);
+								
+								kpix_position_vs_charge_corrected[kpix][bucket]->Fill(channel, corrected_charge_value_median, 1.0);
 								
 								
 								//bucket seperated
@@ -1260,11 +1311,7 @@ int main ( int argc, char **argv )
 								//fc_response_mean_subtracted_channel[kpix][channel]->Fill(corrected_charge_value_mean, weight);
 								fc_response_median_subtracted_channel[kpix][channel]->Fill(corrected_charge_value_median, weight);
 								
-								
-								position_vs_charge[kpix][bucket]->Fill(kpix2strip_left.at(channel), charge_value, 1.0);
-								position_vs_charge_corrected[kpix][bucket]->Fill(kpix2strip_left.at(channel), corrected_charge_value_median, 1.0);
-								position_vs_charge_CM_corrected[kpix][bucket]->Fill(kpix2strip_left.at(channel), charge_CM_corrected, 1.0);
-								kpix_position_vs_charge_corrected[kpix][bucket]->Fill(channel, corrected_charge_value_median, 1.0);
+							
 							}
 							
 							
@@ -1285,48 +1332,48 @@ int main ( int argc, char **argv )
 			
 			
 			//cout << "New Event" << endl;
-			//clustr Cluster[32];  // Another Cluster class variable
-			//for (int KPIX = 0; KPIX < 32; KPIX++)
-			//{
-				//if (kpixFound[KPIX] == true)
-				//{
-					//if ( strip_events_after_cut[KPIX][0].size() != 0)
-					//{
-						//clustr Input;
+			clustr Cluster[32];  // Another Cluster class variable
+			for (int KPIX = 0; KPIX < 32; KPIX++)
+			{
+				if (kpixFound[KPIX] == true)
+				{
+					if ( strip_events_after_cut[KPIX][0].size() != 0)
+					{
+						clustr Input;
 						
-						//sort(strip_events_after_cut[KPIX][0].begin(), strip_events_after_cut[KPIX][0].end());
+						sort(strip_events_after_cut[KPIX][0].begin(), strip_events_after_cut[KPIX][0].end());
 						
-						//PacMan NomNom; // PacMan class variable
-						//Input.Elements = strip_events_after_cut[KPIX][0];
-						//NomNom.Eater(Input, max_position[KPIX], 9999);
+						PacMan NomNom; // PacMan class variable
+						Input.Elements = strip_events_after_cut[KPIX][0];
+						NomNom.Eater(Input, max_position[KPIX], 9999);
 						
-						//Cluster[KPIX] = NomNom.getCluster();
-						////cout << "1 Charge weighted Cluster Position = " << Cluster[KPIX].CoG << endl;
-						////cout << "1 Cluster Charge = " << Cluster[KPIX].Charge << endl;
-						////cout << "1 Cluster sigma = " << Cluster[KPIX].SigmaCoG << endl;
+						Cluster[KPIX] = NomNom.getCluster();
+						//cout << "1 Charge weighted Cluster Position = " << Cluster[KPIX].CoG << endl;
+						//cout << "1 Cluster Charge = " << Cluster[KPIX].Charge << endl;
+						//cout << "1 Cluster sigma = " << Cluster[KPIX].SigmaCoG << endl;
 						
-						////cout << "Test2 " << Cluster[KPIX].Elements.size() << endl;
-						////cout << "Test3 " << NomNom.getElementssize() << endl;
-						////cout << "Test4 " << test.Elements.size() << endl;
+						//cout << "Test2 " << Cluster[KPIX].Elements.size() << endl;
+						//cout << "Test3 " << NomNom.getElementssize() << endl;
+						//cout << "Test4 " << test.Elements.size() << endl;
 						
-						//Cluster[KPIX].SetParameters();
+						Cluster[KPIX].SetParameters();
 						
-						//cluster_position_r[KPIX][0]->Fill(Cluster[KPIX].CoG);
-						//cluster_charge[KPIX][0]->Fill(Cluster[KPIX].Charge);
-						//cluster_size[KPIX][0]->Fill(Cluster[KPIX].Elements.size());
+						cluster_position_r[KPIX][0]->Fill(Cluster[KPIX].CoG);
+						cluster_charge[KPIX][0]->Fill(Cluster[KPIX].Charge);
+						cluster_size[KPIX][0]->Fill(Cluster[KPIX].Elements.size());
 						
 						
-						////cout << "2 Charge weighted Cluster Position = " << Cluster[KPIX].CoG << endl;
-						////cout << "2 Cluster Charge = " << Cluster[KPIX].Charge << endl;
-						////cout << "2 Cluster sigma = " << Cluster[KPIX].SigmaCoG << endl;
-						////cout << "2 Cluster size = " << Cluster[KPIX].Elements.size() << endl;
-					//}
+						//cout << "2 Charge weighted Cluster Position = " << Cluster[KPIX].CoG << endl;
+						//cout << "2 Cluster Charge = " << Cluster[KPIX].Charge << endl;
+						//cout << "2 Cluster sigma = " << Cluster[KPIX].SigmaCoG << endl;
+						//cout << "2 Cluster size = " << Cluster[KPIX].Elements.size() << endl;
+					}
 					
-				//}
-			//}
-			//double strip_offset_cluster = Cluster[19].CoG - Cluster[17].CoG;
-			//offset_hist_cluster->Fill(strip_offset_cluster);
-			//strip_correlation_cluster->Fill(Cluster[19].CoG, Cluster[17].CoG, 1);
+				}
+			}
+			double strip_offset_cluster = Cluster[19].CoG - Cluster[17].CoG;
+			offset_hist_cluster->Fill(strip_offset_cluster);
+			strip_correlation_cluster->Fill(Cluster[19].CoG, Cluster[17].CoG, 1);
 			 //////////////////////////////////////////////////////////////////////////////////////////////////////
 			// CURRENTLY STATIC PROGRAMMING OF EXT TRIG TRACK FINDING AS A FIRST TEST NEED TO MAKE MORE GENERAL //
 			/////////////////////////////////////////////////////////////////////////////////////////////////////
