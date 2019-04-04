@@ -236,6 +236,7 @@ int main ( int argc, char **argv )
 	TH1F				*fc_response_median_subtracted_channel[32][1024];
 	
 	TH1F				*fc_response_medCM_subtracted[32][5];
+	TH1F				*fc_response_medCM_subtracted_channel[32][1024];
 	
 	TH1F				*mean_charge[32][5];
 	TH1F				*median_charge[32][5];
@@ -645,7 +646,8 @@ int main ( int argc, char **argv )
 	TH1F *offset_hist_cluster = new TH1F("strip_offset_cluster", "strip_offset_43-2_to_59-2; #strips; #entries", 200, -100.5, 99.5);
 	TH2F *strip_correlation_cluster = new TH2F("strip_correlation_cluster", "strip offset Layer 1 to Layer 2; strips of module 1; strips of module 2",230, 919.5, 1819.5, 230, 919.5, 1819.5);
 	
-	
+	TH1F *PacMan_explanation1 = new TH1F("events before clustering", "events before clustering; strip; charge (fC)", 920, 919.5, 1839.5);
+	TH1F *PacMan_explanation2 = new TH1F("events after clustering", "events after clustering; strip; charge (fC)", 920, 919.5, 1839.5);
 	//////////////////////////////////////////
 	// New histogram generation within subfolder structure
 	//////////////////////////////////////////
@@ -1077,6 +1079,10 @@ int main ( int argc, char **argv )
 					tmp << "fc_response_median_subtracted_c" << channel << setw(4) << "_k" << kpix << "_b0";
 					fc_response_median_subtracted_channel[kpix][channel] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", 500,-50.5, 199.5);
 					
+					tmp.str("");
+					tmp << "fc_response_median_made_CMmedian_subtracted_k" << kpix << "_c" << channel << "_b0";
+					fc_response_medCM_subtracted_channel[kpix][channel] = new TH1F(tmp.str().c_str(), "fc_response; Charge (fC); #Entries", response_bins, response_xmin, response_xmax);
+					
 				}
 			}
 		}
@@ -1096,7 +1102,7 @@ int main ( int argc, char **argv )
 	//cluster_cut[17]  = 0.5;
 	//cluster_cut[19]= 1.4;
 	
-	double cluster_cut = 0.75;
+	double cluster_cut = 0.5;
 	
 	int ssignal = 0;
 	int dsignal = 0;
@@ -1149,10 +1155,11 @@ int main ( int argc, char **argv )
 					//cout << "DEBUG: channel in timestmap = " << channel << endl;
 					//cout << "DEBUG: bucket in timestmap = " << bucket << endl;
 				}
-				if (type == 1)
-				{
-					cout << "Temperature... apparently: " << value << endl;
-				}
+				
+				//if (type == 1) //KPiX internal temperature measurement
+				//{
+					//cout << "Temperature... apparently: " << value << endl;
+				//}
 		
 				if ( type == KpixSample::Data ) // If event is of type KPiX data
 				{
@@ -1292,6 +1299,10 @@ int main ( int argc, char **argv )
 								kpix_position_vs_charge_corrected[kpix][bucket]->Fill(channel, corrected_charge_value_median, 1.0);
 								
 								
+								 if (cycle_num == 111 && kpix == 17)
+								{
+									PacMan_explanation1->Fill(kpix2strip_right.at(channel), charge_CM_corrected);
+								}
 								//bucket seperated
 								
 								fc_response[kpix][bucket]->Fill(charge_value, weight);
@@ -1310,6 +1321,8 @@ int main ( int argc, char **argv )
 								fc_response_channel[kpix][channel]->Fill(charge_value, weight);
 								//fc_response_mean_subtracted_channel[kpix][channel]->Fill(corrected_charge_value_mean, weight);
 								fc_response_median_subtracted_channel[kpix][channel]->Fill(corrected_charge_value_median, weight);
+								
+								fc_response_medCM_subtracted_channel[kpix][channel]->Fill(charge_CM_corrected, weight);
 								
 							
 							}
@@ -1342,6 +1355,11 @@ int main ( int argc, char **argv )
 						clustr Input;
 						
 						sort(strip_events_after_cut[KPIX][0].begin(), strip_events_after_cut[KPIX][0].end());
+						cout << "===================" << endl;
+						cout << "Starting new PacMan" << endl;
+						cout << "===================" << endl;
+						cout << endl;
+						
 						
 						PacMan NomNom; // PacMan class variable
 						Input.Elements = strip_events_after_cut[KPIX][0];
@@ -1371,6 +1389,14 @@ int main ( int argc, char **argv )
 					
 				}
 			}
+			if (cycle_num == 111)
+			{
+				for (int hits = 0; hits < Cluster[17].Elements.size(); hits++)
+				{
+					PacMan_explanation2->Fill(Cluster[17].Elements.at(hits).first, Cluster[17].Elements.at(hits).second);
+				}
+			}
+			
 			double strip_offset_cluster = Cluster[19].CoG - Cluster[17].CoG;
 			offset_hist_cluster->Fill(strip_offset_cluster);
 			strip_correlation_cluster->Fill(Cluster[19].CoG, Cluster[17].CoG, 1);
@@ -1513,6 +1539,8 @@ int main ( int argc, char **argv )
 			{
 				if (chanFound[kpix][channel] == true)
 				{
+					double mean = fc_response_median_subtracted_channel[kpix][channel]->GetMean();
+					fc_response_medCM_subtracted_channel[kpix][channel]->Fit("gaus","Rq", "", mean-0.8, mean+0.8);
 					for (int bucket = 0; bucket < 4; bucket++)
 					{
 						pedestals_mean[kpix][bucket]->Fill(pedestal_mean[kpix][channel][bucket]);
@@ -1543,6 +1571,7 @@ int main ( int argc, char **argv )
 				double RMS = fc_response_medCM_subtracted[kpix][bucket]->GetRMS();
 				
 				fc_response_medCM_subtracted[kpix][bucket]->Fit("gaus","Rq", "", mean-0.8, mean+0.8);
+				
 				
 				mean = fc_response_median_subtracted[kpix][bucket]->GetMean();
 				RMS = fc_response_median_subtracted[kpix][bucket]->GetRMS();
