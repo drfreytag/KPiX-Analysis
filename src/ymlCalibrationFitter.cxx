@@ -38,6 +38,8 @@
 
 #include "kpixmap.h"
 #include "kpix_left_and_right.h"
+#include "YmlVariables.h"
+
 
 using namespace std;
 
@@ -161,23 +163,23 @@ double calibCharge ( uint dac, bool positive, bool highCalib ) {
 	if ( dac >= 0xf6 )
 	{
 			volt = 2.5 - ((double)(0xff-dac))*50.0*0.0001;
-			cout << "A " << volt << endl;
+			//cout << "A " << volt << endl;
 	}
 	else
 	{
 		volt =(double)dac * 100.0 * 0.0001;
-		cout << "B " << volt << endl;
+		//cout << "B " << volt << endl;
 	}
 	
 	if ( positive )
 	{
 		 charge = (2.5 - volt) * 200e-15;
-		 cout << "C " << charge << endl;
+		 //cout << "C " << charge << endl;
 	 }
 	else
 	{
 		 charge = volt * 200e-15;
-		cout << "D " << charge << endl;
+		//cout << "D " << charge << endl;
 	}
 	
 	if ( highCalib ) charge *= 22.0;
@@ -185,29 +187,6 @@ double calibCharge ( uint dac, bool positive, bool highCalib ) {
 	return(charge);
 }
 
-void addDoubleToXml ( ofstream *xml, uint indent, string variable, Double_t value ) {
-  uint x;
-  
-  if ( ! isnan(value) ) {
-    for (x=0; x < indent; x++){
-      *xml << " ";
-      *xml << "<" << variable << ">";
-      *xml << value;
-      *xml << "</" << variable << ">";
-      *xml << endl;
-    }
-  }
-}
-  
-void addStringToXml ( ofstream *xml, uint indent, string variable, string value ) {
-  uint x;
-  
-  for (x=0; x < indent; x++) *xml << " ";
-  *xml << "<" << variable << ">";
-  *xml << value;
-  *xml << "</" << variable << ">";
-  *xml << endl;
-}
 
 
 // Process the data
@@ -222,11 +201,11 @@ int main ( int argc, char **argv ) {
   uint                   calDac;
   uint                   lastPct;
   uint                   currPct;
-  bool                   chanFound[32][1024];
-  ChannelData            *chanData[32][1024][4][2];
-  bool                   badMean[32][1024];
-  bool                   badGain[32][1024];
-  bool                   kpixFound[32];
+  bool                   chanFound[24][1024];
+  ChannelData            *chanData[24][1024][4][2];
+  bool                   badMean[24][1024];
+  bool                   badGain[24][1024];
+  bool                   kpixFound[24];
   uint                   kpixMax;
   uint                   minDac;
   uint                   minChan;
@@ -244,43 +223,39 @@ int main ( int argc, char **argv ) {
   TH1F                   *resid[256];
   stringstream           tmp;
  // bool                   defresid=true;
-  ofstream               xml;
-  ofstream               csv;
   double                 grX[256];
+  double                 grDAC[256];
   double                 grY[256];
   double                 grYErr[256];
   double                 grXErr[256];
   double                 grRes[256];
   uint                   grCount;
   TGraphErrors           *grCalib;
+  TGraphErrors           *grCalibDAC;
   TF1                    *fitCalib;
+  TF1                    *fitCalibDAC;
   TGraph                 *grResid;
-  bool                   positive;
+  bool                   positive[24];
   bool                   b0CalibHigh;
   uint                   injectTime[5];
   uint                   eventCount;
   uint                   eventProcessed; // eventCount - skipped_cycles
   uint                   Baseline_eventCount;
   uint                   Inject_eventCount;
-  
+  ofstream               logfile;
   uint                   skip_cycles_front;
   FILE*                  f_skipped_cycles;
   string                 outtxt;
   
   string                 outRoot;
-  string                 outXml;
-  string                 outCsv;
   TFile                  *rFile;
   TCanvas                *c1;
   char                   tstr[200];
   struct tm              *timeinfo;
   time_t                 tme;
   uint                   crChan;
-  stringstream           crossString;
-  stringstream           crossStringCsv;
   double                 crossDiff;
   uint                   badValue;
-  XmlVariables           config;
   bool                   findBadMeanHist;
   bool                   findBadMeanFit;
   bool                   findBadMeanChisq;
@@ -316,280 +291,297 @@ int main ( int argc, char **argv ) {
   uint                    errorSigmaCnt;
   stringstream			 FolderName;
   
-	TH1F				*pedestals[32][4];
-	TH1F				*pedestals_fc_0_127[32][4];
-	TH1F				*slope_hist[32][4];
-	TH1F				*slope_hist_conn[32][4];
-	TH1F				*slope_hist_disc[32][4];
-	TH1F				*slope_hist_0_127[32][4];
-	TH1F				*slope_residual[32][4];
-	TH1F				*pedestals_fc[32][4];
-	TH1F				*pedestalsRMS_fc[32][4];
-	TH1F				*pedestalsRMS_fc_0_127[32][4];
-	TH1F				*pedestalsRMS_fc_disc[32][4];
-	TH1F				*pedestalsRMS_fc_conn[32][4];
-	TH1F				*slopeRMS[32][4];
-	TH1F				*slope_vs_channel[32][4];
-	TH1F				*slope_vs_right_strip[32][4];
-	TH1F				*slope_vs_left_strip[32][4];
-	TH1F				*RMSfC_vs_channel[32][4];
+	TH1F				*pedestals[24][4];
+	TH1F				*pedestals_fc_0_127[24][4];
+	TH1F				*slope_hist[24][4];
+	TH1F				*slope_hist_conn[24][4];
+	TH1F				*slope_hist_disc[24][4];
+	TH1F				*slope_hist_0_127[24][4];
+	TH1F				*slope_residual[24][4];
+	TH1F				*pedestals_fc[24][4];
+	TH1F				*pedestalsRMS_fc[24][4];
+	TH1F				*pedestalsRMS_fc_0_127[24][4];
+	TH1F				*pedestalsRMS_fc_disc[24][4];
+	TH1F				*pedestalsRMS_fc_conn[24][4];
+	TH1F				*slopeRMS[24][4];
+	TH1F				*slope_vs_channel[24][4];
+	TH1F				*slope_vs_right_strip[24][4];
+	TH1F				*slope_vs_left_strip[24][4];
+	TH1F				*RMSfC_vs_channel[24][4];
   
   
   
-  uint 					noise_cut = 1.0;
-
- // bool                    printalot=false;
-  
-  unordered_map<uint, uint> kpix2strip_left;
-  unordered_map<uint, uint> kpix2strip_right;
-  kpix2strip_left = kpix_left();
-  kpix2strip_right = kpix_right();
-  
-  // Init structure
-  for (kpix=0; kpix < 32; kpix++) {
-    for (channel=0; channel < 1024; channel++) {
-      for (bucket=0; bucket < 4; bucket++) {
-	chanData[kpix][channel][bucket][0] = NULL;
-	chanData[kpix][channel][bucket][1] = NULL;
-      }
-      chanFound[kpix][channel] = false;
-      badGain[kpix][channel] = false;
-      badMean[kpix][channel] = false;
-    }
-    kpixFound[kpix] = false;
-  }
-  
-  // Data file is the first and only arg
-  if ( argc < 3 && argc >5 ) {
-    cout << "Usage: new_calibrationFitter config_file data_file [skip_cycles_front] [debug]\n";
-    return(1);
-  }
-  
-   if ( argc >= 4 ){
-    skip_cycles_front = atoi( argv[3] );
-    cout<< " -- I am skipping first events: " << skip_cycles_front << endl;
-    tmp.str("");
-    tmp << argv[2] << ".printSkipped.txt";
-    outtxt = tmp.str();
-    f_skipped_cycles = fopen(outtxt.c_str(), "w");
-   }
-   else skip_cycles_front = 0;
-   
-   if ( argc == 5 ) debug.open(argv[4],ios::out | ios::trunc);
-
-  
-  // Read configuration
-  if ( ! config.parseFile("config",argv[1]) ) {
-    cout << "Failed to read configuration from " << argv[1] << endl;
-    return(1);
-  }
-
-  // Extract configuration values
-  findBadMeanHist  = config.getInt("FindBadMeanHist");
-  findBadMeanFit   = config.getInt("FindBadMeanFit");
-  meanMin[0]       = config.getDouble("GoodMeanMinR0");
-  meanMax[0]       = config.getDouble("GoodMeanMaxR0");
-  meanMin[1]       = config.getDouble("GoodMeanMinR1");
-  meanMax[1]       = config.getDouble("GoodMeanMaxR1");
-  findBadMeanChisq = config.getInt("FindBadMeanChisq");
-  meanChisq        = config.getInt("GoodMeanChisqMax");
-  findBadGainFit   = config.getInt("FindBadGainFit");
-  gainMin[0]       = config.getDouble("GoodGainMinR0");
-  gainMax[0]       = config.getDouble("GoodGainMaxR0");
-  gainMin[1]       = config.getDouble("GoodGainMinR1");
-  gainMax[1]       = config.getDouble("GoodGainMaxR1");
-  findBadGainChisq = config.getInt("FindBadGainChisq");
-  gainChisq        = config.getInt("GoodGainChisqMax");
-  fitMin[0]        = config.getDouble("GainFitMinR0");
-  fitMax[0]        = config.getDouble("GainFitMaxR0");
-  fitMin[1]        = config.getDouble("GainFitMinR1");
-  fitMax[1]        = config.getDouble("GainFitMaxR1");
-  chargeError[0]   = config.getDouble("GainChargeErrorR0");
-  chargeError[1]   = config.getDouble("GainChargeErrorR1");
-
-  // Init a customized pol1, fit range will be re-range in fit()
-  fitCalib = new TF1("fitCalib", "pol1",fitMin[0],fitMax[0] );
-  fitCalib -> FixParameter( 0, 0 ); // offset to 0
-  //fitCalib -> SetParameter( 0, 0 );
-  fitCalib -> SetParameter( 1, 15); // slope
- 
-
-  // Open data file
-  if ( ! dataRead.open(argv[2]) ) {
-    cout << "Error opening data file " << argv[2] << endl;
-    return(1);
-  }
-  
-  // Create output names
-  tmp.str("");
-  if (skip_cycles_front==0){
-    tmp << argv[2] << ".newCalib.root";
-    outRoot = tmp.str();
-    
-    tmp.str("");
-    tmp << argv[2] << ".newCalib.xml";
-    outXml = tmp.str();
-    
-    tmp.str("");
-    tmp << argv[2] << ".newCalib.csv";
-    outCsv = tmp.str();
-  }
-  else{
-    tmp << argv[2] << ".skip" << skip_cycles_front <<".newCalib.root";
-    outRoot = tmp.str();
-
-    tmp.str("");
-    tmp << argv[2] << ".skip" << skip_cycles_front << ".newCalib.xml";
-    outXml = tmp.str();
-    tmp.str("");
-    tmp << argv[2] << ".skip" << skip_cycles_front << ".newCalib.csv";
-    outCsv = tmp.str();
-  }
-  
-  
-  //////////////////////////////////////////
-  // Read Data
-  //////////////////////////////////////////
-  cout << "Opened data file: " << argv[2] << endl;
-  fileSize = dataRead.size();
-  filePos  = dataRead.pos();
-  
-  // Init
-  currPct          	= 0;
-  lastPct          	= 100;
-  eventCount       	= 0;
-  eventProcessed        = 0;
-  Inject_eventCount     = 0;
-  Baseline_eventCount   = 0;
-  minChan          	= 0;
-  maxChan          	= 0;
-  badTimes         	= 0;
-  badMeanFitCnt    	= 0;
-  badMeanHistCnt   	= 0;
-  badMeanChisqCnt  	= 0;
-  badGainFitCnt    	= 0;
-  badGainChisqCnt 	= 0;
-  failedGainFit   	= 0;
-  failedMeanFit   	= 0;
-  badChannelCnt   	= 0;
-  noiseSigmaCnt		= 0;
-  errorSigmaCnt		= 0;
-  cout << "\rReading File: 0 %" << flush;
-  goodTimes       	= 0;
-
-  // start - work in progress - wmq - Apr 11 2018
-  /* KpixEvent etest;
-  for (int it = 0; it<10; it++){
-    dataRead.next(&etest);
-    auto byte = etest.count();
-    auto itrn = etest.eventNumber();
-    printf(" index = %d , byte = %6d, train = %6d\n ", it, byte, itrn);
-
-  }
-  dataRead.close();
-  dataRead.open(argv[2]);*/
-  // end - work in progress - wmq - Apr 11 2018
-  
-  // Process each event
-  while ( dataRead.next(&event) ) {
-    
-    
-    // Get calibration state
-    calState   = dataRead.getStatus("CalState");
-    calChannel = dataRead.getStatusInt("CalChannel");
-    calDac     = dataRead.getStatusInt("CalDac");
-
-    // Get injection times
-    /* 
-     * 2018-04-11 by mengqing
-     * - to check: if skipping event, should we get injection times from 1) #0 event 2) or 1st event to use?
-     * - now using info from #0 evt;
-     * - optional: if you want the alternative: change eventCount to eventProcessed
-     */
-    if ( eventCount == 0 ) { 
-      minDac        = dataRead.getConfigInt("CalDacMin");
-      minChan       = dataRead.getConfigInt("CalChanMin");
-      maxChan       = dataRead.getConfigInt("CalChanMax");
-      injectTime[0] = dataRead.getConfigInt("cntrlFpga:kpixAsic:Cal0Delay");
-      injectTime[1] = dataRead.getConfigInt("cntrlFpga:kpixAsic:Cal1Delay") + injectTime[0] + 4;
-      injectTime[2] = dataRead.getConfigInt("cntrlFpga:kpixAsic:Cal2Delay") + injectTime[1] + 4;
-      injectTime[3] = dataRead.getConfigInt("cntrlFpga:kpixAsic:Cal3Delay") + injectTime[2] + 4;
-      injectTime[4] = 8192;
-    }
-
-    if ( eventCount >= skip_cycles_front){
-    
-    // get each sample
-    for (x=0; x < event.count(); x++) {
-      
-      // Get sample
-      sample  = event.sample(x);
-      kpix    = sample->getKpixAddress();
-      channel = sample->getKpixChannel();
-      bucket  = sample->getKpixBucket();
-      value   = sample->getSampleValue();
-      type    = sample->getSampleType();
-      tstamp  = sample->getSampleTime();
-      range   = sample->getSampleRange();
-      
-      // Only process real samples in the expected range
-      if ( type == KpixSample::Data ) {
+	uint 					noise_cut = 1.0;
 	
-	// Create entry if it does not exist
-	kpixFound[kpix]          = true;
-	chanFound[kpix][channel] = true;
-	if ( chanData[kpix][channel][bucket][range] == NULL ) chanData[kpix][channel][bucket][range] = new ChannelData;
+	// bool                    printalot=false;
 	
+	unordered_map<uint, uint> kpix2strip_left;
+	unordered_map<uint, uint> kpix2strip_right;
+	kpix2strip_left = kpix_left();
+	kpix2strip_right = kpix_right();
 	
-	// Non calibration based run. Fill mean, ignore times
-	if ( calState == "Idle" ) chanData[kpix][channel][bucket][range]->addBasePoint(value);
-	
-	// Filter for time
-	else if ( tstamp > injectTime[bucket] && tstamp < injectTime[bucket+1] ) {
-	  goodTimes++;
-	  //cout << "Timestamp = " << tstamp << endl;
-	  //cout << "Inject time of Bucket " << bucket << " = " << injectTime[bucket] << endl;
-	  //cout << "Inject time of Bucket " << bucket+1 << " = " << injectTime[bucket+1] << endl << endl;
-	  // Baseline
-	  if ( calState == "Baseline" ) {
-	    chanData[kpix][channel][bucket][range]->addBasePoint(value);
-	  }
-	  
-	  // Injection
-	  else if ( calState == "Inject" && calDac != minDac ) {
-	    if ( channel == calChannel ) chanData[kpix][channel][bucket][range]->addCalibPoint(calDac, value);
-	    else{
-	      if ( chanData[kpix][calChannel][bucket][range] != NULL )
-		chanData[kpix][calChannel][bucket][range]->addNeighborPoint(channel, calDac, value);
-	      else cout<< "\n [Warn] Super Weird to check channel = "<< channel << endl;
-	    }
-	  }
-	}
-	else {
-	  badTimes++;
-	  //cout << "Timestamp = " << tstamp << endl;
-	  //cout << "Inject time of Bucket " << bucket << " = " << injectTime[bucket] << endl;
-	  //cout << "Inject time of Bucket " << bucket+1 << " = " << injectTime[bucket+1] << endl << endl;
+	// Init structure
+	for (kpix=0; kpix < 24; kpix++) {
+		for (channel=0; channel < 1024; channel++) {
+			for (bucket=0; bucket < 4; bucket++) {
+				chanData[kpix][channel][bucket][0] = NULL;
+				chanData[kpix][channel][bucket][1] = NULL;
+			}
+			chanFound[kpix][channel] = false;
+			badGain[kpix][channel] = false;
+			badMean[kpix][channel] = false;
+		}
+		kpixFound[kpix] = false;
 	}
 	
-      }
-    }
-    eventProcessed++;
+	// Data file is the first and only arg
+	if ( argc < 3 && argc >5 ) {
+		cout << "Usage: new_calibrationFitter config_file data_file [skip_cycles_front] [debug]\n";
+		return(1);
+	}
+	
+	if ( argc >= 4 ){
+		skip_cycles_front = atoi( argv[3] );
+		cout<< " -- I am skipping first events: " << skip_cycles_front << endl;
+		tmp.str("");
+		tmp << argv[2] << ".printSkipped.txt";
+		outtxt = tmp.str();
+		f_skipped_cycles = fopen(outtxt.c_str(), "w");
+	}
+	else skip_cycles_front = 0;
+	
+	if ( argc == 5 ) debug.open(argv[4],ios::out | ios::trunc);
+	
+	
+	//// Read configuration
+	//if ( ! config.parseFile("config",argv[1]) ) {
+		//cout << "Failed to read configuration from " << argv[1] << endl;
+		//return(1);
+	//}
+	
+	// Extract configuration values
+	//findBadMeanHist  = config.getInt("FindBadMeanHist");
+	//findBadMeanFit   = config.getInt("FindBadMeanFit");
+	//meanMin[0]       = config.getDouble("GoodMeanMinR0");
+	//meanMax[0]       = config.getDouble("GoodMeanMaxR0");
+	//meanMin[1]       = config.getDouble("GoodMeanMinR1");
+	//meanMax[1]       = config.getDouble("GoodMeanMaxR1");
+	//findBadMeanChisq = config.getInt("FindBadMeanChisq");
+	//meanChisq        = config.getInt("GoodMeanChisqMax");
+	//findBadGainFit   = config.getInt("FindBadGainFit");
+	//gainMin[0]       = config.getDouble("GoodGainMinR0");
+	//gainMax[0]       = config.getDouble("GoodGainMaxR0");
+	//gainMin[1]       = config.getDouble("GoodGainMinR1");
+	//gainMax[1]       = config.getDouble("GoodGainMaxR1");
+	//findBadGainChisq = config.getInt("FindBadGainChisq");
+	//gainChisq        = config.getInt("GoodGainChisqMax");
+	//fitMin[0]        = config.getDouble("GainFitMinR0");
+	//fitMax[0]        = config.getDouble("GainFitMaxR0");
+	//fitMin[1]        = config.getDouble("GainFitMinR1");
+	//fitMax[1]        = config.getDouble("GainFitMaxR1");
+	//chargeError[0]   = config.getDouble("GainChargeErrorR0");
+	//chargeError[1]   = config.getDouble("GainChargeErrorR1");
+	
+	// Init a customized pol1, fit range will be re-range in fit()
+	fitCalib = new TF1("fitCalib", "pol1",fitMin[0],fitMax[0] );
+	fitCalib -> FixParameter( 0, 0 ); // offset to 0
+	//fitCalib -> SetParameter( 0, 0 );
+	fitCalib -> SetParameter( 1, 15); // slope
+	
+	
+	////// Open data file +++++++++++++++++++++
+	if ( argc != 2 ) {
+		cout << "\nUsage: \ncalibrationFitter data_file \n\n";
+		return(1);
+	}
+	
+	// Open data file
+	if ( ! dataRead.open(argv[1]) ) {
+		cout << "Error opening data file " << argv[1] << endl;
+		return(1);
+	}
+	
+	// debug log:
+	if (debug){
+		cout << "open a debug log file"<< endl;
+		logfile.open("debug.log", std::ofstream::out);
+	}
+	
+	
+	// Create output names
+	tmp.str("");
+	tmp << argv[1] << ".ymlcalib.root";
+	outRoot = tmp.str();
+		
+	rFile = new TFile(outRoot.c_str(),"recreate");
+	
+	//////////////////////////////////////////
+	// Read Data
+	//////////////////////////////////////////
+	//cout << "Opened data file: " << argv[2] << endl; ++++++++++++++++++++++++
+	fileSize = dataRead.size();
+	filePos  = dataRead.pos();
+	
+	// Init
+	currPct          	= 0;
+	lastPct          	= 100;
+	eventCount       	= 0;
+	eventProcessed        = 0;
+	Inject_eventCount     = 0;
+	Baseline_eventCount   = 0;
+	minChan          	= 0;
+	maxChan          	= 0;
+	badTimes         	= 0;
+	badMeanFitCnt    	= 0;
+	badMeanHistCnt   	= 0;
+	badMeanChisqCnt  	= 0;
+	badGainFitCnt    	= 0;
+	badGainChisqCnt 	= 0;
+	failedGainFit   	= 0;
+	failedMeanFit   	= 0;
+	badChannelCnt   	= 0;
+	noiseSigmaCnt		= 0;
+	errorSigmaCnt		= 0;
+	cout << "\rReading File: 0 %" << flush;
+	goodTimes       	= 0;
+	
+	// start - work in progress - wmq - Apr 11 2018
+	/* KpixEvent etest;
+	for (int it = 0; it<10; it++){
+		dataRead.next(&etest);
+		auto byte = etest.count();
+		auto itrn = etest.eventNumber();
+		printf(" index = %d , byte = %6d, train = %6d\n ", it, byte, itrn);
+	
+	}
+	dataRead.close();
+	dataRead.open(argv[2]);*/
+	// end - work in progress - wmq - Apr 11 2018
+	
+	
+	
+	
+	
+	// Process each event +++++++++++++++++++++++
+	while ( dataRead.next(&event) ) {
+		
+		
+		if ( eventCount == 0 ) {
+	
+			minDac        = dataRead.getYmlStatusInt("CalDacMin");
+			minChan       = dataRead.getYmlStatusInt("CalChanMin");
+			maxChan       = dataRead.getYmlStatusInt("CalChanMax");
+			
+			for (int k = 0; k < 24; ++k && positive )
+			{
+				
+				tmp.str("");
+				tmp << "KpixDaqCore:KpixAsicArray:KpixAsic[" << k << "]:CntrlPolarity";
+				positive[k] = (dataRead.getYmlConfig(tmp.str()) == "Positive");
+			}
+			
+			
+			logfile << "CalDacMin : " << minDac <<endl;
+			logfile << "CalChanMin, Max : " << minChan << ", " << maxChan << endl;
+			
+			injectTime[0] = dataRead.getYmlConfigInt("KpixDaqCore:KpixAsicArray:KpixAsic[24]:Cal0Delay");
+			injectTime[1] = dataRead.getYmlConfigInt("KpixDaqCore:KpixAsicArray:KpixAsic[24]:Cal1Delay") + injectTime[0] + 4;
+			injectTime[2] = dataRead.getYmlConfigInt("KpixDaqCore:KpixAsicArray:KpixAsic[24]:Cal2Delay") + injectTime[1] + 4;
+			injectTime[3] = dataRead.getYmlConfigInt("KpixDaqCore:KpixAsicArray:KpixAsic[24]:Cal3Delay") + injectTime[2] + 4;
+			injectTime[4] = 8192;
+			
+			logfile << "CalDelay : [" << dec
+				<< injectTime[0] << ", "	
+				<< injectTime[1] << ", "
+				<< injectTime[2] << ", "
+				<< injectTime[3] << ", "
+				<< injectTime[4] << "]" << endl;
+		}
+		
+		// Get calibration state
+		calState   = dataRead.getYmlStatus("CalState");
+		calChannel = dataRead.getYmlStatusInt("CalChannel");
+		calDac     = dataRead.getYmlStatusInt("CalDac");
+	
+		bool foundCalChannel = false;
+		
+		logfile << "CalState :" << calState << "\n"
+			<< "CalChannel : " << calChannel << "\n"
+			<< "CalDac :     " << calDac << "\n";
+	
+		if ( eventCount >= skip_cycles_front){
+		
+		// get each sample
+		for (x=0; x < event.count(); x++) {
+			
+			// Get sample
+			sample  = event.sample(x);
+			kpix    = sample->getKpixAddress();
+			channel = sample->getKpixChannel();
+			bucket  = sample->getKpixBucket();
+			value   = sample->getSampleValue();
+			type    = sample->getSampleType();
+			tstamp  = sample->getSampleTime();
+			range   = sample->getSampleRange();
+			
+			// Only process real samples in the expected range
+			if ( type == KpixSample::Data ) {
+				
+				// Create entry if it does not exist
+				kpixFound[kpix]          = true;
+				chanFound[kpix][channel] = true;
+				if ( chanData[kpix][channel][bucket][range] == NULL ) chanData[kpix][channel][bucket][range] = new ChannelData;
+				
+				
+				// Non calibration based run. Fill mean, ignore times
+				if ( calState == "Idle" ) chanData[kpix][channel][bucket][range]->addBasePoint(value);
+				
+				// Filter for time
+				else if ( tstamp > injectTime[bucket] && tstamp < injectTime[bucket+1] ) {
+					goodTimes++;
+					//cout << "Timestamp = " << tstamp << endl;
+					//cout << "Inject time of Bucket " << bucket << " = " << injectTime[bucket] << endl;
+					//cout << "Inject time of Bucket " << bucket+1 << " = " << injectTime[bucket+1] << endl << endl;
+					// Baseline
+					if ( calState == "Baseline" ) {
+						chanData[kpix][channel][bucket][range]->addBasePoint(value);
+					}
+					
+					// Injection
+					else if ( calState == "Inject" && calDac != minDac ) {
+						if ( channel == calChannel ) chanData[kpix][channel][bucket][range]->addCalibPoint(calDac, value);
+						else{
+							if ( chanData[kpix][calChannel][bucket][range] != NULL )
+							chanData[kpix][calChannel][bucket][range]->addNeighborPoint(channel, calDac, value);
+							else cout<< "\n [Warn] Super Weird to check channel = "<< channel << endl;
+						}
+					}
+				}
+				else {
+					badTimes++;
+					//cout << "Timestamp = " << tstamp << endl;
+					//cout << "Inject time of Bucket " << bucket << " = " << injectTime[bucket] << endl;
+					//cout << "Inject time of Bucket " << bucket+1 << " = " << injectTime[bucket+1] << endl << endl;
+				}
+				
+			}
+		}
+		eventProcessed++;
     } // skip cycle ends
     else {
-      auto byte = event.count();
-      auto train = event.eventNumber();
-      if (f_skipped_cycles!=NULL)
-	fprintf(f_skipped_cycles, " index = %d , byte = %6d, train = %6d, CalState = %s\n ", eventCount, byte, train, calState.c_str());
-      
+		auto byte = event.count();
+		auto train = event.eventNumber();
+		if (f_skipped_cycles!=NULL)
+		fprintf(f_skipped_cycles, " index = %d , byte = %6d, train = %6d, CalState = %s\n ", eventCount, byte, train, calState.c_str());
+		
     }
-    
-    // Show progress
-    filePos  = dataRead.pos();
-    currPct = (uint)(((double)filePos / (double)fileSize) * 100.0);
-    if ( currPct != lastPct ) {
-      cout << "\rReading File: " << currPct << " %      " << flush;
-      lastPct = currPct;
+	
+	// Show progress
+	filePos  = dataRead.pos();
+	currPct = (uint)(((double)filePos / (double)fileSize) * 100.0);
+	if ( currPct != lastPct ) {
+		cout << "\rReading File: " << currPct << " %      " << flush;
+		lastPct = currPct;
     }
     
     eventCount++;
@@ -614,56 +606,16 @@ int main ( int argc, char **argv ) {
   // Default canvas
   c1 = new TCanvas("c1","c1");
 	
-  // Open root file
-  rFile = new TFile(outRoot.c_str(),"recreate");
-  
-  // Open xml file
-  xml.open(outXml.c_str(),ios::out | ios::trunc);
-  xml << "<calibrationData>" << endl;
-  
-  // Open csv file
-  csv.open(outCsv.c_str(),ios::out | ios::trunc);
-  csv << "Kpix,Channel,Bucket,Range,BaseMean,BaseRms,BaseFitMean,BaseFitSigma";
-  csv << ",BaseFitMeanErr,BaseFitSigmaErr,BaseFitChisquare";
-  csv << ",CalibGain,CalibIntercept,CalibGainErr,CalibInterceptErr,CalibChisquare";
-  csv << ",CalibGainRms,CrossTalkChan0,CrossTalkAmp0";
-  csv << ",CrossTalkChan1,CrossTalkAmp1";
-  csv << ",CrossTalkChan2,CrossTalkAmp2";
-  csv << ",CrossTalkChan3,CrossTalkAmp3";
-  csv << ",CrossTalkChan4,CrossTalkAmp4";
-  csv << ",CrossTalkChan5,CrossTalkAmp5";
-  csv << ",CrossTalkChan6,CrossTalkAmp6";
-  csv << ",CrossTalkChan7,CrossTalkAmp7";
-  csv << ",CrossTalkChan8,CrossTalkAmp8";
-  csv << ",CrossTalkChan9,CrossTalkAmp9";
-  csv << endl;
-  
-  // Open noise/bad channel list files
-  channel_file_bad.open ("~/channel_list_bad.txt");
-  channel_file_bad_fit.open ("~/channel_list_bad_fit.txt");
-  channel_file_noise.open ("./channel_list_noise.txt");
-  channel_file_calib.open("~/channel_list_calib.txt");
-  channel_file_adc_mean.open("~/channel_adc_mean.txt");
-  // Add notes
-  xml << "   <sourceFile>" << argv[2] << "</sourceFile>" << endl;
-  xml << "   <user>" <<  getlogin() << "</user>" << endl;
-
-  time(&tme);
-  timeinfo = localtime(&tme);
-  strftime(tstr,200,"%Y_%m_%d_%H_%M_%S",timeinfo);
-  xml << "   <timestamp>" << tstr << "</timestamp>" << endl;
-  xml << "   <config>"<< endl;
-  xml << config.getXml();
-  xml << "   </config>"<< endl;
   
    
   
   // get calibration mode variables for charge computation
-  positive    = (dataRead.getConfig("cntrlFpga:kpixAsic:CntrlPolarity") == "Positive");
+  //positive    = (dataRead.getConfig("cntrlFpga:kpixAsic:CntrlPolarity") == "Positive");
   b0CalibHigh = (dataRead.getConfig("cntrlFpga:kpixAsic:CntrlCalibHigh") == "True");
+
   
   // Kpix count;
-  for (kpix=0; kpix<32; kpix++) if ( kpixFound[kpix] ) kpixMax=kpix;
+  for (kpix=0; kpix<24; kpix++) if ( kpixFound[kpix] ) kpixMax=kpix;
   
   //////////////////////////////////////////
   // Process Baselines 
@@ -671,7 +623,7 @@ int main ( int argc, char **argv ) {
   
   // Process each kpix device
   
-	for (kpix = 0; kpix < 32; kpix++) //looping through all possible kpix
+	for (kpix = 0; kpix < 24; kpix++) //looping through all possible kpix
 	{
 		//
 		//cout << "DEBUG test " << kpixFound[kpix] << endl;
@@ -786,7 +738,7 @@ int main ( int argc, char **argv ) {
   TDirectory *pedestal_folder = rFile->GetDirectory(FolderName.str().c_str()); // get path to subdirectory
   pedestal_folder->cd(); // move into subdirectory
   
-for (kpix=0; kpix<32; kpix++) 
+for (kpix=0; kpix<24; kpix++) 
 {
     if ( kpixFound[kpix] ) 
     {
@@ -962,7 +914,7 @@ for (kpix=0; kpix<32; kpix++)
   TDirectory *calibration_folder = rFile->GetDirectory(FolderName.str().c_str()); // get path to subdirectory
   calibration_folder->cd(); // move into subdirectory
   // Process each kpix device
-for (kpix=0; kpix<32; kpix++)
+for (kpix=0; kpix<24; kpix++)
 {
 	if ( kpixFound[kpix] )
 	{ 
@@ -971,7 +923,6 @@ for (kpix=0; kpix<32; kpix++)
 		tmp.str("");
 		tmp << "cntrlFpga(0):kpixAsic(" << dec << kpix << "):SerialNumber";
 		serial = dataRead.getConfig(tmp.str());
-		xml << "   <kpixAsic id=\"" << serial << "\">" << endl;
 		
 		// Process each channel
 		for (channel=minChan; channel <= maxChan; channel++) 
@@ -986,8 +937,6 @@ for (kpix=0; kpix<32; kpix++)
 			if ( chanFound[kpix][channel] ) 
 			{
 
-				// Start channel marker
-				xml << "      <Channel id=\"" << channel << "\">" << endl;
 	  
 				// Each bucket
 				for (bucket = 0; bucket < 4; bucket++) 
@@ -996,7 +945,6 @@ for (kpix=0; kpix<32; kpix++)
 					// Bucket is valid
 					if ( chanData[kpix][channel][bucket][0] != NULL || chanData[kpix][channel][bucket][1] != NULL ) 
 					{
-						xml << "         <Bucket id=\"" << bucket << "\">" << endl;
 	      
 						// Each range
 						for (range = 0; range < 2; range++) 
@@ -1005,42 +953,19 @@ for (kpix=0; kpix<32; kpix++)
 							// Range is valid
 							if ( chanData[kpix][channel][bucket][range] != NULL ) 
 							{
-								xml << "            <Range id=\"" << range << "\">" << endl;
 								chanData[kpix][channel][bucket][range]->computeCalib(chargeError[range]);
-								csv << serial << "," << dec << channel << "," << dec << bucket << "," << dec << range;
 								
-								// Add baseline data to xml
-								addDoubleToXml(&xml,15,"BaseMean",chanData[kpix][channel][bucket][range]->baseMean);
-								addDoubleToXml(&xml,15,"BaseRms",chanData[kpix][channel][bucket][range]->baseRms);
-								if ( chanData[kpix][channel][bucket][range]->baseFitMean != 0 ) 
-								{
-									addDoubleToXml(&xml,15,"BaseFitMean",chanData[kpix][channel][bucket][range]->baseFitMean);
-									addDoubleToXml(&xml,15,"BaseFitSigma",chanData[kpix][channel][bucket][range]->baseFitSigma);
-									addDoubleToXml(&xml,15,"BaseFitMeanErr",chanData[kpix][channel][bucket][range]->baseFitMeanErr);
-									addDoubleToXml(&xml,15,"BaseFitSigmaErr",chanData[kpix][channel][bucket][range]->baseFitSigmaErr);
-									addDoubleToXml(&xml,15,"BaseFitChisquare",chanData[kpix][channel][bucket][range]->baseFitChisquare);
-								}
-							
-								// Add baseline data to excel file
-								csv << "," << chanData[kpix][channel][bucket][range]->baseMean;
-								csv << "," << chanData[kpix][channel][bucket][range]->baseRms;
-								csv << "," << chanData[kpix][channel][bucket][range]->baseFitMean;
-								csv << "," << chanData[kpix][channel][bucket][range]->baseFitSigma;
-								csv << "," << chanData[kpix][channel][bucket][range]->baseFitMeanErr;
-								csv << "," << chanData[kpix][channel][bucket][range]->baseFitSigmaErr;
-								csv << "," << chanData[kpix][channel][bucket][range]->baseFitChisquare;
-								
+					
 								// Create calibration graph
 								grCount = 0;
-								crossString.str("");
-								crossStringCsv.str("");
 								for (x=0; x < 256; x++) 
 								{
 									
 									// Calibration point is valid
 									if ( chanData[kpix][channel][bucket][range]->calibCount[x] > 0 ) 
 									{
-										grX[grCount]    = calibCharge ( x, positive, ((bucket==0)?b0CalibHigh:false));
+										grX[grCount]    = calibCharge ( x, positive[kpix], ((bucket==0)?b0CalibHigh:false));
+										grDAC[grCount]  = x;
 										grY[grCount]    = chanData[kpix][channel][bucket][range]->calibMean[x];
 										grYErr[grCount] = chanData[kpix][channel][bucket][range]->calibError[x];
 										grXErr[grCount] = 0;
@@ -1050,8 +975,7 @@ for (kpix=0; kpix<32; kpix++)
 											<< " Rms=" << chanData[kpix][channel][bucket][range]->calibRms[x]
 											<< " Error=" << chanData[kpix][channel][bucket][range]->calibError[x] << endl;
 										
-										cout << "Charge in fC : DAC = " << grX[grCount] << " : " << x << endl;
-										
+										//cout << "Charge in fC : DAC = " << grX[grCount] << " : " << grDAC[grCount] << endl;
 										grCount++;
 										
 										// Find crosstalk, value - base > 3 * sigma
@@ -1062,19 +986,9 @@ for (kpix=0; kpix<32; kpix++)
 											{
 												
 												crossDiff = chanData[kpix][channel][bucket][range]->calibOtherValue[crChan] - 
-													chanData[kpix][crChan][bucket][range]->baseMean;
+												chanData[kpix][crChan][bucket][range]->baseMean;
 													
-												if ( (chanData[kpix][channel][bucket][range]->calibOtherDac[crChan] == x)  && 
-													(crChan != channel) && 
-													(chanData[kpix][channel][bucket][range] != NULL ) &&
-													(crossDiff > (10.0 * chanData[kpix][crChan][bucket][range]->baseRms))) 
-												{
-													
-													
-													if ( crossString.str() != "" ) crossString << " ";
-													crossString << dec << crChan << ":" << dec << (uint)crossDiff;
-													crossStringCsv << "," << dec << crChan << "," << dec << (uint)crossDiff;
-												}
+												
 											}
 										}
 									}
@@ -1091,6 +1005,14 @@ for (kpix=0; kpix<32; kpix++)
 									grCalib->Fit("pol1","eq","",fitMin[range],fitMax[range]);
 									grCalib->GetFunction("pol1")->SetLineWidth(1);
 									
+									grCalibDAC = new TGraphErrors(grCount,grDAC,grY,grXErr,grYErr);
+									grCalibDAC->Draw("Ap");
+									grCalibDAC->GetXaxis()->SetTitle("Charge [DAC]");
+									grCalibDAC->GetYaxis()->SetTitle("ADC");
+									grCalibDAC->Fit("pol1","eq","",fitMin[range],fitMax[range]);
+									grCalibDAC->GetFunction("pol1")->SetLineWidth(1);
+									
+									
 									// Create name and write
 									tmp.str("");
 									tmp << "calib_" << serial << "_c" << dec << setw(4) << setfill('0') << channel;
@@ -1099,6 +1021,14 @@ for (kpix=0; kpix<32; kpix++)
 									tmp << "_k" << dec << kpix;
 									grCalib->SetTitle(tmp.str().c_str());
 									grCalib->Write(tmp.str().c_str());
+									
+									tmp.str("");
+									tmp << "calib_DAC" << serial << "_c" << dec << setw(4) << setfill('0') << channel;
+									tmp << "_b" << dec << bucket;
+									tmp << "_r" << dec << range;
+									tmp << "_k" << dec << kpix;
+									grCalibDAC->SetTitle(tmp.str().c_str());
+									grCalibDAC->Write(tmp.str().c_str());
 				
 									// Create and store residual plot
 									for (x=0; x < grCount; x++) grRes[x] = (grY[x] - grCalib->GetFunction("pol1")->Eval(grX[x]));
@@ -1163,16 +1093,7 @@ for (kpix=0; kpix<32; kpix++)
 										slope_residual[kpix][bucket]->Fill( offset);
 									
 										
-										addDoubleToXml(&xml,15,"CalibGain",grCalib->GetFunction("pol1")->GetParameter(1));
-										addDoubleToXml(&xml,15,"CalibIntercept",grCalib->GetFunction("pol1")->GetParameter(0));
-										addDoubleToXml(&xml,15,"CalibGainErr",grCalib->GetFunction("pol1")->GetParError(1));
-										addDoubleToXml(&xml,15,"CalibInterceptErr",grCalib->GetFunction("pol1")->GetParError(0));
-										addDoubleToXml(&xml,15,"CalibChisquare",chisqNdf);
-										csv << "," << grCalib->GetFunction("pol1")->GetParameter(1);
-										csv << "," << grCalib->GetFunction("pol1")->GetParameter(0);
-										csv << "," << grCalib->GetFunction("pol1")->GetParError(1);
-										csv << "," << grCalib->GetFunction("pol1")->GetParError(0);
-										csv << "," << chisqNdf;
+								
 				
 										// Determine bad channel from fitted gain
 										if ( findBadGainFit && 
@@ -1198,7 +1119,6 @@ for (kpix=0; kpix<32; kpix++)
 									}
 									else 
 									{
-										csv << ",0,0,0,0,0";
 										if ( findBadGainFit || findBadGainChisq )  
 										{
 											debug << "Kpix=" << dec << kpix << " Channel=" << dec << channel << " Bucket=" << dec << bucket
@@ -1209,17 +1129,12 @@ for (kpix=0; kpix<32; kpix++)
 										}
 									}
 				
-									addDoubleToXml(&xml,15,"CalibGainRms",grCalib->GetRMS(2));
-									csv << "," << grCalib->GetRMS(2);
 									
-									if ( crossString.str() != "" ) addStringToXml(&xml,15,"CalibCrossTalk",crossString.str());
-									csv << crossStringCsv.str();
+
 								}
-								csv << endl; 
-								xml << "            </Range>" << endl;
+
 							}	
 						}
-						xml << "         </Bucket>" << endl;
 					}
 				}
 	  
@@ -1236,17 +1151,12 @@ for (kpix=0; kpix<32; kpix++)
 					badChannelCnt++;
 				}
 		
-				xml << "         <BadChannel>" << dec << badValue << "</BadChannel>" << endl;
-				xml << "      </Channel>" << endl;
 			}
 		}
-		xml << "   </kpixAsic>" << endl;
 	}
 }
   cout << endl;
   cout << "Wrote root plots to " << outRoot << endl;
-  cout << "Wrote xml data to " << outXml << endl;
-  cout << "Wrote csv data to " << outCsv << endl;
   cout << endl;
   
   cout << "Found " << dec << setw(10) << setfill(' ') << badTimes        << " events with bad times" << endl;
@@ -1259,13 +1169,11 @@ for (kpix=0; kpix<32; kpix++)
   cout << "Found " << dec << setw(10) << setfill(' ') << failedGainFit   << " failed gain fits" << endl;
   cout << "Found " << dec << setw(10) << setfill(' ') << badChannelCnt   << " bad channels" << endl;
   
-  xml << "</calibrationData>" << endl;
-  xml.close();
   rFile->Write();
   delete rFile;
   
   // Cleanup
-  for (kpix=0; kpix < 32; kpix++) 
+  for (kpix=0; kpix < 24; kpix++) 
   {
 	for (channel=0; channel < 1024; channel++) 
 	{

@@ -89,9 +89,8 @@ uint32_t YmlVariables::getInt ( std::string var ) {
 std::string YmlVariables::getStr( std::string var ) {
 
   auto iter = _vars.find( var );
-  if ( iter == _vars.end() )
-    return ("");
-  
+  if ( iter == _vars.end() ) return ("");
+
   if (_debug)
     printf(" Find your key : value -> %s : %s\n", (iter->first).c_str(), (iter->second).c_str() );
   

@@ -133,9 +133,9 @@ add_executable(new_CalibrationFitter ${PROJECT_SOURCE_DIR}/src/new_CalibrationFi
 target_link_libraries(new_CalibrationFitter ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
 list(APPEND INSTALL_EXE_TARGETS new_CalibrationFitter)
 
-#add_executable(ymlCalibrationFitter ${PROJECT_SOURCE_DIR}/src/ymlCalibrationFitter.cxx)
-#target_link_libraries(ymlCalibrationFitter ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
-#list(APPEND INSTALL_EXE_TARGETS ymlCalibrationFitter)
+add_executable(ymlCalibrationFitter ${PROJECT_SOURCE_DIR}/src/ymlCalibrationFitter.cxx)
+target_link_libraries(ymlCalibrationFitter ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
+list(APPEND INSTALL_EXE_TARGETS ymlCalibrationFitter)
 
 add_executable(DuoKpix_CalibFitter ${PROJECT_SOURCE_DIR}/src/DuoKpix_CalibFitter.cxx)
 target_link_libraries(DuoKpix_CalibFitter ${ROOT_LIBRARIES} ${LYCORIS_LIBRARIES} ${LIBXML2_LIBRARIES} Dict)
