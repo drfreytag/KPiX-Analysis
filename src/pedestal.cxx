@@ -428,7 +428,7 @@ int main ( int argc, char **argv )
 				{
 					if (calibration_check == 1)
 					{
-						hist[kpix][channel][bucket][0]->Fill(double(value)/calib_slope[kpix][channel]*pow(10,15) , weight);
+						hist[kpix][channel][bucket][0]->Fill(double(value)/calib_slope[kpix][channel] , weight);
 						
 						
 					}
@@ -474,11 +474,10 @@ int main ( int argc, char **argv )
 							 //cout << "KPIX=" << kpix << "  Channel=" << channel << "  Bucket=" << bucket << "       Mean = " <<  hist[kpix][channel][bucket][0]->GetMean() << endl;
 							double mean = hist[kpix][channel][bucket][0]->GetMean();
 							double RMS = hist[kpix][channel][bucket][0]->GetRMS();
-							
 							int firstbin = hist[kpix][channel][bucket][0]->FindFirstBinAbove(0);
 							int lastbin = hist[kpix][channel][bucket][0]->FindLastBinAbove(0);
 							
-							if (calib_slope[kpix][channel]*pow(10,15) > 1 && calib_slope[kpix][channel]*pow(10,15) < 15) hist[kpix][channel][bucket][0]->GetXaxis()->SetRangeUser(firstbin, lastbin);
+							if (calib_slope[kpix][channel] > 1 && calib_slope[kpix][channel] < 15) hist[kpix][channel][bucket][0]->GetXaxis()->SetRangeUser(firstbin, lastbin);
 							double overflow = hist[kpix][channel][bucket][0]->GetBinContent(8001);
 							if ( hist[kpix][channel][bucket][0]->GetBinContent(8001) > 0)
 							{

@@ -1027,7 +1027,7 @@ int main ( int argc, char **argv )
 						trig_diff_list.push_back(0.5);
 						if (calibration_check == 1)
 						{
-							hist[kpix][channel][bucket][0]->Fill(double(value)/calib_slope[kpix][channel]*pow(10,15) , weight);
+							hist[kpix][channel][bucket][0]->Fill(double(value)/calib_slope[kpix][channel]/* *pow(10,15) */ , weight);
 							
 							
 						}
@@ -1110,7 +1110,7 @@ int main ( int argc, char **argv )
 							{
 								if (calibration_check == 1)
 								{
-									hist_timed[kpix][channel][bucket][0]->Fill(double(value)/calib_slope[kpix][channel]*pow(10,15), weight);
+									hist_timed[kpix][channel][bucket][0]->Fill(double(value)/calib_slope[kpix][channel]/* *pow(10,15) */, weight);
 								}
 								else
 								{

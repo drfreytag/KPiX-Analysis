@@ -565,6 +565,7 @@ parser.add_argument('--color', dest='color', default=[60, 1, 418,  810, 402,  90
 parser.add_argument('--xtitle', dest='xtitle', help='choose the name of the x axis title')
 parser.add_argument('--ytitle', dest='ytitle', help='choose the name of the y axis title')
 parser.add_argument('--order', dest='order', nargs='+', type=int,  help='choose the order of plotting with same (to ensure no histograms overlap)')
+parser.add_argument('--newdaq', dest='newdaq', help='give as a command when using files from the new daq to ensure filename check etc. are correct')
 
 args = parser.parse_args()
 if len(sys.argv) < 2:
@@ -596,8 +597,13 @@ filename_list = []
 ##loop through all given files and add them to the list. then loop through the keys for every file..
 for root_file in args.file_in:
 	root_file_list.append(ROOT.TFile(root_file))
-	filename_list.append(root_file[root_file.find('/20')+1:root_file.rfind('.external')])
-
+	
+	if (args.newdaq):
+		#print "HUH"
+		filename_list.append(root_file[root_file.find('/20')+1:root_file.rfind('.external')])
+	else:
+		filename_list.append(root_file[root_file.find('/data_')+1:root_file.rfind('.dat')+1])
+print filename_list
 for x in root_file_list:
 	key_root = x.GetListOfKeys()
 	loopdir(key_root)
@@ -629,7 +635,7 @@ if (args.ylog and args.yaxisrange[0] is 0):
 ##------------------
 ##start of the plotting.
 
-if (len(hist_list) > len(args.color) or len(graph_list) > len(args.color)):
+if ((len(hist_list) > len(args.color) or len(graph_list) > len(args.color))) and ("same" in args.draw_option):
 	print 'You do not have enough colors', len(args.color), 'for the number of histograms you have', len(hist_list)
 	sys.exit(1)
 if (len(hist_list) is not 0):

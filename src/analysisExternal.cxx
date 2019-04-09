@@ -552,12 +552,12 @@ int main ( int argc, char **argv )
 						//cout << "Test" << endl;
 						if (calibration_check == 1)
 						{
-							double charge_value = double(value)/calib_slope[kpix][channel]*pow(10,15);
+							double charge_value = double(value)/calib_slope[kpix][channel];
 							double corrected_charge_value_mean = charge_value - pedestal_mean[kpix][channel][0];
 							double corrected_charge_value_median = charge_value - pedestal_median[kpix][channel][0];
 							double corrected_charge_value_gauss = charge_value - pedestal_gauss[kpix][channel][0];
 							
-							if (calib_slope[kpix][channel]/pow(10,15) > 1 && calib_slope[kpix][channel]/pow(10,15) < 30)
+							if (calib_slope[kpix][channel] > 1 && calib_slope[kpix][channel] < 30)
 							{
 								
 								vec_corr_charge[kpix].push_back(corrected_charge_value_median);
@@ -1173,29 +1173,16 @@ int main ( int argc, char **argv )
 						//cout << "Test" << endl;
 						if (calibration_check == 1)
 						{
-							//cout << calib_slope[kpix][channel]/pow(10,15) << endl;
-							//cout << "Test2" << endl;
-							//if (calib_slope[kpix][channel]/pow(10,15) > 1 && calib_slope[kpix][channel]/pow(10,15) < 15 && !(kpix == 30 && (channel == 500 || channel == 501 || channel == 490 || channel == 491 || channel == 522 || channel == 523 || channel == 532 || channel == 533 )))
-								
-							//if (calib_slope[kpix][channel]/pow(10,15) > 1 && calib_slope[kpix][channel]/pow(10,15) < 15 && kpix2strip_left.at(channel) != 9999 && pedestal[kpix][channel] < 1000 && pedestal[kpix][channel] > 100) // Filter out channels with horrible calibration and non connected channels.
-							if (calib_slope[kpix][channel]/pow(10,15) > 3 && calib_slope[kpix][channel]/pow(10,15) < 15 && kpix2strip_right.at(channel) != 9999 && channel > 128)
+							if (calib_slope[kpix][channel] > 3 && calib_slope[kpix][channel] < 15 && kpix2strip_right.at(channel) != 9999 && channel > 128)
 							{
-								//if (kpix2strip_left.at(channel) > 605 && kpix2strip_left.at(channel) < 615 && kpix == 17)  cout << "Slope " << calib_slope[kpix][channel]/pow(10,15) << " at strip " << kpix2strip_left.at(channel) << endl;
 								
 								//// ====== Calculation of Charge values, with pedestal and common mode subtraction  =============
-								double charge_value = double(value)/calib_slope[kpix][channel]*pow(10,15);
-								//double corrected_charge_value_mean = charge_value - pedestal_mean[kpix][channel][bucket];
-								double corrected_charge_value_median = charge_value - pedestal_median[kpix][channel][bucket];
-								//double corrected_charge_value_gauss = charge_value - pedestal_gauss[kpix][channel][bucket];
+								double charge_value = double(value)/calib_slope[kpix][channel];
 								
-								//double CM_corrected_charge = corrected_charge_value_mean - common_modes[kpix][datacounter];
-								//double CM_corrected_charge2 = corrected_charge_value_median - common_modes2[kpix][datacounter];
-								//double CM_corrected_charge3 = corrected_charge_value_gauss - common_modes3[kpix][datacounter];
+								double corrected_charge_value_median = charge_value - pedestal_median[kpix][channel][bucket];
+								
 								
 								double charge_CM_corrected = corrected_charge_value_median - common_modes_median[kpix][datacounter];
-								
-								
-								//cout << "Common Mode Value of cycle " << datacounter << " and KPIX " << kpix << " = " << common_modes[kpix][datacounter] << endl;
 								
 								
 								
@@ -1205,7 +1192,6 @@ int main ( int argc, char **argv )
 								if ( charge_CM_corrected > sstrip_cut )
 								{
 									singlestrip_events_after_cut[kpix][bucket].push_back(make_pair(kpix2strip_right.at(channel), charge_CM_corrected));
-									//cout << "singlestrip charge = " << charge_CM_corrected << endl;	
 								}
 								if (charge_CM_corrected > dstrip_cut)
 								{
@@ -1540,20 +1526,20 @@ int main ( int argc, char **argv )
 				if (chanFound[kpix][channel] == true)
 				{
 					double mean = fc_response_median_subtracted_channel[kpix][channel]->GetMean();
-					fc_response_medCM_subtracted_channel[kpix][channel]->Fit("gaus","Rq", "", mean-0.8, mean+0.8);
+					//fc_response_medCM_subtracted_channel[kpix][channel]->Fit("gaus","Rq", "", mean-0.8, mean+0.8);
 					for (int bucket = 0; bucket < 4; bucket++)
 					{
 						pedestals_mean[kpix][bucket]->Fill(pedestal_mean[kpix][channel][bucket]);
 						pedestals_median[kpix][bucket]->Fill(pedestal_median[kpix][channel][bucket]);
 						pedestals_gauss[kpix][bucket]->Fill(pedestal_gauss[kpix][channel][bucket]);
 						
-						slopes[kpix][bucket]->Fill(calib_slope[kpix][channel]/pow(10,15));						
-						slopes_vs_channel[kpix][bucket]->SetBinContent( channel+1, calib_slope[kpix][channel]/pow(10,15));
+						slopes[kpix][bucket]->Fill(calib_slope[kpix][channel]);						
+						slopes_vs_channel[kpix][bucket]->SetBinContent( channel+1, calib_slope[kpix][channel]);
 						
-						slopes[kpix][4]->Fill(calib_slope[kpix][channel]/pow(10,15));
-						slopes_vs_stripl[kpix][4]->SetBinContent( kpix2strip_left.at(channel)+1, calib_slope[kpix][channel]/pow(10,15));
-						slopes_vs_stripr[kpix][4]->SetBinContent( kpix2strip_right.at(channel)-919, calib_slope[kpix][channel]/pow(10,15));
-						slopes_vs_channel[kpix][4]->SetBinContent( channel+1, calib_slope[kpix][channel]/pow(10,15));
+						slopes[kpix][4]->Fill(calib_slope[kpix][channel]);
+						slopes_vs_stripl[kpix][4]->SetBinContent( kpix2strip_left.at(channel)+1, calib_slope[kpix][channel]);
+						slopes_vs_stripr[kpix][4]->SetBinContent( kpix2strip_right.at(channel)-919, calib_slope[kpix][channel]);
+						slopes_vs_channel[kpix][4]->SetBinContent( channel+1, calib_slope[kpix][channel]);
 						
 						double mean = fc_response_median_subtracted_channel[kpix][channel]->GetMean();
 						Double_t median,q;

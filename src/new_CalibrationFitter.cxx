@@ -161,23 +161,23 @@ double calibCharge ( uint dac, bool positive, bool highCalib ) {
 	if ( dac >= 0xf6 )
 	{
 			volt = 2.5 - ((double)(0xff-dac))*50.0*0.0001;
-			cout << "A " << volt << endl;
+			//cout << "A " << volt << endl;
 	}
 	else
 	{
 		volt =(double)dac * 100.0 * 0.0001;
-		cout << "B " << volt << endl;
+		//cout << "B " << volt << endl;
 	}
 	
 	if ( positive )
 	{
-		 charge = (2.5 - volt) * 200e-15;
-		 cout << "C " << charge << endl;
+		 charge = (2.5 - volt) * 200;
+		 //cout << "C " << charge << endl;
 	 }
 	else
 	{
-		 charge = volt * 200e-15;
-		cout << "D " << charge << endl;
+		 charge = volt * 200;
+		//cout << "D " << charge << endl;
 	}
 	
 	if ( highCalib ) charge *= 22.0;
@@ -385,28 +385,35 @@ int main ( int argc, char **argv ) {
   }
 
   // Extract configuration values
-  findBadMeanHist  = config.getInt("FindBadMeanHist");
-  findBadMeanFit   = config.getInt("FindBadMeanFit");
-  meanMin[0]       = config.getDouble("GoodMeanMinR0");
-  meanMax[0]       = config.getDouble("GoodMeanMaxR0");
-  meanMin[1]       = config.getDouble("GoodMeanMinR1");
-  meanMax[1]       = config.getDouble("GoodMeanMaxR1");
-  findBadMeanChisq = config.getInt("FindBadMeanChisq");
-  meanChisq        = config.getInt("GoodMeanChisqMax");
-  findBadGainFit   = config.getInt("FindBadGainFit");
-  gainMin[0]       = config.getDouble("GoodGainMinR0");
-  gainMax[0]       = config.getDouble("GoodGainMaxR0");
-  gainMin[1]       = config.getDouble("GoodGainMinR1");
-  gainMax[1]       = config.getDouble("GoodGainMaxR1");
-  findBadGainChisq = config.getInt("FindBadGainChisq");
-  gainChisq        = config.getInt("GoodGainChisqMax");
-  fitMin[0]        = config.getDouble("GainFitMinR0");
-  fitMax[0]        = config.getDouble("GainFitMaxR0");
-  fitMin[1]        = config.getDouble("GainFitMinR1");
-  fitMax[1]        = config.getDouble("GainFitMaxR1");
-  chargeError[0]   = config.getDouble("GainChargeErrorR0");
-  chargeError[1]   = config.getDouble("GainChargeErrorR1");
+  findBadMeanHist  = config.getInt("FindBadMeanHist");      // all of these values are 0. Why?
+  findBadMeanFit   = config.getInt("FindBadMeanFit");       // all of these values are 0. Why?
+  meanMin[0]       = config.getDouble("GoodMeanMinR0");     // all of these values are 0. Why?
+  meanMax[0]       = config.getDouble("GoodMeanMaxR0");     // all of these values are 0. Why?
+  meanMin[1]       = config.getDouble("GoodMeanMinR1");     // all of these values are 0. Why?
+  meanMax[1]       = config.getDouble("GoodMeanMaxR1");     // all of these values are 0. Why?
+  findBadMeanChisq = config.getInt("FindBadMeanChisq");     // all of these values are 0. Why?
+  meanChisq        = config.getInt("GoodMeanChisqMax");     // all of these values are 0. Why?
+  findBadGainFit   = config.getInt("FindBadGainFit");       // all of these values are 0. Why?
+  gainMin[0]       = config.getDouble("GoodGainMinR0");     // all of these values are 0. Why?
+  gainMax[0]       = config.getDouble("GoodGainMaxR0");     // all of these values are 0. Why?
+  gainMin[1]       = config.getDouble("GoodGainMinR1");     // all of these values are 0. Why?
+  gainMax[1]       = config.getDouble("GoodGainMaxR1");     // all of these values are 0. Why?
+  findBadGainChisq = config.getInt("FindBadGainChisq");     // all of these values are 0. Why?
+  gainChisq        = config.getInt("GoodGainChisqMax");     // all of these values are 0. Why?
+  fitMin[0]        = config.getDouble("GainFitMinR0");      // all of these values are 0. Why?
+  fitMax[0]        = config.getDouble("GainFitMaxR0");      // all of these values are 0. Why?
+  fitMin[1]        = config.getDouble("GainFitMinR1");      // all of these values are 0. Why?
+  fitMax[1]        = config.getDouble("GainFitMaxR1");      // all of these values are 0. Why?
+  chargeError[0]   = config.getDouble("GainChargeErrorR0"); // all of these values are 0. Why?
+  chargeError[1]   = config.getDouble("GainChargeErrorR1"); // all of these values are 0. Why?
 
+
+
+
+	//cout << "fitMin = " << fitMin[0] << endl;
+	//cout << "fitMax = " << fitMax[0] << endl;
+	//cout << "fitMin = " << fitMin[1] << endl;
+	//cout << "fitMax = " << fitMax[1] << endl;
   // Init a customized pol1, fit range will be re-range in fit()
   fitCalib = new TF1("fitCalib", "pol1",fitMin[0],fitMax[0] );
   fitCalib -> FixParameter( 0, 0 ); // offset to 0
@@ -1050,7 +1057,7 @@ for (kpix=0; kpix<32; kpix++)
 											<< " Rms=" << chanData[kpix][channel][bucket][range]->calibRms[x]
 											<< " Error=" << chanData[kpix][channel][bucket][range]->calibError[x] << endl;
 										
-										cout << "Charge in fC : DAC = " << grX[grCount] << " : " << x << endl;
+										//cout << "Charge in fC : DAC = " << grX[grCount] << " : " << x << endl;
 										
 										grCount++;
 										
@@ -1127,37 +1134,37 @@ for (kpix=0; kpix<32; kpix++)
 										long double ped_charge_err = (chanData[kpix][channel][bucket][range]->baseHistRMS) / slope ; // simple err
 										
 										
-										pedestals_fc[kpix][bucket]->Fill( ped_charge * pow(10,15) );
-										if (channel >= 0 && channel <= 127) pedestals_fc_0_127[kpix][bucket]->Fill( ped_charge * pow(10,15) );
+										pedestals_fc[kpix][bucket]->Fill( ped_charge );
+										if (channel >= 0 && channel <= 127) pedestals_fc_0_127[kpix][bucket]->Fill( ped_charge );
 										
 										
-										pedestalsRMS_fc[kpix][bucket]->Fill( ped_charge_err * pow(10,15) );
-										if (channel >= 0 && channel <= 127) pedestalsRMS_fc_0_127[kpix][bucket]->Fill( ped_charge_err * pow(10,15) );
+										pedestalsRMS_fc[kpix][bucket]->Fill( ped_charge_err );
+										if (channel >= 0 && channel <= 127) pedestalsRMS_fc_0_127[kpix][bucket]->Fill( ped_charge_err );
 
 										if ( kpix2strip_left.at(channel) == 9999 ) 
 										{
-											pedestalsRMS_fc_disc[kpix][bucket]->Fill( ped_charge_err * pow(10,15) );
-											slope_hist_disc[kpix][bucket]->Fill( slope / pow(10,15) );
+											pedestalsRMS_fc_disc[kpix][bucket]->Fill( ped_charge_err );
+											slope_hist_disc[kpix][bucket]->Fill( slope );
 										}
 										else
 										{
-											slope_hist_conn[kpix][bucket]->Fill( slope / pow(10,15) );
-											pedestalsRMS_fc_conn[kpix][bucket]->Fill( ped_charge_err * pow(10,15) );
+											slope_hist_conn[kpix][bucket]->Fill( slope );
+											pedestalsRMS_fc_conn[kpix][bucket]->Fill( ped_charge_err );
 										}
 				
-										if (ped_charge_err * pow(10,15) >= noise_cut)
+										if (ped_charge_err >= noise_cut)
 										{
 											channel_file_noise << channel << endl ;
 										}
 				
-										slope_hist[kpix][bucket]->Fill( slope / pow(10,15) );
-										if (channel >= 0 && channel <= 127) slope_hist_0_127[kpix][bucket]->Fill( slope / pow(10,15) );
+										slope_hist[kpix][bucket]->Fill( slope );
+										if (channel >= 0 && channel <= 127) slope_hist_0_127[kpix][bucket]->Fill( slope  );
 				
-										slope_vs_channel[kpix][bucket]->SetBinContent( channel+1, slope / pow(10,15));
-										slope_vs_right_strip[kpix][bucket]->SetBinContent(kpix2strip_right.at(channel)-919, slope / pow(10,15));
-										slope_vs_left_strip[kpix][bucket]->SetBinContent(kpix2strip_left.at(channel)+1, slope / pow(10,15));
+										slope_vs_channel[kpix][bucket]->SetBinContent( channel+1, slope );
+										slope_vs_right_strip[kpix][bucket]->SetBinContent(kpix2strip_right.at(channel)-919, slope );
+										slope_vs_left_strip[kpix][bucket]->SetBinContent(kpix2strip_left.at(channel)+1, slope );
 										
-										RMSfC_vs_channel[kpix][bucket]->SetBinContent( channel+1, ped_charge_err * pow(10,15));
+										RMSfC_vs_channel[kpix][bucket]->SetBinContent( channel+1, ped_charge_err);
 										
 				
 										slope_residual[kpix][bucket]->Fill( offset);

@@ -173,12 +173,12 @@ double calibCharge ( uint dac, bool positive, bool highCalib ) {
 	
 	if ( positive )
 	{
-		 charge = (2.5 - volt) * 200e-15;
+		 charge = (2.5 - volt) * 200;  //normally is e-15
 		 //cout << "C " << charge << endl;
 	 }
 	else
 	{
-		 charge = volt * 200e-15;
+		 charge = volt * 200;  //normally is e-15
 		//cout << "D " << charge << endl;
 	}
 	
@@ -382,8 +382,30 @@ int main ( int argc, char **argv ) {
 	//chargeError[0]   = config.getDouble("GainChargeErrorR0");
 	//chargeError[1]   = config.getDouble("GainChargeErrorR1");
 	
+	findBadMeanHist  = 0;  //there is no such thing as a config file?
+	findBadMeanFit   = 0;  //there is no such thing as a config file?
+	meanMin[0]       = 0;  //there is no such thing as a config file?
+	meanMax[0]       = 0;  //there is no such thing as a config file?
+	meanMin[1]       = 0;  //there is no such thing as a config file?
+	meanMax[1]       = 0;  //there is no such thing as a config file?
+	findBadMeanChisq = 0;  //there is no such thing as a config file?
+	meanChisq        = 0;  //there is no such thing as a config file?
+	findBadGainFit   = 0;  //there is no such thing as a config file?
+	gainMin[0]       = 0;  //there is no such thing as a config file?
+	gainMax[0]       = 0;  //there is no such thing as a config file?
+	gainMin[1]       = 0;  //there is no such thing as a config file?
+	gainMax[1]       = 0;  //there is no such thing as a config file?
+	findBadGainChisq = 0;  //there is no such thing as a config file?
+	gainChisq        = 0;  //there is no such thing as a config file?
+	fitMin[0]        = 0;  //there is no such thing as a config file?
+	fitMax[0]        = 0;  //there is no such thing as a config file?
+	fitMin[1]        = 0;  //there is no such thing as a config file?
+	fitMax[1]        = 0;  //there is no such thing as a config file?
+	chargeError[0]   = 0;  //there is no such thing as a config file?
+	chargeError[1]   = 0;  //there is no such thing as a config file?
+	
 	// Init a customized pol1, fit range will be re-range in fit()
-	fitCalib = new TF1("fitCalib", "pol1",fitMin[0],fitMax[0] );
+	fitCalib = new TF1("fitCalib", "pol1");
 	fitCalib -> FixParameter( 0, 0 ); // offset to 0
 	//fitCalib -> SetParameter( 0, 0 );
 	fitCalib -> SetParameter( 1, 15); // slope
@@ -472,7 +494,7 @@ int main ( int argc, char **argv ) {
 			minChan       = dataRead.getYmlStatusInt("CalChanMin");
 			maxChan       = dataRead.getYmlStatusInt("CalChanMax");
 			
-			for (int k = 0; k < 24; ++k && positive )
+			for (int k = 0; k < 24; ++k )
 			{
 				
 				tmp.str("");
@@ -964,6 +986,10 @@ for (kpix=0; kpix<24; kpix++)
 									// Calibration point is valid
 									if ( chanData[kpix][channel][bucket][range]->calibCount[x] > 0 ) 
 									{
+										//cout << " Number of CalDacCounts for DAC " << x << " is " << chanData[kpix][channel][bucket][range]->calibCount[x] << endl;
+										
+										
+										
 										grX[grCount]    = calibCharge ( x, positive[kpix], ((bucket==0)?b0CalibHigh:false));
 										grDAC[grCount]  = x;
 										grY[grCount]    = chanData[kpix][channel][bucket][range]->calibMean[x];
@@ -1000,22 +1026,31 @@ for (kpix=0; kpix<24; kpix++)
 	    
 									grCalib = new TGraphErrors(grCount,grX,grY,grXErr,grYErr);
 									grCalib->Draw("Ap");
-									grCalib->GetXaxis()->SetTitle("Charge [C]");
+									grCalib->GetXaxis()->SetTitle("Charge [fC]");
 									grCalib->GetYaxis()->SetTitle("ADC");
-									grCalib->Fit("pol1","eq","",fitMin[range],fitMax[range]);
-									grCalib->GetFunction("pol1")->SetLineWidth(1);
+									grCalib->Fit("pol1","eq");   // FIT DOES NOT WORK WHEN OPTION E IS GIVEN
+									
+									//TF1 *f1=new TF1("f1", "[0]+x*[1]");
+									//cout << "test" << endl;
+									//f1->SetParameters(0, grCalib->GetFunction("pol1")->GetParameter(0));
+									//f1->SetParameters(1, grCalib->GetFunction("pol1")->GetParameter(1));
+									//cout << "test2" << endl;
+									
+									//grCalib->Fit("f1", "E");
+									
+									//grCalib->GetFunction("f1")->SetLineWidth(1);
 									
 									grCalibDAC = new TGraphErrors(grCount,grDAC,grY,grXErr,grYErr);
 									grCalibDAC->Draw("Ap");
 									grCalibDAC->GetXaxis()->SetTitle("Charge [DAC]");
 									grCalibDAC->GetYaxis()->SetTitle("ADC");
-									grCalibDAC->Fit("pol1","eq","",fitMin[range],fitMax[range]);
+									grCalibDAC->Fit("pol1","eq"); // FOR SOME REASON HERE IT DOES WORK
 									grCalibDAC->GetFunction("pol1")->SetLineWidth(1);
 									
 									
 									// Create name and write
 									tmp.str("");
-									tmp << "calib_" << serial << "_c" << dec << setw(4) << setfill('0') << channel;
+									tmp << "calib_" << serial << "c" << dec << setw(4) << setfill('0') << channel;
 									tmp << "_b" << dec << bucket;
 									tmp << "_r" << dec << range;
 									tmp << "_k" << dec << kpix;
@@ -1045,7 +1080,8 @@ for (kpix=0; kpix<24; kpix++)
 									tmp << "_k" << dec << kpix;
 									//grResid->SetTitle(tmp.str().c_str());
 									grResid->Write(tmp.str().c_str());
-				
+									
+									
 									// Add to xml
 									if ( grCalib->GetFunction("pol1") ) 
 									{
@@ -1057,37 +1093,37 @@ for (kpix=0; kpix<24; kpix++)
 										long double ped_charge_err = (chanData[kpix][channel][bucket][range]->baseHistRMS) / slope ; // simple err
 										
 										
-										pedestals_fc[kpix][bucket]->Fill( ped_charge * pow(10,15) );
-										if (channel >= 0 && channel <= 127) pedestals_fc_0_127[kpix][bucket]->Fill( ped_charge * pow(10,15) );
+										pedestals_fc[kpix][bucket]->Fill( ped_charge /* *pow(10,15) */ );
+										if (channel >= 0 && channel <= 127) pedestals_fc_0_127[kpix][bucket]->Fill( ped_charge  /* *pow(10,15) */ );
 										
 										
-										pedestalsRMS_fc[kpix][bucket]->Fill( ped_charge_err * pow(10,15) );
-										if (channel >= 0 && channel <= 127) pedestalsRMS_fc_0_127[kpix][bucket]->Fill( ped_charge_err * pow(10,15) );
+										pedestalsRMS_fc[kpix][bucket]->Fill( ped_charge_err /* *pow(10,15) */ );
+										if (channel >= 0 && channel <= 127) pedestalsRMS_fc_0_127[kpix][bucket]->Fill( ped_charge_err  /* *pow(10,15) */ );
 
 										if ( kpix2strip_left.at(channel) == 9999 ) 
 										{
-											pedestalsRMS_fc_disc[kpix][bucket]->Fill( ped_charge_err * pow(10,15) );
-											slope_hist_disc[kpix][bucket]->Fill( slope / pow(10,15) );
+											pedestalsRMS_fc_disc[kpix][bucket]->Fill( ped_charge_err /* *pow(10,15) */ );
+											slope_hist_disc[kpix][bucket]->Fill( slope  /* /pow(10,15) */ );
 										}
 										else
 										{
-											slope_hist_conn[kpix][bucket]->Fill( slope / pow(10,15) );
-											pedestalsRMS_fc_conn[kpix][bucket]->Fill( ped_charge_err * pow(10,15) );
+											slope_hist_conn[kpix][bucket]->Fill( slope  /* /pow(10,15) */ );
+											pedestalsRMS_fc_conn[kpix][bucket]->Fill( ped_charge_err  /* *pow(10,15) */ );
 										}
 				
-										if (ped_charge_err * pow(10,15) >= noise_cut)
+										if (ped_charge_err  /* *pow(10,15) */ >= noise_cut)
 										{
 											channel_file_noise << channel << endl ;
 										}
 				
-										slope_hist[kpix][bucket]->Fill( slope / pow(10,15) );
-										if (channel >= 0 && channel <= 127) slope_hist_0_127[kpix][bucket]->Fill( slope / pow(10,15) );
+										slope_hist[kpix][bucket]->Fill( slope  /* /pow(10,15) */ );
+										if (channel >= 0 && channel <= 127) slope_hist_0_127[kpix][bucket]->Fill( slope  /* /pow(10,15) */ );
 				
-										slope_vs_channel[kpix][bucket]->SetBinContent( channel+1, slope / pow(10,15));
-										slope_vs_right_strip[kpix][bucket]->SetBinContent(kpix2strip_right.at(channel)-919, slope / pow(10,15));
-										slope_vs_left_strip[kpix][bucket]->SetBinContent(kpix2strip_left.at(channel)+1, slope / pow(10,15));
+										slope_vs_channel[kpix][bucket]->SetBinContent( channel+1, slope  /* /pow(10,15) */);
+										slope_vs_right_strip[kpix][bucket]->SetBinContent(kpix2strip_right.at(channel)-919, slope  /* /pow(10,15) */);
+										slope_vs_left_strip[kpix][bucket]->SetBinContent(kpix2strip_left.at(channel)+1, slope  /* /pow(10,15) */);
 										
-										RMSfC_vs_channel[kpix][bucket]->SetBinContent( channel+1, ped_charge_err * pow(10,15));
+										RMSfC_vs_channel[kpix][bucket]->SetBinContent( channel+1, ped_charge_err  /* *pow(10,15) */);
 										
 				
 										slope_residual[kpix][bucket]->Fill( offset);

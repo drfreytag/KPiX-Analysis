@@ -41,5 +41,3 @@ void clustr::SetParameters()
 }
 
 clustr::~clustr() { }
-
-

@@ -98,16 +98,18 @@ void PacMan::Eater(clustr PACMAN, int element, int oldelement) //it works under 
 	}
 	if (oldelement == 9999 || (PACMAN.Elements.at(oldelement).first + 1 == PACMAN.Elements.at(element).first) || (PACMAN.Elements.at(oldelement).first - 1 == PACMAN.Elements.at(element).first)) // I always add the starting element and I only add the adjacent elements if their strip distance from the previous element is 1.
 	{
+		//cout << "Strip = " << PACMAN.Elements.at(element).first << endl;
 		double Chargesum = PACMAN.Charge + PACMAN.Elements.at(element).second;
 		Cluster.CoG = (Cluster.CoG*PACMAN.Charge + PACMAN.Elements.at(element).first*PACMAN.Elements.at(element).second)/Chargesum;
 		Cluster.Charge = Chargesum;
 		Cluster.Elements.push_back(PACMAN.Elements.at(element));
-		
-		
-		
+		PACMAN.Elements.erase(PACMAN.Elements.begin()+element);
+		cout << "Leftoverelement size" << PACMAN.Elements.size() << endl;
+
 		//cout << "Position is currently " << PACMAN.Elements.at(element).first << endl;
 	}
 	if (oldelement == 9999) 	cout << "End" << endl;
+	
 	
 
 };
