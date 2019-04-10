@@ -20,8 +20,6 @@ class PacMan
 		clustr getCluster();
 		void Eater(clustr, int, int);
 		
-		
-		
 	private:
 		clustr Cluster;
 

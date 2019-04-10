@@ -7,6 +7,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <vector>
+#include <map>
 #include <algorithm>
 #include <stdlib.h>
 #include <iterator>
@@ -26,7 +27,7 @@ class clustr
 		double CoG ;
 		double Charge;
 		double SigmaCoG;
-		vector<pair<int, double> > Elements;
+		std::map<int, double> Elements;
 
 		void SetParameters();
 		//void setEventList(vector<pair<double, double>>);
