@@ -103,8 +103,8 @@ void PacMan::Eater(clustr PACMAN, int element, int oldelement) //it works under 
 		Cluster.CoG = (Cluster.CoG*PACMAN.Charge + PACMAN.Elements.at(element).first*PACMAN.Elements.at(element).second)/Chargesum;
 		Cluster.Charge = Chargesum;
 		Cluster.Elements.push_back(PACMAN.Elements.at(element));
-		PACMAN.Elements.erase(PACMAN.Elements.begin()+element);
-		cout << "Leftoverelement size" << PACMAN.Elements.size() << endl;
+		//PACMAN.Elements.erase(PACMAN.Elements.begin()+element);
+		//cout << "Leftoverelement size" << PACMAN.Elements.size() << endl;
 
 		//cout << "Position is currently " << PACMAN.Elements.at(element).first << endl;
 	}
