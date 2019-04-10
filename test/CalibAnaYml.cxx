@@ -126,6 +126,9 @@ int main ( int argc, char **argv ) {
   double                 fitMin[2] = {0}; // not verified w/ old, not work!
   double                 fitMax[2] = {0}; // not verified w/ old, not work!
   
+  
+  
+  
   // Data file is the first and only arg
   if ( argc != 2 ) {
     cout << "\nUsage: \ncalibrationFitter data_file \n\n";
@@ -147,7 +150,7 @@ int main ( int argc, char **argv ) {
   tmp.str("");
   tmp << argv[1] << ".calib.root";
   outRoot = tmp.str();
-
+	
   TFile* rFile = new TFile(outRoot.c_str(),"recreate");
     
   //////////////////////////////////////////
@@ -306,7 +309,7 @@ int main ( int argc, char **argv ) {
   //////////////////////////////////////////
 
   logfile << "Process Baselines" << endl;
-  
+  TH1F *slopeshist = new TH1F("slopes", "Slope distribution; Slope [ADC/fC]; #entries", 200, -20, 20);
   // Process each kpix device
   for( kpix = 0; kpix<24; kpix++){
     // kpix is valid
@@ -416,6 +419,7 @@ int main ( int argc, char **argv ) {
 		    << " Rms=" << chanData[kpix][channel][bucket][range]->calibRms[x]
 		    << " Error=" << chanData[kpix][channel][bucket][range]->calibError[x] << endl;
 	      */
+	      cout << "Charge in fC : DAC = " << grX[grCount] << " : " << dac << endl;
 	      grCount++;
 	    }//--- working point
 
@@ -429,6 +433,10 @@ int main ( int argc, char **argv ) {
 	    grCalib->GetYaxis()->SetTitle("ADC");
 	    grCalib->Fit("pol1","eq","",fitMin[range],fitMax[range]);
 	    grCalib->GetFunction("pol1")->SetLineWidth(1);
+	    double slope = grCalib->GetFunction("pol1")->GetParameter(1);
+	    cout << "Channel = " << channel << "Slope = " << slope << endl;
+	    
+	    slopeshist->Fill(slope/pow(10,15), 1);
 	    
 	    // Create name and write
 	    tmp.str("");
@@ -449,7 +457,6 @@ int main ( int argc, char **argv ) {
   } // loop over kpix
   
 
-
   //-- debug output:
   cout << " We have kpix: ";
   for (kpix=0; kpix<24; kpix++){
@@ -457,7 +464,7 @@ int main ( int argc, char **argv ) {
       cout << " " << kpix << ", ";
   }
   cout << endl;
-
+	rFile->Write();
   rFile->Close();
   delete rFile;
   
