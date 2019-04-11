@@ -640,9 +640,6 @@ int main ( int argc, char **argv )
 	
 	
 	
-	TH1F *offset_hist = new TH1F("strip_offset", "strip_offset_43-2_to_59-2; #strips; #entries", 200, -100.5, 99.5);
-	TH2F *strip_correlation = new TH2F("strip_correlation", "strip offset Layer 1 to Layer 2; strips of module 1; strips of module 2",230, 919.5, 1819.5, 230, 919.5, 1819.5);
-	
 	TH1F *offset_hist_cluster = new TH1F("strip_offset_cluster", "strip_offset_43-2_to_59-2; #strips; #entries", 200, -100.5, 99.5);
 	TH2F *strip_correlation_cluster = new TH2F("strip_correlation_cluster", "strip offset Layer 1 to Layer 2; strips of module 1; strips of module 2",230, 919.5, 1819.5, 230, 919.5, 1819.5);
 	
@@ -1126,13 +1123,9 @@ int main ( int argc, char **argv )
 			std::vector<double> corrected_charge_vec[32][5];
 			std::vector<pair<int, double>> singlestrip_events_after_cut[32][4];
 			std::vector<pair<int, double>> doublestrip_events_after_cut[32][4];
-			std::vector<pair<int, double>> strip_events_after_cut[32][4];
 			std::map<int, double> cluster_events_after_cut[32][4];
 			//cout << "Beginning a new EVENT" << endl;
 			//cout << " NEW EVENT " << endl;
-			
-			double max_charge[32] = {0};
-			int max_position[32] = {0};
 			
 			for (x=0; x < event.count(); x++)
 			{
@@ -1203,31 +1196,11 @@ int main ( int argc, char **argv )
 								{
 									if (kpix == 17 && (kpix2strip_right.at(channel) != 1468  && kpix2strip_right.at(channel) != 1183 && kpix2strip_right.at(channel) != 1609 && kpix2strip_right.at(channel) != 1563 && kpix2strip_right.at(channel) != 1179))
 									{
-										strip_events_after_cut[kpix][bucket].push_back(make_pair(kpix2strip_right.at(channel), charge_CM_corrected));
 										cluster_events_after_cut[kpix][bucket].insert(std::pair<int, double>(kpix2strip_right.at(channel), charge_CM_corrected));
-										if (charge_CM_corrected > max_charge[kpix])
-										{
-											max_charge[kpix] = charge_CM_corrected;
-											max_position[kpix] = kpix2strip_right.at(channel);
-											//cout << "TEEEEEEEEEEST" << endl;
-											//cout << max_charge[kpix] << endl;
-											//cout << singlestrip_events_after_cut[kpix][bucket].at(singlestrip_events_after_cut[kpix][bucket].size()-1).second << endl;
-											
-										}
 									}
 									if (kpix == 19 && kpix2strip_right.at(channel) != 1157)
 									{
-										strip_events_after_cut[kpix][bucket].push_back(make_pair(kpix2strip_right.at(channel), charge_CM_corrected));
 										cluster_events_after_cut[kpix][bucket].insert(std::pair<int, double>(kpix2strip_right.at(channel), charge_CM_corrected));
-										if (charge_CM_corrected > max_charge[kpix])
-										{
-											max_charge[kpix] = charge_CM_corrected;
-											max_position[kpix] = kpix2strip_right.at(channel);
-											//cout << "TEEEEEEEEEEST" << endl;
-											//cout << max_charge[kpix] << endl;
-											//cout << singlestrip_events_after_cut[kpix][bucket].at(singlestrip_events_after_cut[kpix][bucket].size()-1).second << endl;
-											
-										}
 									}
 								}
 
@@ -1319,98 +1292,39 @@ int main ( int argc, char **argv )
 							
 						}
 					}
-
-					
-					//double trig_diff = smallest_time_diff(time_ext, tstamp); //Calculation of minimal difference is done in a function for cleanup
-					
-					
 				}
 				
 
-			}	
+			}
 			
-			//cout << "Singlestrip events" << singlestrip_events_after_cut[26][0].size() << endl;
-			//cout << "Doublestrip events" << doublestrip_events_after_cut[26][0].size() << endl;
-			
-			
-			//cout << "New Event" << endl;
 			clustr Cluster[32];  // Another Cluster class variable
 			for (int KPIX = 0; KPIX < 32; KPIX++)
 			{
 				if (kpixFound[KPIX] == true)
 				{
-					//if ( strip_events_after_cut[KPIX][0].size() != 0)
-					//{
-						//clustr Input;
-						
-						//sort(strip_events_after_cut[KPIX][0].begin(), strip_events_after_cut[KPIX][0].end());
-						//cout << "===================" << endl;
-						//cout << "Starting new PacMan" << endl;
-						//cout << "===================" << endl;
-						//cout << endl;
-						
-						
-						//PacMan NomNom; // PacMan class variable
-						//Input.Elements = strip_events_after_cut[KPIX][0];
-						//NomNom.Eater(Input, max_position[KPIX], 9999);
-						
-						//Cluster[KPIX] = NomNom.getCluster();
-						////cout << "1 Charge weighted Cluster Position = " << Cluster[KPIX].CoG << endl;
-						////cout << "1 Cluster Charge = " << Cluster[KPIX].Charge << endl;
-						////cout << "1 Cluster sigma = " << Cluster[KPIX].SigmaCoG << endl;
-						
-						////cout << "Test2 " << Cluster[KPIX].Elements.size() << endl;
-						////cout << "Test3 " << NomNom.getElementssize() << endl;
-						////cout << "Test4 " << test.Elements.size() << endl;
-						
-						//Cluster[KPIX].SetParameters();
-						
-						//cluster_position_r[KPIX][0]->Fill(Cluster[KPIX].CoG);
-						//cluster_charge[KPIX][0]->Fill(Cluster[KPIX].Charge);
-						//cluster_size[KPIX][0]->Fill(Cluster[KPIX].Elements.size());
-						
-						
-						////cout << "2 Charge weighted Cluster Position = " << Cluster[KPIX].CoG << endl;
-						////cout << "2 Cluster Charge = " << Cluster[KPIX].Charge << endl;
-						////cout << "2 Cluster sigma = " << Cluster[KPIX].SigmaCoG << endl;
-						////cout << "2 Cluster size = " << Cluster[KPIX].Elements.size() << endl;
-					//}
-					
-					
 					if ( cluster_events_after_cut[KPIX][0].size() != 0)
 					{
 						
-						//cout << "===================" << endl;
-						//cout << "Starting new PacMan" << endl;
-						//cout << "===================" << endl;
-						//cout << endl;
-						//clustr Input;
+						cout << "===================" << endl;
+						cout << "Starting new PacMan" << endl;
+						cout << "===================" << endl;
+						cout << endl;
+						clustr Input;
+						Input.Elements = cluster_events_after_cut[KPIX][0];
+						PacMan NomNom;
+						NomNom.Eater(Input, Input.MaxCharge(), 9999);
 						
-						//PacMan NomNom;
-						//Input.Elements = cluster_events_after_cut[KPIX][0];
-						//NomNom.Eater(Input, max_position[KPIX], 9999);
+						cluster_position_r[KPIX][0]->Fill(NomNom.getClusterCoG());
+						cluster_charge[KPIX][0]->Fill(NomNom.getClusterCharge());
+						cluster_size[KPIX][0]->Fill(NomNom.getElementssize());
 						
-						//std::map<int,double> testmap;
-						//if ( cluster_events_after_cut[KPIX][0].count(1600) != 0)
-						//{
-							
-							//testmap.insert(std::pair<int, double>(1600, cluster_events_after_cut[KPIX][0].at(1600)));
-							//cout << "testmap test " << testmap.at(1600) << endl;
-						//}
+						Cluster[KPIX] = NomNom.getCluster();
+						Cluster[KPIX].SetParameters();
 						
-						//std::map<int,double>::iterator it = cluster_events_after_cut[KPIX][0].begin();
-						//cout << "BLAAAAAAAAA 1 " << it->first << endl;
-						//cout << "BLAAAAAAAAA 2 " << it->second << endl;
-						//cout << "BLAAAAAAAAA 3 " << cluster_events_after_cut[KPIX][0].count(1600) << endl;
+						
+						cout << "Cluster CoG = " << Cluster[KPIX].CoG << " : NomNom CoG = " << NomNom.getClusterCoG() << endl;
+						cout << "Cluster Charge = " << Cluster[KPIX].Charge << " : NomNom Charge = " << NomNom.getClusterCharge() << endl;
 					}
-			
-					//for (auto const& it : cluster_events_after_cut[KPIX][0])
-					//{
-						////cout << "Strip " << it.first << " : Value " << it.second << endl;
-						
-						
-						
-					//}
 					
 				}
 			}
@@ -1425,31 +1339,7 @@ int main ( int argc, char **argv )
 			double strip_offset_cluster = Cluster[19].CoG - Cluster[17].CoG;
 			offset_hist_cluster->Fill(strip_offset_cluster);
 			strip_correlation_cluster->Fill(Cluster[19].CoG, Cluster[17].CoG, 1);
-			 //////////////////////////////////////////////////////////////////////////////////////////////////////
-			// CURRENTLY STATIC PROGRAMMING OF EXT TRIG TRACK FINDING AS A FIRST TEST NEED TO MAKE MORE GENERAL //
-			/////////////////////////////////////////////////////////////////////////////////////////////////////
-			
-			sort(strip_events_after_cut[17][0].begin(), strip_events_after_cut[17][0].end()); // sort the vector for their strip number to ensure that [strip n < strip n+1]
-			sort(strip_events_after_cut[19][0].begin(), strip_events_after_cut[19][0].end()); // see above
-			
-			if (strip_events_after_cut[19][0].size() < 50 && strip_events_after_cut[17][0].size() < 50)
-			{
-				for (int o = 0; o < strip_events_after_cut[19][0].size(); ++o)
-				{
-					for (int u = 0; u < strip_events_after_cut[17][0].size(); ++u)
-					{
-						double strip_offset = strip_events_after_cut[19][0].at(o).first - strip_events_after_cut[17][0].at(u).first;
-						offset_hist->Fill(strip_offset);		
-						strip_correlation->Fill(strip_events_after_cut[19][0].at(o).first, strip_events_after_cut[17][0].at(u).first, 1);
-					}
-				}
-				
-			}
-			
-			
-			////////////////////////////////
-			// END OF STATIC PROGRAMMING //
-			//////////////////////////////
+
 			
 			
 			

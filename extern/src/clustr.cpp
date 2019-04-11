@@ -40,4 +40,27 @@ void clustr::SetParameters()
 	SigmaCoG = sqrt(sigmapos/chargesum);;
 }
 
+
+int clustr::MaxCharge()
+{
+	double charge_max = 0;
+	int strip_max;
+	for (auto const& i : Elements)
+	{
+		//cout << "Current charge = " << i.second << " : " << i.first << endl;
+		if (i.second > charge_max)
+		{
+			charge_max = i.second;
+			strip_max = i.first;
+			//cout << "+++++++++++" << endl;
+			//cout << "Max Charge = " << charge_max << " : " << strip_max << endl;
+			//cout << "+++++++++++" << endl;
+		}
+		
+	
+	}
+	return strip_max;
+}
+
+
 clustr::~clustr() { }

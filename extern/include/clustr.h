@@ -27,9 +27,11 @@ class clustr
 		double CoG ;
 		double Charge;
 		double SigmaCoG;
+		
 		std::map<int, double> Elements;
 
 		void SetParameters();
+		int MaxCharge();
 		//void setEventList(vector<pair<double, double>>);
 } ;
 
