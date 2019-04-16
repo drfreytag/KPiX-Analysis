@@ -794,7 +794,7 @@ int main ( int argc, char **argv )
 			
 			tmp.str("");
 			tmp << "cluster_size_k" << kpix << "_total";
-			cluster_size[kpix][4] = new TH1F(tmp.str().c_str(), "cluster size; #Strips in cluster; #Entries", 10,-0.5, 9.5);
+			cluster_size[kpix][4] = new TH1F(tmp.str().c_str(), "cluster size; #Strips in cluster; N/N_{total}", 10,-0.5, 9.5);
 			
 			//tmp.str("");
 			//tmp << "fc_response_subtracted_subgroup_k" << kpix << "_total";
@@ -937,7 +937,7 @@ int main ( int argc, char **argv )
 				
 				tmp.str("");
 				tmp << "cluster_size_k" << kpix << "_b" << bucket;
-				cluster_size[kpix][bucket] = new TH1F(tmp.str().c_str(), "cluster size; #Strips in cluster; #Entries", 10,-0.5, 9.5);
+				cluster_size[kpix][bucket] = new TH1F(tmp.str().c_str(), "cluster size; #Strips in cluster; N/N_{total}", 10,-0.5, 9.5);
 				
 				//tmp.str("");
 				//tmp << "fc_response_mean_subtracted_k" << kpix << "_b" << bucket;
@@ -1194,14 +1194,15 @@ int main ( int argc, char **argv )
 								
 								if ( charge_CM_corrected > cluster_cut && charge_CM_corrected < 5) 
 								{
-									if (kpix == 17 && (kpix2strip_right.at(channel) != 1468  && kpix2strip_right.at(channel) != 1183 && kpix2strip_right.at(channel) != 1609 && kpix2strip_right.at(channel) != 1563 && kpix2strip_right.at(channel) != 1179))
-									{
-										cluster_events_after_cut[kpix][bucket].insert(std::pair<int, double>(kpix2strip_right.at(channel), charge_CM_corrected));
-									}
-									if (kpix == 19 && kpix2strip_right.at(channel) != 1157)
-									{
-										cluster_events_after_cut[kpix][bucket].insert(std::pair<int, double>(kpix2strip_right.at(channel), charge_CM_corrected));
-									}
+									//if (kpix == 17 && (kpix2strip_right.at(channel) != 1468  && kpix2strip_right.at(channel) != 1183 && kpix2strip_right.at(channel) != 1609 && kpix2strip_right.at(channel) != 1563 && kpix2strip_right.at(channel) != 1179))
+									//{
+										//cluster_events_after_cut[kpix][bucket].insert(std::pair<int, double>(kpix2strip_right.at(channel), charge_CM_corrected));
+									//}
+									//if (kpix == 19 && kpix2strip_right.at(channel) != 1157)
+									//{
+										//cluster_events_after_cut[kpix][bucket].insert(std::pair<int, double>(kpix2strip_right.at(channel), charge_CM_corrected));
+									//}
+									cluster_events_after_cut[kpix][bucket].insert(std::pair<int, double>(kpix2strip_right.at(channel), charge_CM_corrected));
 								}
 
 								
@@ -1298,6 +1299,7 @@ int main ( int argc, char **argv )
 			}
 			
 			clustr Cluster[32];  // Another Cluster class variable
+			std::vector<clustr> multi_cluster[32];
 			for (int KPIX = 0; KPIX < 32; KPIX++)
 			{
 				if (kpixFound[KPIX] == true)
@@ -1311,19 +1313,28 @@ int main ( int argc, char **argv )
 						cout << endl;
 						clustr Input;
 						Input.Elements = cluster_events_after_cut[KPIX][0];
-						PacMan NomNom;
-						NomNom.Eater(Input, Input.MaxCharge(), 9999);
-						
-						cluster_position_r[KPIX][0]->Fill(NomNom.getClusterCoG());
-						cluster_charge[KPIX][0]->Fill(NomNom.getClusterCharge());
-						cluster_size[KPIX][0]->Fill(NomNom.getElementssize());
-						
-						Cluster[KPIX] = NomNom.getCluster();
-						Cluster[KPIX].SetParameters();
-						
-						
-						cout << "Cluster CoG = " << Cluster[KPIX].CoG << " : NomNom CoG = " << NomNom.getClusterCoG() << endl;
-						cout << "Cluster Charge = " << Cluster[KPIX].Charge << " : NomNom Charge = " << NomNom.getClusterCharge() << endl;
+						int num_of_clusters = 0;
+						while (Input.Elements.size() != 0 && num_of_clusters < 5) // Keep repeating the clustering until either there are no valid candidates left or the number of clusters is higher than X (currently 4)
+						{
+							PacMan NomNom;
+							NomNom.Eater(Input, Input.MaxCharge(), 9999);
+							if (num_of_clusters == 0)
+							{
+								cluster_position_r[KPIX][0]->Fill(NomNom.getClusterCoG());
+								cluster_charge[KPIX][0]->Fill(NomNom.getClusterCharge());
+								cluster_size[KPIX][0]->Fill(NomNom.getElementssize());
+								Cluster[KPIX] = NomNom.getCluster();
+								Cluster[KPIX].SetParameters();
+							}
+							cluster_position_r[KPIX][1]->Fill(NomNom.getClusterCoG());
+							cluster_charge[KPIX][1]->Fill(NomNom.getClusterCharge()); //currently misusing the buckets
+							cluster_size[KPIX][1]->Fill(NomNom.getElementssize());
+							multi_cluster[KPIX].push_back(NomNom.getCluster());
+							num_of_clusters++;
+						}
+						cout << "Number of Clusters in the event for KPIX " << KPIX << " = " << num_of_clusters << endl;
+						//cout << "Cluster CoG = " << Cluster[KPIX].CoG << " : NomNom CoG = " << NomNom.getClusterCoG() << endl;
+						//cout << "Cluster Charge = " << Cluster[KPIX].Charge << " : NomNom Charge = " << NomNom.getClusterCharge() << endl;
 					}
 					
 				}
@@ -1335,7 +1346,30 @@ int main ( int argc, char **argv )
 					//PacMan_explanation2->Fill(Cluster[17].Elements.at(hits).first, Cluster[17].Elements.at(hits).second);
 				//}
 			//}
-			
+			for (auto const& k17 : multi_cluster[17])
+			{
+				double clstroffset;
+				int ccount = 0;
+				for (auto const& k19 : multi_cluster[19])
+				{
+					clstroffset  = k19.CoG - k17.CoG;
+					if (clstroffset > 18 && clstroffset < 26)
+					{
+						cluster_position_r[19][2]->Fill(k19.CoG);
+						cluster_charge[19][2]->Fill(k19.Charge);
+						cluster_size[19][2]->Fill(k19.Elements.size());
+						if (ccount == 0)
+						{
+							cluster_position_r[17][2]->Fill(k17.CoG);
+							cluster_charge[17][2]->Fill(k17.Charge);
+							cluster_size[17][2]->Fill(k17.Elements.size());
+							ccount++;
+						}
+					}
+				}
+				
+			}
+		
 			double strip_offset_cluster = Cluster[19].CoG - Cluster[17].CoG;
 			offset_hist_cluster->Fill(strip_offset_cluster);
 			strip_correlation_cluster->Fill(Cluster[19].CoG, Cluster[17].CoG, 1);
@@ -1495,6 +1529,7 @@ int main ( int argc, char **argv )
 				cluster_charge[kpix][bucket]->Fit("landau","RqW", "", -0.14, 17);
 				fc_response_cuts_singlestrip[kpix][0]->Fit("landau","RqW", "", -0.14, 17);
 				fc_response_cuts_doublestrip[kpix][0]->Fit("landau","RqW", "", -0.14, 17);
+				if (bucket < 3) cluster_size[kpix][bucket]->Scale(1/cluster_size[kpix][bucket]->Integral(), "width");
 			}
 		}
 	}

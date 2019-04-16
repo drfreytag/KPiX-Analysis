@@ -43,7 +43,7 @@ clustr PacMan::getCluster()
 	return Cluster;
 }
 
-void PacMan::Eater(clustr PACMAN, int element, int oldelement) //it works under the assumption that the clustr paired vector is sorted beforehand!
+void PacMan::Eater(clustr& PACMAN, int element, int oldelement) //it works under the assumption that the clustr paired vector is sorted beforehand!
 {
 	
 	if (PACMAN.Elements.count(element) != 0)
@@ -56,7 +56,7 @@ void PacMan::Eater(clustr PACMAN, int element, int oldelement) //it works under 
 		{
 			if (oldelement - 1 != element) // if we did not come to this point by moving down
 			{
-				cout << "Up" << endl;
+				//cout << "Up" << endl;
 				PacMan::Eater(PACMAN, element+1, element); //start moving up
 			}
 		}
@@ -65,41 +65,39 @@ void PacMan::Eater(clustr PACMAN, int element, int oldelement) //it works under 
 		{
 			if (oldelement - 1 == element) // if we came here by moving down
 			{
-				cout << "Down" << endl;
+				//cout << "Down" << endl;
 				PacMan::Eater(PACMAN, element-1, element); // keep moving down
 			}
 			if (oldelement + 1 == element) // if we came here by moving down
 			{
-				cout << "Up" << endl;
+				//cout << "Up" << endl;
 				PacMan::Eater(PACMAN, element+1, element); // keep moving up
 			}
 			else if (oldelement == 9999)  // starting point for program
 			{
-				cout << "Start" << endl;
+				//cout << "Start" << endl;
 				PacMan::Eater(PACMAN, element-1, element); // move down
 				PacMan::Eater(PACMAN, element+1, element); // move up
 			}
 		}
 		if (element == end->first && PACMAN.Elements.size() != 1)
 		{
-			cout << "Down" << endl;
+			//cout << "Down" << endl;
 			PacMan::Eater(PACMAN, element-1, element); //start moving down
 		}
 		
 		
 		
 	}
-	if (oldelement == 9999 || PACMAN.Elements.count(element) != 0 ) // I always add the starting element and I only add the adjacent elements if their strip distance from the previous element is 1.
+	if (oldelement == 9999 || PACMAN.Elements.count(element) != 0 ) // I always add the starting element and only add the new element if it exists.
 	{
-		double Chargesum = PACMAN.Charge + PACMAN.Elements.at(element);
-		Cluster.CoG = (Cluster.CoG*PACMAN.Charge + element*PACMAN.Elements.at(element))/Chargesum;
-		Cluster.Charge = Chargesum;
 		Cluster.Elements.insert(std::pair<int,double>(element,PACMAN.Elements.at(element)));
-		////PACMAN.Elements.erase(PACMAN.Elements.begin()+element);
-		////cout << "Leftoverelement size" << PACMAN.Elements.size() << endl;
-
-		////cout << "Position is currently " << PACMAN.Elements.at(element).first << endl;
+		PACMAN.Elements.erase(element);
 	}
-	if (oldelement == 9999) 	cout << "End" << endl;
+	if (oldelement == 9999) 
+	{
+		//cout << "End" << endl;
+		Cluster.SetParameters();
+	}
 	
 };

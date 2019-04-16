@@ -43,10 +43,10 @@ def arrangeStats(hists, statBoxW, statBoxH, name):
 		
 		print name[i]
 		#statBox.SetTitle(str(name[i]))
-		statBox.SetX1NDC(0.98 - statBoxW)
-		statBox.SetY1NDC(0.99 - i*(statBoxH+0.01) - statBoxH)
-		statBox.SetX2NDC(0.98)
-		statBox.SetY2NDC(0.99 - i*(statBoxH+0.01))
+		statBox.SetX1NDC(args.legendloc[0] - statBoxW)
+		statBox.SetY1NDC(args.legendloc[1] - i*(statBoxH+0.01) - statBoxH)
+		statBox.SetX2NDC(args.legendloc[0])
+		statBox.SetY2NDC(args.legendloc[1] - i*(statBoxH+0.01))
 		statBox.SetTextColor(h.GetLineColor()) 
 		#statBox.SetBorderColor(h.GetLineColor())
 		#statBox.SetBorderSize(2)
@@ -118,7 +118,10 @@ def hist_plotter():
 		c1 = ROOT.TCanvas( args.output_name, 'Test', 1200, 900 )
 		c1.cd()
 		#c1.SetFillColor(0)
-		legend = ROOT.TLegend(legend_location[0], legend_location[1], legend_location[2], legend_location[3])
+		
+		statBoxW = 0.2
+		statBoxH = 0.14
+		legend = ROOT.TLegend(args.legendloc[0], args.legendloc[1], args.legendloc[0]+statBoxW, args.legendloc[1]+statBoxH)
 		hist_comp = ROOT.THStack()
 		counter = 1
 		x_title = None
@@ -229,8 +232,7 @@ def hist_plotter():
 			yaxis.SetRangeUser(y_low, y_high) 
 			print 'test'
 		yaxis.SetTitle(y_title)
-		statBoxW = 0.2
-		statBoxH = 0.14
+		
 		histListForStats = []
 		for j in range(len(new_hist_list)-1, -1, -1): 
 			histListForStats.append(hist_comp.GetStack().At(j) )
@@ -242,12 +244,12 @@ def hist_plotter():
 		if (args.output_name):
 			outname = folder_loc+filename_list[0]+'_'+args.output_name
 			print 'Creating '+outname
-			c1.SaveAs(outname+'.svg')
+			#c1.SaveAs(outname+'.svg')
 			c1.SaveAs(outname+'.png')
 		else:
 			outname = folder_loc+filename_list[0]+'_'+graph.GetName()
-			print 'Creating '+outname+'.svg'
-			c1.SaveAs(outname+'.svg')
+			print 'Creating '+outname+'.pvg'
+			#c1.SaveAs(outname+'.svg')
 			c1.SaveAs(outname+'.png')
 		c1.Close()
 	else:
@@ -303,12 +305,12 @@ def hist_plotter():
 			if (args.output_name):
 				outname = folder_loc+filename_list[0]+'_'+args.output_name
 				print 'Creating '+outname
-				c1.SaveAs(outname+'.svg')
+				#c1.SaveAs(outname+'.svg')
 				c1.SaveAs(outname+'.png')
 			else:
 				outname = folder_loc+filename_list[0]+'_'+histogram.GetName()
-				print 'Creating '+outname+'.svg'
-				c1.SaveAs(outname+'.svg')
+				print 'Creating '+outname+'.pvg'
+				#c1.SaveAs(outname+'.svg')
 				c1.SaveAs(outname+'.png')
 			c1.Close()
 			counter= counter+1
@@ -323,7 +325,9 @@ def graph_plotter():
 		c1 = ROOT.TCanvas( args.output_name, 'Test', 1200, 900 )
 		c1.cd()
 		c1.SetFillColor(0)
-		legend = ROOT.TLegend(legend_location[0], legend_location[1], legend_location[2], legend_location[3])
+		statBoxW = 0.2
+		statBoxH = 0.14
+		legend = ROOT.TLegend(args.legendloc[0], args.legendloc[1], args.legendloc[0]+statBoxW, args.legendloc[1]+statBoxH)
 		multi_graph = ROOT.TMultiGraph()
 		counter = 1
 		x_title = None
@@ -396,12 +400,12 @@ def graph_plotter():
 		if (args.output_name):
 			outname = folder_loc+filename_list[0]+'_'+args.output_name
 			print 'Creating '+outname
-			c1.SaveAs(outname+'.svg')
+			#c1.SaveAs(outname+'.svg')
 			c1.SaveAs(outname+'.png')
 		else:
 			outname = folder_loc+filename_list[0]+'_'+graph.GetName()
-			print 'Creating '+outname+'.svg'
-			c1.SaveAs(outname+'.svg')
+			print 'Creating '+outname+'.pvg'
+			#c1.SaveAs(outname+'.svg')
 			c1.SaveAs(outname+'.png')
 		c1.Close()
 	else:
@@ -437,12 +441,12 @@ def graph_plotter():
 			if (args.output_name):
 				outname = folder_loc+filename_list[0]+'_'+args.output_name
 				print 'Creating '+outname
-				c1.SaveAs(outname+'.svg')
+				#c1.SaveAs(outname+'.svg')
 				c1.SaveAs(outname+'.png')
 			else:
 				outname = folder_loc+filename_list[0]+'_'+graph.GetName()
-				print 'Creating '+outname+'.svg'
-				c1.SaveAs(outname+'.svg')
+				print 'Creating '+outname+'.pvg'
+				#c1.SaveAs(outname+'.svg')
 				c1.SaveAs(outname+'.png')
 			c1.Close()
 			counter= counter+1
@@ -552,7 +556,7 @@ parser.add_argument('-b', '--bucket', dest='bucket', default=[9999], nargs='*', 
 parser.add_argument('-k', '--kpix', dest='kpix', default=[9999], nargs='*', type=int, help='used to specify the bucket of the plot which should be used | type=int')
 parser.add_argument('-d', '--draw', dest='draw_option', default='', help='specify the drawing option as given by the root draw option, needs to be given as a single string (e.g. hist same or hist same multifile')
 parser.add_argument('-o', '--output', dest='output_name', help='specifies the name and type of the output file (e.g. test.png, comparison.root etc...')
-parser.add_argument('-f', '--refuse', dest='refuse', default= ['nothing'], nargs='*', help='add string that should be exluded from histogram search')
+parser.add_argument('--refuse', dest='refuse', default= ['nothing'], nargs='*', help='add string that should be exluded from histogram search')
 parser.add_argument('-r', '--rebin', dest='rebin', default=1, type = int, help='add number to rebin the histograms | type=int')
 parser.add_argument('--name2', dest='name2', default=['everything'], nargs='*',  help='used to specify the name of the plot which should be used')
 parser.add_argument('--refuse2', dest='refuse2', default= ['nothing'], nargs='*', help='add string that should be exluded from histogram search')
@@ -565,8 +569,9 @@ parser.add_argument('--color', dest='color', default=[60, 1, 418,  810, 402,  90
 parser.add_argument('--xtitle', dest='xtitle', help='choose the name of the x axis title')
 parser.add_argument('--ytitle', dest='ytitle', help='choose the name of the y axis title')
 parser.add_argument('--order', dest='order', nargs='+', type=int,  help='choose the order of plotting with same (to ensure no histograms overlap)')
-parser.add_argument('--newdaq', dest='newdaq', help='give as a command when using files from the new daq to ensure filename check etc. are correct')
-
+parser.add_argument('-q', '--newdaq', dest='newdaq', help='give as a command when using files from the new daq to ensure filename check etc. are correct')
+parser.add_argument('-l', dest='legendloc', nargs='+', type=float, default = [0.98, 0.99], help='first argument is the left x position of the legend box and second argument is the upper y position of the legend box')
+parser.add_argument('-f', dest='folder', default='tb', help='tb is testbeam folder elab is elab folder. default is elab folder.')
 args = parser.parse_args()
 if len(sys.argv) < 2:
 	print parser.print_help()
@@ -586,7 +591,8 @@ if any(name in teststring for name in args.name) and all(refuse not in teststrin
 else:
 	print teststring
 
-legend_location = [0.55,0.65,0.85,0.85] # x_left, y_bottom, x_right, y_top
+#legend_location = [0.65,0.65,0.98,0.85] # x_left, y_bottom, x_right, y_top
+legend_location = [0.15,0.65,0.35,0.85] # x_left, y_bottom, x_right, y_top
 
 ##-----------------	
 ##produce empty root file and filename lists.
@@ -600,15 +606,17 @@ for root_file in args.file_in:
 	
 	if (args.newdaq):
 		#print "HUH"
-		filename_list.append(root_file[root_file.find('/20')+1:root_file.rfind('.external')])
-	else:
 		filename_list.append(root_file[root_file.find('/data_')+1:root_file.rfind('.dat')+1])
+	else:
+		filename_list.append(root_file[root_file.find('/20')+1:root_file.rfind('.external')])
 print filename_list
 for x in root_file_list:
 	key_root = x.GetListOfKeys()
 	loopdir(key_root)
-
-folder_loc = '/home/lycoris-dev/Documents/elab201904/'
+if ('elab' in args.folder):
+	folder_loc = '/home/lycoris-dev/Documents/elab201904/'
+elif ('tb' in args.folder):
+	folder_loc = '/home/lycoris-dev/Documents/testbeam201902/'
 ##-----------------	
 ##general output
 #print args.color

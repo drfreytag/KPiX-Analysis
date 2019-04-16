@@ -18,7 +18,7 @@ class PacMan
 		int getElementssize();
 		
 		clustr getCluster();
-		void Eater(clustr, int, int);
+		void Eater(clustr&, int, int);
 		
 	private:
 		clustr Cluster;

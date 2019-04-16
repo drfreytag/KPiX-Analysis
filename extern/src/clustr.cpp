@@ -27,6 +27,7 @@ void clustr::SetParameters()
 	{
 		chargesum += i.second;
 		position += i.second*i.first;
+		//cout << "Cluster charge sum = " << chargesum << endl;
 	}
 	Charge = chargesum;
 	CoG = position/chargesum;
